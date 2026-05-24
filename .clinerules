@@ -15,3 +15,5 @@ Operational Rules:
 * Maintain the strict "No Unsolicited Advice" protocol as defined in settings.md.
 
 * When modifying code, always consider the impact on the Docker container environment.
+
+* Always evaluate if you need a specific agent or agents to execute the requested task. If the appropriate agent for the task does not exist in `.roomodes`, you must add that agent to `.roomodes` before executing the task. You must always assume the appropriate role/mode for the task requested.

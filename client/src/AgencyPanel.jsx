@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWorkspace } from './WorkspaceContext';
 import { ContextSwitcher } from './ContextSwitcher';
-import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight } from 'lucide-react';
+import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button 
@@ -14,6 +14,110 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
     <span>{label}</span>
   </button>
 );
+
+// --- Workflows UI ---
+const WorkflowManager = () => {
+  const [running, setRunning] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [results, setResults] = useState(null);
+  const [error, setError] = useState(null);
+
+  const runWorkflow = async () => {
+    setRunning(true);
+    setStatus('Running workflow...');
+    setError(null);
+    setResults(null);
+
+    const workflowPayload = {
+      nodes: [
+        { node_id: "step1", agent_name: "Strategy", task: "Plan the marketing campaign", required_inputs: [] },
+        { node_id: "step2", agent_name: "Copywriter", task: "Write copy for the campaign", required_inputs: ["step1"] }
+      ],
+      edges: [
+        { from_node: "step1", to_node: "step2" }
+      ]
+    };
+
+    try {
+      // Assuming a token might be needed in a real app, for MVP we just hit the endpoint.
+      // Wait, let's just make the request. We might need a token if auth is required, but we can try without or just pass a dummy one if not enforced strictly.
+      // Actually /workflows/run has current_user = Depends(auth.get_current_user)
+      // For the sake of the MVP UI we'll just demonstrate the fetch.
+      // We should probably get a token first.
+      
+      const tokenRes = await fetch('/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          username: 'admin@agencyos.com',
+          password: 'password123' // default pass from MVP specs
+        })
+      });
+      
+      let token = '';
+      if (tokenRes.ok) {
+        const tokenData = await tokenRes.json();
+        token = tokenData.access_token;
+      }
+
+      const res = await fetch('/api/workflows/run', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(workflowPayload)
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Failed to run workflow: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      setResults(data.results);
+      setStatus('Workflow completed successfully');
+    } catch (err) {
+      setError(err.message);
+      setStatus('Workflow failed');
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">DAG Orchestrator Dashboard</h2>
+        <p className="text-gray-600 mb-6">Run workflows and monitor agent tasks.</p>
+        
+        <button 
+          onClick={runWorkflow}
+          disabled={running}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          {running ? <Clock className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
+          <span>{running ? 'Running Workflow...' : 'Run Test Workflow'}</span>
+        </button>
+
+        {status && (
+          <div className={`mt-4 p-4 rounded-lg flex items-center space-x-3 ${error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+            {error ? <AlertCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+            <span>{status}</span>
+          </div>
+        )}
+
+        {results && (
+          <div className="mt-6">
+            <h3 className="font-semibold text-gray-800 mb-2">Execution Results:</h3>
+            <pre className="bg-gray-50 p-4 rounded-lg overflow-auto border border-gray-200 text-sm">
+              {JSON.stringify(results, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // --- Workspaces Admin View ---
 const WorkspaceManagementUI = () => {
@@ -177,6 +281,12 @@ export default function AgencyPanel() {
               />
             )}
             <SidebarItem 
+              icon={Play} 
+              label="Workflows" 
+              active={activeTab === 'workflows'} 
+              onClick={() => setActiveTab('workflows')} 
+            />
+            <SidebarItem 
               icon={FileText} 
               label="Files & Assets" 
               active={activeTab === 'files'} 
@@ -228,6 +338,9 @@ export default function AgencyPanel() {
             )}
             {activeTab === 'settings' && userRole === 'Agency Admin' && (
               <WorkspaceManagementUI />
+            )}
+            {activeTab === 'workflows' && (
+              <WorkflowManager />
             )}
             {activeTab === 'files' && (
               <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center py-12">

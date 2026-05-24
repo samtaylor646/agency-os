@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from typing import Optional, List
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 import os
 
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_for_development_only_change_in_prod")
@@ -9,6 +11,25 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 hours
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    payload = decode_access_token(token)
+    if payload is None:
+        raise credentials_exception
+    email: str = payload.get("sub")
+    if email is None:
+        raise credentials_exception
+    # Here you'd normally query the DB to get the user.
+    # For now we'll just return the email wrapped in an object or dict.
+    from .schemas import UserOut
+    return UserOut(id=1, email=email, is_active=True, created_at=datetime.utcnow(), updated_at=datetime.utcnow(), tenant_id=1)
+
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

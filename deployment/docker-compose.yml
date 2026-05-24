@@ -10,6 +10,7 @@ services:
       - ../server:/app/server
       - ../config:/app/config
       - ../agents:/app/agents
+      - ../scripts:/app/scripts
     environment:
       - PYTHONPATH=/app
 
