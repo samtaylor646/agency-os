@@ -11,7 +11,8 @@
 				"ms-python.python",
 				"ms-azuretools.vscode-docker",
 				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode"
+				"esbenp.prettier-vscode",
+				"rooveterinaryinc.roo-cline"
 			]
 		}
 	}
