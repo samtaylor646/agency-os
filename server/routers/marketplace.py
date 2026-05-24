@@ -6,7 +6,7 @@ from .. import models, dependencies
 from pydantic import BaseModel
 from typing import Dict, Any
 
-router = APIRouter(prefix="/marketplace", tags=["marketplace"])
+router = APIRouter(prefix="/api/v1/marketplace", tags=["marketplace"])
 
 class TemplateCreate(BaseModel):
     name: str
@@ -58,8 +58,8 @@ def create_template(
     db.refresh(template)
     return template
 
-@router.post("/templates/{template_id}/fork", response_model=TemplateOut)
-def fork_template(
+@router.post("/templates/{template_id}/clone", response_model=TemplateOut)
+def clone_template(
     template_id: int,
     db: Session = Depends(get_db),
     tenant_id: int = Depends(dependencies.get_tenant_context)

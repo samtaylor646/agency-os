@@ -9,25 +9,57 @@ export const RBACManager = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [isAdding, setIsAdding] = useState(false);
+  const [newRole, setNewRole] = useState({ name: '', description: '' });
+  const [success, setSuccess] = useState(null);
+
+  const fetchRBAC = async () => {
+    setLoading(true);
+    try {
+      const [rolesRes, permsRes] = await Promise.all([
+        fetch('/api/v1/rbac/roles'),
+        fetch('/api/v1/rbac/permissions')
+      ]);
+      
+      if (rolesRes.ok) setRoles(await rolesRes.json());
+      if (permsRes.ok) setPermissions(await permsRes.json());
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchRBAC = async () => {
-      setLoading(true);
-      try {
-        const [rolesRes, permsRes] = await Promise.all([
-          fetch('/api/rbac/roles'),
-          fetch('/api/rbac/permissions')
-        ]);
-        
-        if (rolesRes.ok) setRoles(await rolesRes.json());
-        if (permsRes.ok) setPermissions(await permsRes.json());
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRBAC();
   }, [activeWorkspace]);
+
+  const handleCreateRole = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    if (!newRole.name.trim()) {
+      setError("Role name is required");
+      return;
+    }
+    try {
+      const res = await fetch('/api/v1/rbac/roles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRole)
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.detail || "Failed to create role");
+      }
+      setSuccess("Role created successfully");
+      setIsAdding(false);
+      setNewRole({ name: '', description: '' });
+      fetchRBAC();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -40,9 +72,12 @@ export const RBACManager = () => {
             </div>
             <p className="text-gray-600">Manage custom roles and granular permissions for your workspace.</p>
           </div>
-          <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2">
+          <button 
+            onClick={() => setIsAdding(!isAdding)}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2"
+          >
             <Check className="w-4 h-4" />
-            <span>Create Role</span>
+            <span>{isAdding ? 'Cancel' : 'Create Role'}</span>
           </button>
         </div>
         
@@ -51,6 +86,43 @@ export const RBACManager = () => {
             <ShieldAlert className="w-5 h-5" />
             <span>{error}</span>
           </div>
+        )}
+
+        {success && (
+          <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg flex items-center space-x-2">
+            <Check className="w-5 h-5" />
+            <span>{success}</span>
+          </div>
+        )}
+
+        {isAdding && (
+          <form onSubmit={handleCreateRole} className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
+                <input 
+                  type="text" 
+                  value={newRole.name}
+                  onChange={(e) => setNewRole({...newRole, name: e.target.value})}
+                  placeholder="e.g. Content Editor"
+                  className="w-full border border-gray-300 rounded p-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <input 
+                  type="text" 
+                  value={newRole.description}
+                  onChange={(e) => setNewRole({...newRole, description: e.target.value})}
+                  placeholder="Brief description"
+                  className="w-full border border-gray-300 rounded p-2 text-sm"
+                />
+              </div>
+            </div>
+            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+              Save Role
+            </button>
+          </form>
         )}
 
         {loading ? (

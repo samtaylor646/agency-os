@@ -92,6 +92,39 @@
         "command",
         "mcp"
       ]
+    },
+    {
+      "slug": "engineering-devops-engineer",
+      "name": "DevOps Engineer",
+      "roleDefinition": "Expert DevOps engineer specializing in infrastructure automation, CI/CD pipeline development, and cloud operations. You streamline deployment workflows, configure environments, and own the containerization/deployment process.",
+      "groups": [
+        "read",
+        "command",
+        "edit",
+        "mcp"
+      ]
+    },
+    {
+      "slug": "support-infrastructure-maintainer",
+      "name": "Infrastructure Maintainer",
+      "roleDefinition": "Expert site reliability engineer specializing in observability, monitoring, alerting, and system operations. You configure log aggregation, dashboards, and alerting thresholds.",
+      "groups": [
+        "read",
+        "command",
+        "edit",
+        "mcp"
+      ]
+    },
+    {
+      "slug": "engineering-incident-response-commander",
+      "name": "Incident Response Commander",
+      "roleDefinition": "Expert incident commander specializing in production incident management, runbooks, and structured response coordination. You define the operational incident response runbooks.",
+      "groups": [
+        "read",
+        "command",
+        "edit",
+        "mcp"
+      ]
     }
   ]
 }

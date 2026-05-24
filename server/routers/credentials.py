@@ -7,7 +7,7 @@ from ..utils.crypto import CryptoService
 from ..context import get_tenant_id
 
 router = APIRouter(
-    prefix="/credentials",
+    prefix="/api/v1/credentials",
     tags=["credentials"],
     dependencies=[Depends(auth.get_current_user)]
 )

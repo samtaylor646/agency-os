@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   backend:
     build: 
@@ -7,21 +8,22 @@ services:
     ports:
       - "5001:5000"
     volumes:
-      - ../server:/app/server
-      - ../config:/app/config
-      - ../agents:/app/agents
-      - ../scripts:/app/scripts
+      # Persist the sqlite db
+      - agency_os_data:/app/server/data
     environment:
       - PYTHONPATH=/app
+      - DATABASE_URL=sqlite:////app/server/data/agency_os.db
+      - ENVIRONMENT=staging
+      - SECRET_KEY=staging_secret_key_12345
 
   frontend:
     build:
       context: ../client
       dockerfile: ../deployment/client.Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5001
     ports:
-      - "3000:3000" # Assuming create-react-app or vite default port
-    volumes:
-      - ../client:/app
-      - /app/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+      - "3000:80"
+
+volumes:
+  agency_os_data:

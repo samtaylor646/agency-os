@@ -9,7 +9,7 @@ from ..database import get_db
 from ..dependencies import get_tenant_context
 
 router = APIRouter(
-    prefix="/api_keys",
+    prefix="/api/v1/api_keys",
     tags=["API Keys"]
 )
 

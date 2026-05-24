@@ -14,7 +14,7 @@ export const CredentialsManager = () => {
 
   const fetchToken = async () => {
     try {
-      const res = await fetch('/api/token', {
+      const res = await fetch('/api/v1/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -36,7 +36,7 @@ export const CredentialsManager = () => {
   const loadCredentials = async (currentToken) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/credentials/', {
+      const res = await fetch('/api/v1/credentials/', {
         headers: {
           'Authorization': `Bearer ${currentToken}`,
           'X-Tenant-ID': activeWorkspace?.id?.toString() || ''
@@ -72,7 +72,7 @@ export const CredentialsManager = () => {
     }
     
     try {
-      const res = await fetch('/api/credentials/', {
+      const res = await fetch('/api/v1/credentials/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export const CredentialsManager = () => {
     setSuccess(null);
     
     try {
-      const res = await fetch(`/api/credentials/${id}`, {
+      const res = await fetch(`/api/v1/credentials/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -12,7 +12,7 @@ from datetime import timedelta
 
 from . import models, schemas, auth, dependencies
 from .database import engine, get_db
-from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace
+from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace, audit
 from .context import set_tenant_id, get_tenant_id
 from scripts.central_runner import DAGOrchestrator
 
@@ -71,12 +71,13 @@ app.include_router(webhooks.router)
 app.include_router(rbac.router)
 app.include_router(analytics.router)
 app.include_router(marketplace.router)
+app.include_router(audit.router)
 
 @app.get('/')
 def read_root():
     return {'status': 'AgencyOS Server Online'}
 
-@app.post("/token", response_model=schemas.Token)
+@app.post("/api/v1/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
@@ -109,7 +110,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/workflows/run")
+@app.post("/api/v1/workflows/run")
 async def run_workflow(
     request: schemas.WorkflowRunRequest,
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)

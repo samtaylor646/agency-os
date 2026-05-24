@@ -16,7 +16,7 @@ export const AnalyticsDashboard = () => {
     const fetchMetrics = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/analytics/metrics/execution');
+        const res = await fetch('/api/v1/analytics/metrics/execution');
         if (res.ok) {
           const data = await res.json();
           setMetrics(data);
@@ -96,13 +96,15 @@ export const AnalyticsDashboard = () => {
         <h3 className="font-semibold text-gray-800">Executions over Time</h3>
         <div className="flex items-end space-x-2 h-48 mt-4">
           {[40, 60, 45, 80, 55, 90, 75].map((val, i) => (
-            <div key={i} className="flex-1 flex flex-col justify-end items-center space-y-2">
-              <div 
-                className="w-full bg-blue-500 rounded-t-sm hover:bg-blue-600 transition-all duration-300"
-                style={{ height: `${val}%` }}
-                title={`${val} executions`}
-              ></div>
-              <span className="text-xs text-gray-500">Day {i+1}</span>
+            <div key={i} className="flex-1 flex flex-col justify-end items-center space-y-2 h-full">
+              <div className="w-full flex-1 flex items-end">
+                <div 
+                  className="w-full bg-blue-500 rounded-t-sm hover:bg-blue-600 transition-all duration-300"
+                  style={{ height: `${val}%` }}
+                  title={`${val} executions`}
+                ></div>
+              </div>
+              <span className="text-xs text-gray-500 mt-2">Day {i+1}</span>
             </div>
           ))}
         </div>

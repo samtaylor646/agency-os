@@ -13,7 +13,7 @@ export const AuditLogViewer = () => {
       setLoading(true);
       try {
         // Assume an endpoint exists or mock it
-        const res = await fetch('/api/workspaces/audit-logs');
+        const res = await fetch('/api/v1/workspaces/audit-logs');
         if (res.ok) {
           setLogs(await res.json());
         } else {

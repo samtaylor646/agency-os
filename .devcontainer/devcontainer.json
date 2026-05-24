@@ -16,7 +16,8 @@
 				"ms-azuretools.vscode-docker",
 				"dbaeumer.vscode-eslint",
 				"esbenp.prettier-vscode",
-				"rooveterinaryinc.roo-cline"
+				"rooveterinaryinc.roo-cline",
+				"github.vscode-github-actions"
 			]
 		}
 	}

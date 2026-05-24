@@ -9,7 +9,7 @@ export const Marketplace = () => {
     const fetchTemplates = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/marketplace/templates');
+        const res = await fetch('/api/v1/marketplace/templates');
         if (res.ok) {
           setTemplates(await res.json());
         } else {
