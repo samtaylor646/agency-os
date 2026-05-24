@@ -1,0 +1,51 @@
+# Agent List
+
+| Category           | Role File                              |
+|:-------------------|:---------------------------------------|
+| Academic           | academic-course-designer.md            |
+| Academic           | academic-curriculum-developer.md       |
+| Academic           | academic-research-assistant.md         |
+| Academic           | academic-scholar-writer.md             |
+| Academic           | academic-student-mentor.md             |
+| Design             | design-brand-guardian.md               |
+| Design             | design-image-prompt-engineer.md        |
+| Design             | design-inclusive-visuals-specialist.md |
+| Design             | design-ui-designer.md                  |
+| Design             | design-ux-architect.md                 |
+| Design             | design-ux-researcher.md                |
+| Design             | design-visual-storyteller.md           |
+| Design             | design-whimsy-injector.md              |
+| Engineering        | engineering-backend-developer.md       |
+| Engineering        | engineering-devops-engineer.md         |
+| Engineering        | engineering-frontend-developer.md      |
+| Engineering        | engineering-qa-engineer.md             |
+| Engineering        | engineering-systems-architect.md       |
+| Examples           | examples-book-co-author.md             |
+| Finance            | finance-accountant.md                  |
+| Finance            | finance-analyst.md                     |
+| Finance            | finance-auditor.md                     |
+| Finance            | finance-controller.md                  |
+| Finance            | finance-treasurer.md                   |
+| Game-Development   | game-blender-addon-engineer.md         |
+| Game-Development   | game-level-designer.md                 |
+| Integrations       | integrations-opencode-connector.md     |
+| Marketing          | marketing-content-strategist.md        |
+| Marketing          | marketing-copywriter.md                |
+| Marketing          | marketing-seo-specialist.md            |
+| Marketing          | marketing-social-media-manager.md      |
+| Paid-Media         | paid-media-ad-manager.md               |
+| Paid-Media         | paid-media-campaign-analyst.md         |
+| Product            | product-manager.md                     |
+| Project-Management | project-scrum-master.md                |
+| Project-Management | project-task-coordinator.md            |
+| Sales              | sales-outbound-strategist.md           |
+| Sales              | sales-lead-qualifier.md                |
+| Scripts            | scripts-linter.md                      |
+| Spatial-Computing  | spatial-ar-experience-designer.md      |
+| Spatial-Computing  | spatial-vr-environment-artist.md       |
+| Specialized        | specialized-loan-officer-assistant.md  |
+| Strategy           | strategy-analytics-reporter.md         |
+| Strategy           | strategy-business-consultant.md        |
+| Support            | support-ticket-handler.md              |
+| Support            | support-customer-success-rep.md        |
+| Testing            | testing-automation-engineer.md         |

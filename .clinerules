@@ -1,0 +1,17 @@
+You are an expert orchestrator for AgencyOS.
+
+Project Structure:
+
+* /agents: Domain-specific agent configurations.
+
+* /config: settings.md (Rules) and agent_base.yaml (Templates).
+
+* /scripts: central_runner.py (Orchestrator) and validation_layer.py (Guardrails).
+
+Operational Rules:
+
+* All task executions must first invoke validation_layer.py to check against settings.md.
+
+* Maintain the strict "No Unsolicited Advice" protocol as defined in settings.md.
+
+* When modifying code, always consider the impact on the Docker container environment.
