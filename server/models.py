@@ -87,6 +87,79 @@ class WorkspaceMember(Base):
     user = relationship("User", back_populates="memberships")
 
 
+class Permission(Base):
+    __tablename__ = "permissions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True, nullable=False)
+    description = Column(String, nullable=True)
+
+
+class Role(Base):
+    __tablename__ = "roles"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)
+    description = Column(String, nullable=True)
+
+
+class RolePermission(Base):
+    __tablename__ = "role_permissions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
+    permission_id = Column(Integer, ForeignKey("permissions.id"), nullable=False)
+
+
+class WorkspaceMemberRole(Base):
+    __tablename__ = "workspace_member_roles"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_member_id = Column(Integer, ForeignKey("workspace_members.id"), nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    action = Column(String, nullable=False)
+    resource_type = Column(String, nullable=True)
+    resource_id = Column(String, nullable=True)
+    details = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class AgentExecutionMetric(Base):
+    __tablename__ = "agent_execution_metrics"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    agent_id = Column(Integer, ForeignKey("agents.id"), nullable=True)
+    agent_name = Column(String, nullable=False)
+    execution_duration_ms = Column(Integer, nullable=False)
+    tokens_used = Column(Integer, nullable=False, default=0)
+    status = Column(String, nullable=False)
+    error_message = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Template(Base):
+    __tablename__ = "templates"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    template_type = Column(String, nullable=False) # e.g. "agent", "workflow"
+    content = Column(JSON, nullable=False)
+    version = Column(String, nullable=False, default="1.0.0")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
 # Example of other core entities with tenant_id for Logical Isolation
 class Agent(Base):
     __tablename__ = "agents"
