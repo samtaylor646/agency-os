@@ -7,9 +7,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from . import models, schemas, auth
+from . import models, schemas, auth, dependencies
 from .database import engine, get_db
-from .routers import workspaces
+from .routers import workspaces, credentials, api_keys, webhooks
 from .context import set_tenant_id, get_tenant_id
 from scripts.central_runner import DAGOrchestrator
 
@@ -27,6 +27,9 @@ async def tenant_id_middleware(request: Request, call_next):
     return response
 
 app.include_router(workspaces.router)
+app.include_router(credentials.router)
+app.include_router(api_keys.router)
+app.include_router(webhooks.router)
 
 @app.get('/')
 def read_root():
@@ -66,11 +69,12 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/workflows/run")
-async def run_workflow(request: schemas.WorkflowRunRequest, current_user: schemas.UserOut = Depends(auth.get_current_user)):
-    tenant_id = get_tenant_id()
-    if not tenant_id:
-        # Fallback to current user ID as tenant ID if not provided via middleware
-        tenant_id = str(current_user.id)
+async def run_workflow(
+    request: schemas.WorkflowRunRequest,
+    tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
+):
+    # Set the tenant context for any thread-local usages just in case
+    set_tenant_id(str(tenant_id))
         
     orchestrator = DAGOrchestrator()
     for node in request.nodes:

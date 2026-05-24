@@ -32,7 +32,7 @@ While the AI "Engine" (NEXUS Pipeline) is the core value proposition, it cannot 
 2. Automated PDF/HTML report generation from agent outputs.
 
 ### Phase 4: Connectivity (Epic 4 - Standardized API & Integrations)
-**Status:** Backlog
+**Status:** In Progress
 **Goal:** Connect the platform to existing agency workflows.
 **Key Milestones:**
 1. Secure LLM provider credential vault.

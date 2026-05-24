@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWorkspace } from './WorkspaceContext';
 import { ContextSwitcher } from './ContextSwitcher';
+import { CredentialsManager } from './CredentialsManager';
 import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
@@ -179,6 +180,8 @@ const WorkspaceManagementUI = () => {
           </table>
         </div>
       </div>
+      
+      <CredentialsManager />
     </div>
   );
 };

@@ -13,9 +13,47 @@ class WorkspaceCreate(WorkspaceBase):
 class WorkspaceOut(WorkspaceBase):
     id: int
     created_at: datetime
+    encrypted_dek: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+class CredentialBase(BaseModel):
+    provider: str
+
+class CredentialCreate(CredentialBase):
+    key: str
+
+class CredentialUpdate(BaseModel):
+    key: str
+
+class CredentialOut(CredentialBase):
+    id: int
+    tenant_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    masked_key: str
+
+    class Config:
+        from_attributes = True
+
+class APIKeyCreate(BaseModel):
+    name: str
+    expires_in_days: Optional[int] = None
+
+class APIKeyOut(BaseModel):
+    id: int
+    name: str
+    prefix: str
+    created_at: datetime
+    expires_at: Optional[datetime] = None
+    is_active: int
+
+    class Config:
+        from_attributes = True
+
+class APIKeyCreateOut(APIKeyOut):
+    key: str # The full plain-text key (only shown once)
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -57,3 +95,8 @@ class WorkflowEdge(BaseModel):
 class WorkflowRunRequest(BaseModel):
     nodes: List[WorkflowNode]
     edges: List[WorkflowEdge]
+
+class WebhookPayload(BaseModel):
+    event_type: str
+    data: Dict[str, Any]
+    timestamp: Optional[datetime] = None

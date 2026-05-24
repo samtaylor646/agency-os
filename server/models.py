@@ -17,9 +17,45 @@ class Workspace(Base):
     name = Column(String, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     settings_json = Column(JSON, default={})
+    encrypted_dek = Column(String, nullable=True)
 
     members = relationship("WorkspaceMember", back_populates="workspace")
+    credentials = relationship("Credential", back_populates="workspace")
+    api_keys = relationship("WorkspaceAPIKey", back_populates="workspace")
 
+
+class CredentialProvider(str, enum.Enum):
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    GOOGLE = "google"
+    # add others as needed
+
+class Credential(Base):
+    __tablename__ = "credentials"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    provider = Column(String, nullable=False)
+    encrypted_key = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    workspace = relationship("Workspace", back_populates="credentials")
+
+
+class WorkspaceAPIKey(Base):
+    __tablename__ = "workspace_api_keys"
+
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    name = Column(String, nullable=False)
+    prefix = Column(String, nullable=False) # e.g. ak_1234
+    hashed_key = Column(String, nullable=False) # store hashed full key
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    is_active = Column(Integer, default=1) # 1 for active, 0 for revoked
+
+    workspace = relationship("Workspace", back_populates="api_keys")
 
 class User(Base):
     __tablename__ = "users"
