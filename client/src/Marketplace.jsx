@@ -39,11 +39,19 @@ export const Marketplace = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-3 mb-6">
-        <Store className="w-6 h-6 text-indigo-600" />
-        <h2 className="text-xl font-bold text-gray-800">Agent Template Marketplace</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <div className="flex items-center space-x-3 mb-2">
+            <Store className="w-6 h-6 text-indigo-600" />
+            <h2 className="text-xl font-bold text-gray-800">Agent Template Marketplace</h2>
+          </div>
+          <p className="text-gray-600">Browse and install pre-configured agents and workflows into your workspace.</p>
+        </div>
+        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2">
+          <Plus className="w-4 h-4" />
+          <span>Publish Template</span>
+        </button>
       </div>
-      <p className="text-gray-600 mb-6">Browse and install pre-configured agents and workflows into your workspace.</p>
 
       {loading ? (
         <p className="text-gray-500">Loading templates...</p>
@@ -59,15 +67,23 @@ export const Marketplace = () => {
               </div>
               <p className="text-gray-600 text-sm mb-4 line-clamp-2">{template.description}</p>
               
-              <div className="flex items-center justify-between mt-auto">
+              <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                 <span className="text-xs text-gray-400">v{template.version}</span>
-                <button 
-                  onClick={() => handleInstall(template.id)}
-                  className="flex items-center space-x-1 text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Install</span>
-                </button>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => handleInstall(template.id)}
+                    className="flex items-center space-x-1 text-sm bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100 font-medium border border-gray-200"
+                  >
+                    <span>Fork</span>
+                  </button>
+                  <button 
+                    onClick={() => handleInstall(template.id)}
+                    className="flex items-center space-x-1 text-sm bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Install</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}

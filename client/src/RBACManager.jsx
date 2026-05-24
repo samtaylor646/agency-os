@@ -32,11 +32,19 @@ export const RBACManager = () => {
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <div className="flex items-center space-x-3 mb-4">
-          <Shield className="w-6 h-6 text-indigo-600" />
-          <h2 className="text-xl font-bold text-gray-800">Role-Based Access Control</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <Shield className="w-6 h-6 text-indigo-600" />
+              <h2 className="text-xl font-bold text-gray-800">Role-Based Access Control</h2>
+            </div>
+            <p className="text-gray-600">Manage custom roles and granular permissions for your workspace.</p>
+          </div>
+          <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2">
+            <Check className="w-4 h-4" />
+            <span>Create Role</span>
+          </button>
         </div>
-        <p className="text-gray-600 mb-6">Manage custom roles and granular permissions for your workspace.</p>
         
         {error && (
           <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg flex items-center space-x-2">

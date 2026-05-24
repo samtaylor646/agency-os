@@ -92,11 +92,20 @@ export const AnalyticsDashboard = () => {
         </div>
       </div>
       
-      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm min-h-[300px] flex items-center justify-center">
-         <p className="text-gray-400 flex items-center space-x-2">
-            <BarChart2 className="w-5 h-5" />
-            <span>Chart visualizations will be rendered here</span>
-         </p>
+      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col space-y-4">
+        <h3 className="font-semibold text-gray-800">Executions over Time</h3>
+        <div className="flex items-end space-x-2 h-48 mt-4">
+          {[40, 60, 45, 80, 55, 90, 75].map((val, i) => (
+            <div key={i} className="flex-1 flex flex-col justify-end items-center space-y-2">
+              <div 
+                className="w-full bg-blue-500 rounded-t-sm hover:bg-blue-600 transition-all duration-300"
+                style={{ height: `${val}%` }}
+                title={`${val} executions`}
+              ></div>
+              <span className="text-xs text-gray-500">Day {i+1}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

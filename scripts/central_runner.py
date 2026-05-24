@@ -3,24 +3,63 @@ from collections import defaultdict, deque
 import typing
 import sys
 import os
+import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     from server.validation_layer import TaskValidator
     from server.context import set_tenant_context
+    from server.database import SessionLocal
+    from server.models import AgentExecutionMetric
 except ImportError:
     TaskValidator = None
     set_tenant_context = None
+    SessionLocal = None
+    AgentExecutionMetric = None
 
 # Mock execution function for nodes
 async def execute_node(node_id: str, agent_name: str, task: str, context_data: dict, tenant_id: str):
     print(f"[Tenant {tenant_id}] Executing Node {node_id} with agent {agent_name}")
+    start_time = time.time()
+    error_msg = None
+    status = "success"
+    
     if TaskValidator and set_tenant_context:
         set_tenant_context(tenant_id)
         validator = TaskValidator()
         validator.pre_flight_check(task)
-    await asyncio.sleep(0.1) # Simulate async work
-    result = f"Output from {node_id} using {agent_name} for task: {task}"
+        
+    try:
+        await asyncio.sleep(0.1) # Simulate async work
+        result = f"Output from {node_id} using {agent_name} for task: {task}"
+    except Exception as e:
+        status = "failed"
+        error_msg = str(e)
+        result = None
+
+    execution_duration_ms = int((time.time() - start_time) * 1000)
+    
+    if SessionLocal and AgentExecutionMetric:
+        db = SessionLocal()
+        try:
+            metric = AgentExecutionMetric(
+                workspace_id=int(tenant_id),
+                agent_name=agent_name,
+                execution_duration_ms=execution_duration_ms,
+                tokens_used=150, # mock tokens
+                status=status,
+                error_message=error_msg
+            )
+            db.add(metric)
+            db.commit()
+        except Exception as e:
+            print(f"Failed to save analytics: {e}")
+        finally:
+            db.close()
+            
+    if status == "failed":
+        raise RuntimeError(error_msg)
+        
     return result
 
 class DAGOrchestrator:
@@ -83,14 +122,11 @@ class DAGOrchestrator:
             for node_id in level:
                 node_info = self.nodes[node_id]
                 
-                # Granular Context Passing: Only provide data from directly connected dependencies
-                # rather than passing the entire global state dictionary.
                 context_data = {}
                 for parent_node in self.incoming_edges.get(node_id, []):
                     if parent_node in results:
                         context_data[parent_node] = results[parent_node]
                 
-                # If specific required inputs are requested, we could further filter here
                 required_inputs = node_info.get("required_inputs", [])
                 if required_inputs:
                     filtered_context = {}
@@ -111,30 +147,11 @@ class DAGOrchestrator:
                     )
                 )
             
-            # Execute all independent nodes at this level in parallel
-            level_results = await asyncio.gather(*tasks)
+            level_results = await asyncio.gather(*tasks, return_exceptions=True)
             
             for node_id, result in zip(level, level_results):
+                if isinstance(result, Exception):
+                    return {"error": f"Node {node_id} failed: {result}"}
                 results[node_id] = result
                 
         return results
-
-# Example usage/tester
-async def run_demo():
-    orchestrator = DAGOrchestrator()
-    orchestrator.add_node("A", "product-manager", "Define user journey")
-    orchestrator.add_node("B", "engineering-frontend-developer", "Build UI")
-    orchestrator.add_node("C", "engineering-data-engineer", "Build Database")
-    orchestrator.add_node("D", "testing-evidence-collector", "Test integration")
-    
-    orchestrator.add_edge("A", "B")
-    orchestrator.add_edge("A", "C")
-    orchestrator.add_edge("B", "D")
-    orchestrator.add_edge("C", "D")
-    
-    tenant_id = "tenant-123"
-    results = await orchestrator.execute_workflow(tenant_id)
-    print("Workflow Execution Results:", results)
-
-if __name__ == "__main__":
-    asyncio.run(run_demo())
