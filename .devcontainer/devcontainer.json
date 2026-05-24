@@ -1,34 +1,18 @@
 {
 	"name": "Agency-OS",
-	"build": {
-		"dockerfile": "../Dockerfile"
-	},
+	"dockerComposeFile": [
+		"../docker-compose.yml"
+	],
+	"service": "server",
+	"workspaceFolder": "/workspace",
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"ms-python.python",
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode"
 			]
 		}
-	},
-	"remoteUser": "root",
-	"workspaceFolder": "/app"
-}
-EOF]
-cat <<'EOF' > .devcontainer/devcontainer.json
-{
-	"name": "Agency-OS",
-	"build": {
-		"dockerfile": "../Dockerfile"
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"ms-python.python",
-				"ms-azuretools.vscode-docker"
-			]
-		}
-	},
-	"remoteUser": "root",
-	"workspaceFolder": "/app"
+	}
 }

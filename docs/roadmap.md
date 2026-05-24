@@ -9,7 +9,7 @@ While the AI "Engine" (NEXUS Pipeline) is the core value proposition, it cannot 
 ---
 
 ### Phase 1: Foundation (Epic 1 - Multi-Tenant Workspace & Client Portal)
-**Status:** Up Next
+**Status:** Completed
 **Goal:** Establish secure, isolated environments for agency clients.
 **Key Milestones:**
 1. Database schema with tenant ID partitioning.
@@ -17,7 +17,7 @@ While the AI "Engine" (NEXUS Pipeline) is the core value proposition, it cannot 
 3. Workspace CRUD operations and UI context switching.
 
 ### Phase 2: The Engine (Epic 2 - Core Multi-Agent Orchestration)
-**Status:** Backlog
+**Status:** Up Next
 **Goal:** Build the NEXUS pipeline to run agents securely within the established tenant contexts.
 **Key Milestones:**
 1. Markdown-based agent template parser.

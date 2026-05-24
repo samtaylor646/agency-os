@@ -4,3 +4,8 @@ fastapi
 uvicorn
 pydantic
 langchain
+sqlalchemy
+alembic
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
