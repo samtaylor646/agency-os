@@ -4,16 +4,24 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 import os
 
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_for_development_only_change_in_prod")
+from . import models, schemas
+from .database import get_db
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    # Fail fast if no secret key is provided
+    raise RuntimeError("SECRET_KEY environment variable not set")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 hours
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -25,10 +33,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     email: str = payload.get("sub")
     if email is None:
         raise credentials_exception
-    # Here you'd normally query the DB to get the user.
-    # For now we'll just return the email wrapped in an object or dict.
-    from .schemas import UserOut
-    return UserOut(id=1, email=email, is_active=True, created_at=datetime.utcnow(), updated_at=datetime.utcnow(), tenant_id=1)
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if user is None:
+        raise credentials_exception
+    return user
 
 
 def verify_password(plain_password, hashed_password):

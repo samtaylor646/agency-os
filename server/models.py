@@ -14,10 +14,10 @@ class Workspace(Base):
     __tablename__ = "workspaces"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
+    name = Column(String(255), index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     settings_json = Column(JSON, default={})
-    encrypted_dek = Column(String, nullable=True)
+    encrypted_dek = Column(String(255), nullable=True)
 
     members = relationship("WorkspaceMember", back_populates="workspace")
     credentials = relationship("Credential", back_populates="workspace")
@@ -35,8 +35,8 @@ class Credential(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
-    provider = Column(String, nullable=False)
-    encrypted_key = Column(String, nullable=False)
+    provider = Column(String(255), nullable=False)
+    encrypted_key = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -48,9 +48,9 @@ class WorkspaceAPIKey(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
-    name = Column(String, nullable=False)
-    prefix = Column(String, nullable=False) # e.g. ak_1234
-    hashed_key = Column(String, nullable=False) # store hashed full key
+    name = Column(String(255), nullable=False)
+    prefix = Column(String(255), nullable=False) # e.g. ak_1234
+    hashed_key = Column(String(255), nullable=False) # store hashed full key
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=True)
     is_active = Column(Integer, default=1) # 1 for active, 0 for revoked
@@ -61,8 +61,8 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # The specification mentions Users should include a tenant_id. 
@@ -81,7 +81,7 @@ class WorkspaceMember(Base):
     id = Column(Integer, primary_key=True, index=True)
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    role = Column(String, default=RoleEnum.CLIENT_READ_ONLY.value)
+    role = Column(String(255), default=RoleEnum.CLIENT_READ_ONLY.value)
     
     workspace = relationship("Workspace", back_populates="members")
     user = relationship("User", back_populates="memberships")
@@ -91,17 +91,17 @@ class Permission(Base):
     __tablename__ = "permissions"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True, nullable=False)
-    description = Column(String, nullable=True)
+    name = Column(String(255), unique=True, index=True, nullable=False)
+    description = Column(String(255), nullable=True)
 
 
 class Role(Base):
     __tablename__ = "roles"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    name = Column(String(255), nullable=False)
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)
-    description = Column(String, nullable=True)
+    description = Column(String(255), nullable=True)
 
 
 class RolePermission(Base):
@@ -126,9 +126,9 @@ class AuditLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    action = Column(String, nullable=False)
-    resource_type = Column(String, nullable=True)
-    resource_id = Column(String, nullable=True)
+    action = Column(String(255), nullable=False)
+    resource_type = Column(String(255), nullable=True)
+    resource_id = Column(String(255), nullable=True)
     details = Column(JSON, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -139,11 +139,11 @@ class AgentExecutionMetric(Base):
     id = Column(Integer, primary_key=True, index=True)
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
     agent_id = Column(Integer, ForeignKey("agents.id"), nullable=True)
-    agent_name = Column(String, nullable=False)
+    agent_name = Column(String(255), nullable=False)
     execution_duration_ms = Column(Integer, nullable=False)
     tokens_used = Column(Integer, nullable=False, default=0)
-    status = Column(String, nullable=False)
-    error_message = Column(String, nullable=True)
+    status = Column(String(255), nullable=False)
+    error_message = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -151,11 +151,11 @@ class Template(Base):
     __tablename__ = "templates"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
-    template_type = Column(String, nullable=False) # e.g. "agent", "workflow"
+    name = Column(String(255), nullable=False)
+    description = Column(String(255), nullable=True)
+    template_type = Column(String(255), nullable=False) # e.g. "agent", "workflow"
     content = Column(JSON, nullable=False)
-    version = Column(String, nullable=False, default="1.0.0")
+    version = Column(String(255), nullable=False, default="1.0.0")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -165,7 +165,7 @@ class Agent(Base):
     __tablename__ = "agents"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    name = Column(String(255), nullable=False)
     tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
 
 
@@ -173,5 +173,5 @@ class Pipeline(Base):
     __tablename__ = "pipelines"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    name = Column(String(255), nullable=False)
     tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)

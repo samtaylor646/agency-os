@@ -3,13 +3,15 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
 from . import models, schemas, auth, dependencies
 from .database import engine, get_db
-from .routers import workspaces, credentials, api_keys, webhooks
+from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace
 from .context import set_tenant_id, get_tenant_id
 from scripts.central_runner import DAGOrchestrator
 
@@ -18,18 +20,55 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AgencyOS API")
 
+# Add CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.middleware("http")
-async def tenant_id_middleware(request: Request, call_next):
+async def secure_tenant_and_headers_middleware(request: Request, call_next):
     tenant_id = request.headers.get("X-Tenant-ID")
     if tenant_id:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            try:
+                payload = auth.decode_access_token(token)
+                if payload:
+                    allowed_tenants = payload.get("tenant_ids", [])
+                    # Verify requested tenant_id is in allowed_tenants
+                    if int(tenant_id) not in allowed_tenants:
+                        return JSONResponse(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            content={"detail": "Forbidden: Tenant access denied"}
+                        )
+            except Exception:
+                # If token is invalid or parsing fails, let the normal auth flow handle it or reject
+                pass
+        
         set_tenant_id(tenant_id)
+        
     response = await call_next(request)
+    
+    # Add Security Headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    
     return response
 
 app.include_router(workspaces.router)
 app.include_router(credentials.router)
 app.include_router(api_keys.router)
 app.include_router(webhooks.router)
+app.include_router(rbac.router)
+app.include_router(analytics.router)
+app.include_router(marketplace.router)
 
 @app.get('/')
 def read_root():

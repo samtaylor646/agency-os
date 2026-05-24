@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useWorkspace } from './WorkspaceContext';
 import { ContextSwitcher } from './ContextSwitcher';
 import { CredentialsManager } from './CredentialsManager';
-import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { RBACManager } from './RBACManager';
+import { AuditLogViewer } from './AuditLogViewer';
+import { AnalyticsDashboard } from './AnalyticsDashboard';
+import { Marketplace } from './Marketplace';
+import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button 
@@ -295,6 +299,37 @@ export default function AgencyPanel() {
               active={activeTab === 'files'} 
               onClick={() => setActiveTab('files')} 
             />
+            {userRole === 'Agency Admin' && (
+              <>
+                <div className="mt-6 mb-2">
+                  <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</p>
+                </div>
+                <SidebarItem 
+                  icon={BarChart2} 
+                  label="Analytics" 
+                  active={activeTab === 'analytics'} 
+                  onClick={() => setActiveTab('analytics')} 
+                />
+                <SidebarItem 
+                  icon={Shield} 
+                  label="Access Control" 
+                  active={activeTab === 'rbac'} 
+                  onClick={() => setActiveTab('rbac')} 
+                />
+                <SidebarItem 
+                  icon={Database} 
+                  label="Audit Logs" 
+                  active={activeTab === 'audit'} 
+                  onClick={() => setActiveTab('audit')} 
+                />
+                <SidebarItem 
+                  icon={Store} 
+                  label="Marketplace" 
+                  active={activeTab === 'marketplace'} 
+                  onClick={() => setActiveTab('marketplace')} 
+                />
+              </>
+            )}
           </div>
         </nav>
 
@@ -351,6 +386,18 @@ export default function AgencyPanel() {
                 <h3 className="text-lg font-medium text-gray-700 mb-1">File Manager</h3>
                 <p className="text-gray-500">Tenant-isolated file storage would be implemented here.</p>
               </div>
+            )}
+            {activeTab === 'analytics' && userRole === 'Agency Admin' && (
+              <AnalyticsDashboard />
+            )}
+            {activeTab === 'rbac' && userRole === 'Agency Admin' && (
+              <RBACManager />
+            )}
+            {activeTab === 'audit' && userRole === 'Agency Admin' && (
+              <AuditLogViewer />
+            )}
+            {activeTab === 'marketplace' && userRole === 'Agency Admin' && (
+              <Marketplace />
             )}
           </div>
         </div>
