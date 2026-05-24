@@ -43,3 +43,17 @@ class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
     tenant_ids: List[int] = []
+
+class WorkflowNode(BaseModel):
+    node_id: str
+    agent_name: str
+    task: str
+    required_inputs: Optional[List[str]] = []
+
+class WorkflowEdge(BaseModel):
+    from_node: str
+    to_node: str
+
+class WorkflowRunRequest(BaseModel):
+    nodes: List[WorkflowNode]
+    edges: List[WorkflowEdge]

@@ -28,7 +28,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     # Here you'd normally query the DB to get the user.
     # For now we'll just return the email wrapped in an object or dict.
     from .schemas import UserOut
-    return UserOut(id=1, email=email, is_active=True, created_at=datetime.utcnow(), updated_at=datetime.utcnow())
+    return UserOut(id=1, email=email, is_active=True, created_at=datetime.utcnow(), updated_at=datetime.utcnow(), tenant_id=1)
 
 
 def verify_password(plain_password, hashed_password):
