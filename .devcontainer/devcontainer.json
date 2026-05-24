@@ -5,6 +5,10 @@
 	],
 	"service": "server",
 	"workspaceFolder": "/workspace",
+	"mounts": [
+		"source=${localEnv:HOME}/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline,target=/roo-global-storage,type=bind,consistency=cached"
+	],
+	"postCreateCommand": "mkdir -p /root/.vscode-server/data/User/globalStorage && ln -sf /roo-global-storage /root/.vscode-server/data/User/globalStorage/rooveterinaryinc.roo-cline",
 	"customizations": {
 		"vscode": {
 			"extensions": [
