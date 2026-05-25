@@ -19,19 +19,19 @@
 @layer components {
   /* Atlassian-inspired UI Component Base Styles */
   .btn-primary {
-    @apply bg-action-primary text-text-inverse px-4 py-2 rounded-md font-bold transition-snappy duration-snappy;
+    @apply bg-action-primary text-text-inverse px-4 py-2 rounded-md font-bold transition-all ease-snappy duration-snappy;
     @apply hover:bg-action-primary-hover active:bg-action-primary-active;
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-border-focused focus-visible:ring-offset-2;
   }
   
   .btn-secondary {
-    @apply bg-action-secondary text-text-default px-4 py-2 rounded-md font-bold transition-snappy duration-snappy;
+    @apply bg-action-secondary text-text-default px-4 py-2 rounded-md font-bold transition-all ease-snappy duration-snappy;
     @apply hover:bg-action-secondary-hover active:bg-action-secondary-active;
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-border-focused focus-visible:ring-offset-2;
   }
   
   .input-text {
-    @apply bg-bg-default border border-border-default rounded-md px-3 py-2 text-text-default w-full transition-snappy duration-snappy;
+    @apply bg-bg-default border border-border-default rounded-md px-3 py-2 text-text-default w-full transition-all ease-snappy duration-snappy;
     @apply focus:outline-none focus:border-border-focused focus:ring-1 focus:ring-border-focused shadow-sm;
     @apply placeholder-text-muted;
   }

@@ -1,14 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const ChatScopeInterface = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: 'Hello! Let\'s finalize the scope for the Marketing Campaign Plan. What is your primary objective?' },
+    { role: 'user', content: 'Our main goal is to increase Q3 signups by 20% using targeted social media ads.' },
+    { role: 'assistant', content: 'Great. We will focus on LinkedIn and Twitter for B2B reach. Have you established a budget for the ad spend?' }
+  ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [mobileTab, setMobileTab] = useState('chat'); // 'chat' or 'preview'
   const [projectDetails, setProjectDetails] = useState({
-    name: '',
-    description: '',
-    tech_stack: []
+    name: 'Q3 Marketing Campaign Plan',
+    description: 'A comprehensive social media strategy aimed at increasing platform signups by 20% in Q3. The campaign will primarily leverage LinkedIn and Twitter to target B2B software decision-makers.',
+    tech_stack: ['LinkedIn Ads', 'Twitter Ads', 'Google Analytics', 'HubSpot']
   });
   
   const messagesEndRef = useRef(null);
@@ -127,7 +131,8 @@ const ChatScopeInterface = () => {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Type your message..."
+            aria-label="Project scope description input"
+            placeholder="What would you like to build?"
             className="flex-1 p-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-gray-800 text-sm mr-3 transition-shadow shadow-sm"
             disabled={isLoading}
           />

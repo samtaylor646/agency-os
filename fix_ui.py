@@ -1,33 +1,21 @@
-import os
-import glob
 import re
 
-files = glob.glob('client/src/*.jsx')
+with open('client/src/AgencyPanel.jsx', 'r') as f:
+    code = f.read()
 
-for file_path in files:
-    with open(file_path, 'r') as f:
-        content = f.read()
+# Change initial state
+code = code.replace("useState('dashboard')", "useState('home')")
 
-    # Replace rogue slate buttons with blue/indigo
-    content = re.sub(r'bg-slate-900', 'bg-blue-600', content)
-    content = re.sub(r'hover:bg-slate-800', 'hover:bg-blue-700', content)
-    content = re.sub(r'bg-slate-800', 'bg-blue-700', content)
-    content = re.sub(r'text-slate-900', 'text-blue-900', content)
-    content = re.sub(r'text-slate-800', 'text-blue-800', content)
-    
-    # Standardize structure borders and rounding
-    content = re.sub(r'rounded-sm md:rounded-lg', 'rounded-xl', content)
-    content = re.sub(r'rounded-sm md:rounded-xl', 'rounded-xl', content)
-    content = re.sub(r'border-slate-200', 'border-gray-200', content)
-    content = re.sub(r'border-slate-100', 'border-gray-100', content)
-    content = re.sub(r'bg-slate-50', 'bg-gray-50', content)
-    
-    # Headers/Heroes - Find common header patterns and replace background
-    # (Simple heuristic for div headers that are often white/slate)
-    content = re.sub(r'className="([^"]*)bg-white([^"]*)border-b([^"]*)"', 
-                     r'className="\1bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900\2border-b\3"', content)
-    
-    with open(file_path, 'w') as f:
-        f.write(content)
+# Change SidebarItem Dashboard to Home
+code = code.replace('label="Dashboard"', 'label="Home"')
+code = code.replace("activeTab === 'dashboard'", "activeTab === 'home'")
+code = code.replace("setActiveTab('dashboard')", "setActiveTab('home')")
 
-print("UI fixes applied to client/src/*.jsx")
+# Change background of the main wrapper from bg-gray-50 to bg-white
+code = code.replace('className="flex h-screen bg-gray-50 font-sans overflow-hidden relative"', 'className="flex h-screen bg-white font-sans overflow-hidden relative"')
+
+# Change sidebar background from bg-white to bg-gray-50
+code = code.replace('bg-white border-r border-gray-200 flex flex-col', 'bg-gray-50 border-r border-gray-200 flex flex-col')
+
+with open('client/src/AgencyPanel.jsx', 'w') as f:
+    f.write(code)

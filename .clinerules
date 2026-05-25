@@ -16,6 +16,8 @@ Operational Rules:
 
 * When modifying code, always consider the impact on the Docker container environment.
 
+* ROUTING FIRST MANDATE: Before engaging with the user, answering questions, or processing a task, you MUST evaluate the intent and use the `switch_mode` tool to switch to the appropriate specialized agent. Do not attempt to resolve tasks outside your current domain.
+
 * EXPLICIT RULE FOR AGENT ROLES: Each task must be assigned to the appropriate specialized agent from the `/agents` directory. Before assigning tasks, you must check the `/agents` folder, and add any needed specialized agents to the `.roomodes` file to ensure the task is handled by the correct specialist.
 
 * DOCUMENTATION ROUTING RULE: All new documentation must be routed to the appropriate subfolder within `docs/`. NO new documents should be created in the root `docs/` folder.

@@ -60,4 +60,4 @@ Thumbs.db
 *.swo
 
 # Project specific
-.roo/memory/
+.roo/memory/server/data/*.db

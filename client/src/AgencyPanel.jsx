@@ -10,18 +10,26 @@ import CustomAgentCreator from './CustomAgentCreator';
 import ChatScopeInterface from './ChatScopeInterface';
 import PipelineExecutionViewer from './PipelineExecutionViewer';
 import CreateWorkspaceModal from './CreateWorkspaceModal';
+import IntroPage from './IntroPage';
 import { ApiKeysModal, InviteUserModal, EditUserModal } from './WorkspaceSettingsModals';
-import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2, Menu, X, Search, Send, MessageSquare, Bot, Cpu } from 'lucide-react';
+import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2, Menu, X, Search, Send, MessageSquare, Bot, Cpu, PanelLeftClose, PanelLeft } from 'lucide-react';
 
-const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
+const SidebarItem = ({ icon: Icon, label, active, onClick, collapsed }) => (
   <button 
     onClick={onClick}
-    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition-colors ${
-      active ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50'
+    className={`group relative w-full flex items-center ${collapsed ? 'justify-center px-0' : 'space-x-3 px-3'} py-1.5 rounded-lg mb-0.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+      active ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
     }`}
+    aria-label={collapsed ? label : undefined}
+    aria-current={active ? "page" : undefined}
   >
-    <Icon className="w-5 h-5" />
-    <span>{label}</span>
+    <Icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+    {!collapsed && <span className="truncate">{label}</span>}
+    {collapsed && (
+      <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50" aria-hidden="true">
+        {label}
+      </div>
+    )}
   </button>
 );
 
@@ -362,10 +370,12 @@ const ClientPortalView = () => {
 
 export default function AgencyPanel() {
   const { userRole, setUserRole, activeWorkspace } = useWorkspace();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [notification, setNotification] = useState(null);
   
   useEffect(() => {
@@ -379,16 +389,17 @@ export default function AgencyPanel() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleSendPrompt = async () => {
-    if (!chatInput.trim()) return;
+  const handleSendPrompt = async (overridePrompt) => {
+    const promptToSend = typeof overridePrompt === 'string' ? overridePrompt : chatInput;
+    if (!promptToSend.trim()) return;
     
-    showNotification(`Processing your request: "${chatInput}"...`);
+    showNotification(`Processing your request: "${promptToSend}"...`);
     
     try {
       const response = await fetch('/api/v1/chat/scope', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: chatInput }),
+        body: JSON.stringify({ message: promptToSend }),
       });
       if (response.ok) {
         showNotification("Request sent successfully to orchestration engine.");
@@ -403,7 +414,7 @@ export default function AgencyPanel() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans overflow-hidden relative">
+    <div className="flex h-screen bg-white font-sans overflow-hidden relative">
       {/* Toast Notification Layer */}
       {notification && (
         <div className="absolute top-4 right-4 z-[100] bg-gray-800 text-white px-4 py-3 rounded shadow-lg flex items-center space-x-2 transition-all">
@@ -421,13 +432,24 @@ export default function AgencyPanel() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside id="main-sidebar" className={`fixed inset-y-0 left-0 z-50 ${isSidebarCollapsed ? 'w-20' : 'w-64'} bg-gray-50 border-r border-gray-200 flex flex-col transform transition-all duration-300 ease-in-out md:relative md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">A</span>
+          <div className="flex items-center justify-between w-full">
+            <div className={`flex items-center space-x-2 overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-xl">A</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900 flex-shrink-0">AgencyOS</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">AgencyOS</span>
+            <button 
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded hidden md:block focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-expanded={!isSidebarCollapsed}
+              aria-controls="main-sidebar"
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isSidebarCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+            </button>
           </div>
           <button 
             className="md:hidden text-gray-500 hover:text-gray-700"
@@ -437,104 +459,175 @@ export default function AgencyPanel() {
           </button>
         </div>
         
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <div className="mb-6">
-            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Workspace</p>
-            <div className="px-2 mb-4">
-              <ContextSwitcher />
-            </div>
+        <nav className="flex-1 p-3 overflow-y-auto flex flex-col">
+          {/* Top Actions */}
+          <div className="mb-4">
+            {(userRole === 'Agency Admin' || userRole === 'Agency Staff') && (
+            <button 
+              onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); }}
+              className={`group relative flex items-center ${isSidebarCollapsed ? 'justify-center w-10 h-10 rounded-full mx-auto' : 'w-full px-3 py-2.5 rounded-lg'} bg-white border border-gray-200 shadow-sm hover:bg-gray-50 text-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+              aria-label="New Chat"
+            >
+              <Plus className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+              {!isSidebarCollapsed && <span className="ml-2.5 font-medium text-sm">New Chat</span>}
+              {isSidebarCollapsed && (
+                <div className="absolute left-full ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 pointer-events-none" aria-hidden="true">
+                  New Chat
+                </div>
+              )}
+            </button>
+            )}
+            {/* If Client, replace New Chat with a simpler "Dashboard" home button */}
+            {(userRole === 'Client Approver' || userRole === 'Client Viewer') && (
+            <button 
+              onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); }}
+              className={`group relative flex items-center ${isSidebarCollapsed ? 'justify-center w-10 h-10 rounded-full mx-auto' : 'w-full px-3 py-2.5 rounded-lg'} bg-blue-50 text-blue-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+              aria-label="Dashboard"
+            >
+              <Activity className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+              {!isSidebarCollapsed && <span className="ml-2.5 font-medium text-sm">Dashboard</span>}
+              {isSidebarCollapsed && (
+                <div className="absolute left-full ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 pointer-events-none" aria-hidden="true">
+                  Dashboard
+                </div>
+              )}
+            </button>
+            )}
           </div>
 
-          <div className="mb-6">
-            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Menu</p>
-            <SidebarItem 
-              icon={Activity} 
-              label="Dashboard" 
-              active={activeTab === 'dashboard'} 
-              onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }} 
-            />
-            <SidebarItem 
-              icon={MessageSquare} 
-              label="Project Scope" 
-              active={activeTab === 'scope'} 
-              onClick={() => { setActiveTab('scope'); setIsMobileMenuOpen(false); }} 
-            />
-            {userRole === 'Agency Admin' && (
-              <SidebarItem 
-                icon={Settings} 
-                label="Workspace Settings" 
-                active={activeTab === 'settings'} 
-                onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }} 
-              />
+          {/* Recent Section */}
+          {!isSidebarCollapsed && (
+            <div className="mb-4">
+              <p className="px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Recent</p>
+              <SidebarItem icon={MessageSquare} label="Marketing Campaign Plan" active={activeTab === 'scope'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('scope'); setIsMobileMenuOpen(false); }} />
+              <SidebarItem icon={MessageSquare} label="Q3 Strategy Review" active={false} collapsed={isSidebarCollapsed} onClick={() => {}} />
+              <SidebarItem icon={MessageSquare} label="Website Redesign Copy" active={false} collapsed={isSidebarCollapsed} onClick={() => {}} />
+            </div>
+          )}
+
+          {/* Workspace Tools Section */}
+          <div className="mb-4 flex-1">
+            {!isSidebarCollapsed && <p className="px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Workspace Tools</p>}
+            <SidebarItem icon={MessageSquare} label="Project Scope" active={activeTab === 'scope'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('scope'); setIsMobileMenuOpen(false); }} />
+            {(userRole === 'Agency Admin' || userRole === 'Agency Staff') && (
+              <SidebarItem icon={Bot} label="Agents" active={activeTab === 'agents'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('agents'); setIsMobileMenuOpen(false); }} />
             )}
-            <SidebarItem 
-              icon={Cpu} 
-              label="Pipeline Execution" 
-              active={activeTab === 'workflows'} 
-              onClick={() => { setActiveTab('workflows'); setIsMobileMenuOpen(false); }} 
-            />
-            {userRole === 'Agency Admin' && (
-              <SidebarItem 
-                icon={Bot} 
-                label="Custom Agents" 
-                active={activeTab === 'agents'} 
-                onClick={() => { setActiveTab('agents'); setIsMobileMenuOpen(false); }} 
-              />
-            )}
-            <SidebarItem 
-              icon={FileText} 
-              label="Files & Assets" 
-              active={activeTab === 'files'} 
-              onClick={() => { setActiveTab('files'); setIsMobileMenuOpen(false); }} 
-            />
             {userRole === 'Agency Admin' && (
               <>
-                <div className="mt-6 mb-2">
-                  <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</p>
-                </div>
-                <SidebarItem 
-                  icon={BarChart2} 
-                  label="Analytics" 
-                  active={activeTab === 'analytics'} 
-                  onClick={() => { setActiveTab('analytics'); setIsMobileMenuOpen(false); }} 
-                />
-                <SidebarItem 
-                  icon={Shield} 
-                  label="Access Control" 
-                  active={activeTab === 'rbac'} 
-                  onClick={() => { setActiveTab('rbac'); setIsMobileMenuOpen(false); }} 
-                />
-                <SidebarItem 
-                  icon={Database} 
-                  label="Audit Logs" 
-                  active={activeTab === 'audit'} 
-                  onClick={() => { setActiveTab('audit'); setIsMobileMenuOpen(false); }} 
-                />
-                <SidebarItem 
-                  icon={Store} 
-                  label="Marketplace" 
-                  active={activeTab === 'marketplace'} 
-                  onClick={() => { setActiveTab('marketplace'); setIsMobileMenuOpen(false); }} 
-                />
+                <SidebarItem icon={BarChart2} label="Analytics" active={activeTab === 'analytics'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('analytics'); setIsMobileMenuOpen(false); }} />
+                <SidebarItem icon={Store} label="Marketplace" active={activeTab === 'marketplace'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('marketplace'); setIsMobileMenuOpen(false); }} />
               </>
             )}
+            <SidebarItem icon={FileText} label="Files" active={activeTab === 'files'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('files'); setIsMobileMenuOpen(false); }} />
+          </div>
+
+          {/* Bottom Admin/Utility Section */}
+          <div className="mt-auto pt-2 border-t border-gray-200">
+            {userRole === 'Agency Admin' && (
+              <>
+                <SidebarItem icon={Users} label="Access Control" active={activeTab === 'rbac'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('rbac'); setIsMobileMenuOpen(false); }} />
+                <SidebarItem icon={Database} label="Audit Logs" active={activeTab === 'audit'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('audit'); setIsMobileMenuOpen(false); }} />
+              </>
+            )}
+            <SidebarItem icon={Cpu} label="Workflows" active={activeTab === 'workflows'} collapsed={isSidebarCollapsed} onClick={() => { setActiveTab('workflows'); setIsMobileMenuOpen(false); }} />
           </div>
         </nav>
 
-        {/* Demo Role Switcher (For Development) */}
-        <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <p className="text-xs text-gray-500 mb-2">Simulate Role:</p>
-          <select 
-            value={userRole}
-            onChange={(e) => {
-              setUserRole(e.target.value);
-              setActiveTab('dashboard'); // Reset tab on role switch
-            }}
-            className="w-full text-sm p-2 border border-gray-300 rounded bg-white"
-          >
-            <option value="Agency Admin">Agency Admin</option>
-            <option value="Client Approver">Client Approver</option>
-          </select>
+        {/* Persistent Utilities (Pinned Bottom) */}
+        <div className="p-3 border-t border-gray-200 bg-white relative">
+          <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center flex-col space-y-4' : 'justify-between'}`}>
+            
+            <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'flex-1 min-w-0'}`}>
+              <div className="relative group">
+                <button 
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className={`w-8 h-8 flex-shrink-0 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold border border-blue-200 hover:ring-2 ring-blue-500 focus:outline-none transition-all ${isProfileMenuOpen ? 'ring-2 ring-blue-500 bg-blue-200' : ''}`}
+                  aria-haspopup="true"
+                  aria-expanded={isProfileMenuOpen}
+                >
+                  {userRole.charAt(0)}
+                </button>
+                
+                {isSidebarCollapsed && !isProfileMenuOpen && (
+                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 pointer-events-none" aria-hidden="true">
+                    Profile & Roles
+                  </div>
+                )}
+
+                {isProfileMenuOpen && (
+                  <div className={`absolute bottom-full mb-2 ${isSidebarCollapsed ? 'left-full ml-4' : 'left-0'} w-56 bg-white border border-gray-200 shadow-lg rounded-xl z-50 overflow-hidden`}>
+                    <div className="p-4 border-b border-gray-100 bg-gray-50">
+                      <p className="font-semibold text-sm text-gray-800 truncate">{userRole}</p>
+                      <p className="text-xs text-gray-500 truncate">demo@agencyos.com</p>
+                    </div>
+                    
+                    <div className="p-2">
+                      <p className="px-2 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">Simulate Role</p>
+                      <div className="space-y-1 mt-1">
+                        {['Agency Admin', 'Agency Staff', 'Client Approver', 'Client Viewer'].map(role => (
+                          <button
+                            key={role}
+                            onClick={() => {
+                              setUserRole(role);
+                              setActiveTab('home');
+                              setIsProfileMenuOpen(false);
+                            }}
+                            className={`w-full text-left px-2 py-1.5 text-sm rounded-md transition-colors ${userRole === role ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
+                          >
+                            {role}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="p-2 border-t border-gray-100">
+                      <button 
+                        onClick={() => {
+                          setActiveTab('settings');
+                          setIsProfileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                      >
+                        Account Settings
+                      </button>
+                      <button 
+                        onClick={() => {
+                          showNotification("Logout not implemented.");
+                          setIsProfileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {!isSidebarCollapsed && (
+                <div className="ml-3 truncate cursor-pointer" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
+                  <p className="text-sm font-medium text-gray-700 truncate">{userRole}</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="relative group flex">
+              <button 
+                onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }}
+                className={`p-2 flex-shrink-0 text-gray-500 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors focus:outline-none ${activeTab === 'settings' ? 'bg-gray-200 text-gray-800' : ''}`}
+                aria-label="Settings"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+              
+              {isSidebarCollapsed && (
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 pointer-events-none" aria-hidden="true">
+                  Settings
+                </div>
+              )}
+            </div>
+
+          </div>
         </div>
       </aside>
 
@@ -549,7 +642,7 @@ export default function AgencyPanel() {
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-lg sm:text-xl font-semibold text-gray-800 capitalize truncate">
-              {activeTab === 'dashboard' ? (userRole === 'Agency Admin' ? 'Agency Overview' : 'Client Dashboard') : activeTab}
+              {activeTab === 'home' ? (userRole === 'Agency Admin' ? 'Agency Overview' : 'Client Dashboard') : activeTab}
             </h1>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4 ml-2">
@@ -559,13 +652,14 @@ export default function AgencyPanel() {
         </header>
         
         <div className="flex-1 overflow-auto p-4 sm:p-8 flex flex-col">
-          <div className="max-w-5xl mx-auto w-full flex-1 mb-20">
-            {activeTab === 'dashboard' && (
-              userRole === 'Agency Admin' ? (
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Agency Overview: {activeWorkspace?.name}</h2>
-                  <p className="text-gray-600">Select "Workspace Settings" to manage this tenant, or switch workspaces using the dropdown in the sidebar.</p>
-                </div>
+          <div className="max-w-5xl mx-auto w-full flex-1 mb-20 flex flex-col">
+            {activeTab === 'home' && (
+              (userRole === 'Agency Admin' || userRole === 'Agency Staff') ? (
+                <IntroPage onPromptSubmit={(prompt) => {
+                  setChatInput(prompt);
+                  handleSendPrompt(prompt);
+                  setActiveTab('scope');
+                }} />
               ) : (
                 <ClientPortalView />
               )
@@ -578,7 +672,14 @@ export default function AgencyPanel() {
             {activeTab === 'settings' && userRole === 'Agency Admin' && (
               <WorkspaceManagementUI showNotification={showNotification} />
             )}
-            {activeTab === 'agents' && userRole === 'Agency Admin' && (
+            {activeTab === 'settings' && userRole !== 'Agency Admin' && (
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center py-12">
+                <Settings className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-1">User Settings</h3>
+                <p className="text-gray-500">Personal account preferences and notifications will be managed here.</p>
+              </div>
+            )}
+            {activeTab === 'agents' && (userRole === 'Agency Admin' || userRole === 'Agency Staff') && (
               <CustomAgentCreator />
             )}
             {activeTab === 'workflows' && (
@@ -606,12 +707,15 @@ export default function AgencyPanel() {
           </div>
           
           {/* Chat Prompt Box */}
-          <div className="max-w-3xl mx-auto w-full mt-auto fixed bottom-0 md:bottom-6 left-0 right-0 md:pl-64 md:px-4 pointer-events-none">
+          {!(activeTab === 'home' && (userRole === 'Agency Admin' || userRole === 'Agency Staff')) && 
+           userRole !== 'Client Viewer' && (
+          <div className={`max-w-3xl mx-auto w-full mt-auto fixed bottom-0 md:bottom-6 left-0 right-0 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'} md:px-4 pointer-events-none`}>
             <div className="bg-white/80 md:bg-white backdrop-blur-md md:backdrop-blur-none rounded-none md:rounded-full shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-lg border-t md:border border-gray-200 p-2 md:p-2 flex items-center pointer-events-auto">
               <Search className="w-5 h-5 text-gray-400 ml-3 mr-2 hidden md:block" />
               <input
                 type="text"
-                placeholder="Ask AgencyOS a question or generate a workflow..."
+                aria-label="Universal search and command input"
+                placeholder="Search, run commands, or ask questions..."
                 className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 md:py-2 px-3 md:px-1 outline-none text-gray-800 placeholder-gray-500"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
@@ -629,6 +733,7 @@ export default function AgencyPanel() {
               </button>
             </div>
           </div>
+          )}
         </div>
       </main>
 
