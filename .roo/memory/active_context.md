@@ -1,18 +1,15 @@
 # Active Context
 
-**Current Epic:** `epic/phase-2-automated-scoping`
+**Current Epic:** `epic/phase-3-nexus-pipeline`
 
 **Recent Activities:**
+- Git Workflow Master completed the handoff for `epic/phase-2-automated-scoping`, including updating docs, committing, and pushing to remote.
+- Frontend Developer and Backend Architect completed the implementation of Phase 2 Automated Scoping, including the split-screen document viewer.
 - Git Workflow Master merged `epic/ui-redesign-intro-page` into `main` and pushed to remote.
-- Evaluated `core_ui_evaluation_report.md` against initial "Pure Chat" concepts.
-- Re-aligned `intro_page_redesign_plan.md` to use the "Hybrid Sidebar" pattern.
-- Verified that `global_design_system_plan.md` and `chat_scope_interface_redesign.md` reflect the Hybrid Sidebar structure, ensuring B2B OS navigation features (Workspace Tools) remain accessible.
-- Frontend Developer implemented the Intro Page, Chat Scope interface, and Hybrid Sidebar (Revision 3 UI Polish).
-- Evidence Collector performed QA and generated sign-off document.
-- Product Manager reviewed Roadmap and defined the next epic: `epic/phase-2-automated-scoping` targeting Phase 2: Automated Scoping & Document Generation.
+- Product Manager reviewed the roadmap and designated Phase 3: Agent Connection & Orchestration (The Nexus Pipeline) as the next epic.
 
 **Next Steps:**
-- Switch to Git Workflow Master mode to create the new branch `epic/phase-2-automated-scoping`.
-- Switch to Architect mode to draft technical specifications for the Document Generators and Ingestion Engine (parsing PDF/Markdown).
-- Backend Architect to create backend endpoints for generating PRDs, Specs, and Task Lists dynamically from chat context.
-- Frontend Developer to implement split-screen document viewer in the UI.
+- Git Workflow Master to create the branch `epic/phase-3-nexus-pipeline` from `main`.
+- Architect to design the `Custom Agent Creator Wizard` and the `Task Queue Translation` DAG logic.
+- Backend Architect to update the `central_runner.py` and FastAPI queue endpoints.
+- Frontend Developer to build the `Custom Agent Creator Wizard` UI and execution visibility dashboards.
