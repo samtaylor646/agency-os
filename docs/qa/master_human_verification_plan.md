@@ -89,18 +89,22 @@ This document serves as the definitive master end-to-end human test script for A
 ### 5.1 Custom Agent Creation (Multi-Step Wizard)
 **Setup:** Log in as Agency Admin. Navigate to the Custom Agent Creator.
 **Steps:**
-1. **Step 1: Identity:** Enter the agent Name, Role, and Version. Click Next.
-2. **Step 2: Rules & Constraints:** Enter the System rules path, select the Enforcement level, and provide a markdown list of constraints. Click Next.
-3. **Step 3: Capabilities:** Enter a markdown list of capabilities. Click Next.
-4. **Step 4: System Prompt & Review:** Enter the System Prompt in the textarea. Review the final summary of the agent configuration.
-5. Click "Submit" or "Save Agent".
-6. Go to the Chat Interface and mention/select the newly created agent.
+1. **Validation Check:** On Step 1, try clicking "Next" without filling out required fields (Name, Role). Verify validation error appears.
+2. **Step 1: Identity:** Enter the agent Name, Role, and Version. Click Next.
+3. **Step 2: Rules & Constraints:** Enter the System rules path, select the Enforcement level, and provide a markdown list of constraints. Click Next.
+4. **Step 3: Capabilities:** Enter a markdown list of capabilities. Click Next.
+5. **Step 4: System Prompt & Review:** Enter the System Prompt in the textarea. Review the final summary of the agent configuration.
+6. **Error Handling Check:** Intentionally disconnect the network or simulate an API failure to verify error toast/message is displayed on submit. (Optional but recommended).
+7. Click "Submit" or "Save Agent".
+8. **File Verification:** Check the backend file system (or use list files tool) to ensure the agent markdown file was created in the correct `agents/` directory (or designated workspace agents folder) and contains the proper YAML frontmatter and format matching `config/agent_base.yaml`.
+9. Go to the Chat Interface and mention/select the newly created agent.
 **Expected Outcomes:**
 - [ ] Wizard accurately maintains state across the 4 steps, allowing back-and-forth navigation without data loss.
-- [ ] Form validates required fields before allowing progression to the next step.
-- [ ] Backend successfully processes the complex payload and generates the YAML-frontmatter markdown file.
+- [ ] Form validates required fields before allowing progression to the next step, showing clear error indicators.
+- [ ] Backend successfully processes the complex payload and generates the YAML-frontmatter markdown file in the correct directory.
+- [ ] The generated file strictly adheres to the `agency-agents` formatting conventions.
 - [ ] Agent is created and appears in the agent roster for the assigned workspace.
-- [ ] The specific agent can be invoked in chat and responds according to its custom system prompt.
+- [ ] The specific agent can be invoked in chat and responds according to its custom system prompt, and is available to `central_runner.py`.
 
 ### 5.2 Marketplace Usage
 **Setup:** Log in as Agency Admin. Navigate to the Marketplace.
