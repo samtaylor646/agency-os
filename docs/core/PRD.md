@@ -33,7 +33,7 @@ This consolidated PRD defines the requirements for the "Conversational Core Engi
 - **Req 1.3:** Chat state must be persistent, saved as a "Draft Project" if the user navigates away.
 
 ### Feature 2: Automated Document Generation
-- **Req 2.1:** A split-screen view allowing users to see the PRD/Specs update in real-time as conversation progresses.
+- **Req 2.1:** A split-screen view allowing users to navigate via tabs (e.g., Project Details, Draft PRD, Tech Spec, Task List) to see the generated documents update in real-time as the conversation progresses.
 - **Req 2.2:** Generated documents must adhere to standard Agency OS markdown templates.
 - **Req 2.3:** Users must be able to edit generated documents manually or via chat requests.
 

@@ -11,50 +11,71 @@ This document serves as the definitive master end-to-end human test script for A
 
 ---
 
-## 1. Core Conversational Engine (Chat UI & Task Generation)
+## 1. Core Conversational Engine (Chat UI & Project Creation)
 
-### 1.1 Chat Interaction
-**Setup:** Log in as either Agency Admin or Client Approver. Navigate to the Chat Interface.
+### 1.1 Chat Interaction & Micro-Tasking
+**Setup:** Log in as either Agency Admin or Client Approver. Navigate to the Chat Interface or use the Universal Command Chat (Cmd+K).
 **Steps:**
 1. Type a general query (e.g., "Hello, what can you help me with?") and send.
-2. Type a specific task generation prompt (e.g., "Draft a marketing email for a new product launch").
-3. Use the Context Switcher dropdown to change the active workspace context and send a new message.
+2. Request a micro-task (e.g., "Write a Python script to parse CSVs and output a JSON summary").
+3. Approve the generated output for execution and review the final response.
+4. Use the Context Switcher dropdown to change the active workspace context and send a new message.
 **Expected Outcomes:**
 - [ ] System responds accurately to general queries.
-- [ ] System parses task-based intents and visually indicates a "Task Generated" state (or provides a structured task response).
+- [ ] Universal command chat is easily accessible and responds to micro-tasks quickly.
+- [ ] System parses task-based intents, generates code/output, asks for approval, executes, and returns results.
 - [ ] Changing workspaces immediately updates the UI context, and subsequent messages are tied to the newly selected workspace.
 
+### 1.2 "Napkin Pitch" to Executable Plan
+**Setup:** Log in as Agency Admin. Navigate to the "Create New Project" flow.
+**Steps:**
+1. Start a new project by pitching an idea via chat (e.g., "I want to build a simple web app for recipes").
+2. Answer clarifying questions from the Orchestrator AI to complete discovery.
+3. Observe the Automated Scoping phase.
+4. Review the generated documents in the split-view (Chat on left, Docs on right), verifying the tabbed interface functions correctly (Project Details, Draft PRD, Tech Spec, Task List).
+5. Attempt to share the documents via link or email, and trigger an internal review alert.
+6. Refine the plan by requesting a change in the chat (e.g., "Add social sharing to recipes").
+7. Click "Approve Plan".
+**Expected Outcomes:**
+- [ ] The Orchestrator correctly asks clarifying questions.
+- [ ] The UI successfully transitions to a split-view with functional tabs presenting Project Details, Draft PRD, Technical Spec, and Initial Task List.
+- [ ] Documents can be successfully exported, shared, and trigger notifications.
+- [ ] The AI instantly updates documents based on refinement requests.
+- [ ] Approving the plan transitions the project into the Nexus Pipeline orchestration.
+
 ---
 
-## 2. Document Ingestion (PDF/Markdown Upload)
+## 2. Document Ingestion Pipeline
 
-### 2.1 File Upload & Processing
-**Setup:** Log in as an Agency Admin. Have a sample PDF and Markdown file ready. Navigate to the Workspace settings or dedicated Document Upload area.
+### 2.1 File Upload & Pipeline Generation
+**Setup:** Log in as an Agency Admin. Have a sample PDF and Markdown project brief ready.
 **Steps:**
-1. Click the upload area or button and select the PDF file.
-2. Observe the upload progress and processing state.
-3. Repeat the process for the Markdown (.md) file.
-4. Go back to the Chat Interface and ask a question specifically related to the contents of the uploaded documents.
+1. Click "Create Project via Document Upload" and select the PDF file.
+2. Observe the upload progress and Orchestrator analysis phase.
+3. Review the generated structured Task Pipeline.
+4. Make minor adjustments to the pipeline and click "Execute".
 **Expected Outcomes:**
-- [ ] Files upload successfully with clear UI feedback (progress bars, success toasts).
-- [ ] Uploaded documents appear in the workspace's document list.
-- [ ] The conversational engine successfully retrieves context from the newly uploaded documents and incorporates it into the chat response.
+- [ ] Files upload successfully with clear UI feedback.
+- [ ] The Orchestrator extracts core features and translates them into a structured execution pipeline of tasks.
+- [ ] The generated pipeline correctly maps to epics and assigns specialized agents.
+- [ ] Clicking "Execute" correctly triggers the Nexus Pipeline.
 
 ---
 
-## 3. Nexus Pipeline Execution
+## 3. Nexus Pipeline Orchestration
 
-### 3.1 Viewing Logs & Execution State
-**Setup:** Log in as Agency Admin. Navigate to the Pipeline Execution Viewer.
+### 3.1 Execution Visibility & Intervention
+**Setup:** Log in as Agency Admin. Ensure a pipeline has been approved and is running.
 **Steps:**
-1. Identify a recently executed or currently running pipeline in the list.
-2. Click to expand or view details of the pipeline run.
-3. Observe the state changes (e.g., Pending -> Running -> Completed/Failed).
-4. Review the execution logs provided in the UI.
+1. Navigate to the Project Dashboard / Pipeline Execution Viewer.
+2. Observe the agents visualized as active nodes and view real-time logs.
+3. While a task is running (e.g., UI Design), intervene via chat (e.g., "Make the primary theme green instead").
+4. Observe the final delivery and presentation for review.
 **Expected Outcomes:**
-- [ ] Pipelines are listed clearly with their current status.
-- [ ] Expanding a pipeline shows a detailed, real-time (or near real-time) log of execution steps.
-- [ ] Status indicators accurately reflect the backend state.
+- [ ] UI successfully transitions to "Execution Mode" from "Planning Mode".
+- [ ] The dashboard provides real-time visualization of agent nodes and execution logs.
+- [ ] Orchestrator successfully intercepts manual intervention, updates context, and redirects the active agent.
+- [ ] The pipeline successfully runs to completion, tests are triggered via QA agents, and final review alerts are dispatched.
 
 ---
 
@@ -94,17 +115,15 @@ This document serves as the definitive master end-to-end human test script for A
 3. **Step 2: Rules & Constraints:** Enter the System rules path, select the Enforcement level, and provide a markdown list of constraints. Click Next.
 4. **Step 3: Capabilities:** Enter a markdown list of capabilities. Click Next.
 5. **Step 4: System Prompt & Review:** Enter the System Prompt in the textarea. Review the final summary of the agent configuration.
-6. **Error Handling Check:** Intentionally disconnect the network or simulate an API failure to verify error toast/message is displayed on submit. (Optional but recommended).
+6. **Error Handling Check:** Intentionally disconnect the network or simulate an API failure to verify error toast/message is displayed on submit.
 7. Click "Submit" or "Save Agent".
-8. **File Verification:** Check the backend file system (or use list files tool) to ensure the agent markdown file was created in the correct `agents/` directory (or designated workspace agents folder) and contains the proper YAML frontmatter and format matching `config/agent_base.yaml`.
-9. Go to the Chat Interface and mention/select the newly created agent.
+8. **File Verification:** Check the backend file system to ensure the agent markdown file was created in the correct `agents/` directory and contains the proper YAML frontmatter and format matching `config/agent_base.yaml`.
+9. Go to the Chat Interface and request a task specifically tailored for the newly created agent to ensure dynamic mapping by the Orchestrator works without a restart.
 **Expected Outcomes:**
-- [ ] Wizard accurately maintains state across the 4 steps, allowing back-and-forth navigation without data loss.
-- [ ] Form validates required fields before allowing progression to the next step, showing clear error indicators.
+- [ ] Wizard accurately maintains state across steps and validates required fields.
 - [ ] Backend successfully processes the complex payload and generates the YAML-frontmatter markdown file in the correct directory.
-- [ ] The generated file strictly adheres to the `agency-agents` formatting conventions.
-- [ ] Agent is created and appears in the agent roster for the assigned workspace.
-- [ ] The specific agent can be invoked in chat and responds according to its custom system prompt, and is available to `central_runner.py`.
+- [ ] Agent appears in the agent roster for the assigned workspace.
+- [ ] The Orchestrator successfully assigns tasks to the newly created agent dynamically.
 
 ### 5.2 Marketplace Usage
 **Setup:** Log in as Agency Admin. Navigate to the Marketplace.
@@ -136,8 +155,7 @@ This document serves as the definitive master end-to-end human test script for A
 2. Save the key (ensure it is masked in the UI).
 3. Delete an old/unused key.
 **Expected Outcomes:**
-- [ ] Keys are saved securely.
-- [ ] UI masks sensitive key data after creation.
+- [ ] Keys are saved securely and UI masks sensitive key data.
 
 ### 6.3 Audit Log Exports
 **Setup:** Log in as Agency Admin. Navigate to the Audit Log Viewer.

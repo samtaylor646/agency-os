@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, CheckCircle, Clock, AlertCircle, Terminal, Activity, FileText, ChevronRight, XCircle } from 'lucide-react';
 
 export const PipelineExecutionViewer = () => {
-  const [pipelineState, setPipelineState] = useState('idle'); // idle, running, completed, error
+  const [pipelineState, setPipelineState] = useState('idle'); // idle, running, completed, error, waiting_approval
+  const [pauseReason, setPauseReason] = useState('');
+  const [errorDetails, setErrorDetails] = useState('');
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
   const [tasks, setTasks] = useState([
     { id: 't1', name: 'Parse Marketing Brief', agent: 'nexus-strategy', status: 'pending', logs: [] },
     { id: 't2', name: 'Extract Target Audience', agent: 'academic-psychologist', status: 'pending', logs: [] },
@@ -20,15 +24,61 @@ export const PipelineExecutionViewer = () => {
     }
   }, [overallLogs, tasks]);
 
+  const handleApprove = () => {
+    setPipelineState('running');
+    setOverallLogs(prev => [...prev, '[SYSTEM] Pipeline execution approved. Resuming...']);
+    simulateExecution(2); // Resume from task 3
+  };
+
+  const handleReject = () => {
+    setPipelineState('error');
+    setErrorDetails('Pipeline execution rejected by user.');
+    setOverallLogs(prev => [...prev, '[SYSTEM] Pipeline execution rejected.']);
+  };
+
+  const handleSendChatMessage = (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    
+    const newMsg = { sender: 'user', text: chatInput };
+    setChatMessages(prev => [...prev, newMsg]);
+    setOverallLogs(prev => [...prev, `[USER CHAT] ${chatInput}`]);
+    setChatInput('');
+    
+    // Simulate agent reply
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, { sender: 'agent', text: 'Acknowledged. Will adjust execution accordingly.' }]);
+      setOverallLogs(prev => [...prev, `[AGENT CHAT] Acknowledged. Will adjust execution accordingly.`]);
+    }, 1000);
+  };
+
   const startPipeline = () => {
     setPipelineState('running');
     setOverallLogs(prev => [...prev, '[SYSTEM] Pipeline execution started.']);
-    simulateExecution();
+    simulateExecution(0);
   };
 
-  const simulateExecution = async () => {
-    for (let i = 0; i < tasks.length; i++) {
+  const simulateExecution = async (startIndex = 0) => {
+    for (let i = startIndex; i < tasks.length; i++) {
       const task = tasks[i];
+      
+      // Simulate approval gate for task 2
+      if (i === 2 && pipelineState !== 'waiting_approval' && startIndex !== 2) {
+        setPipelineState('waiting_approval');
+        setPauseReason('Requires human review of draft ad copy before generating visual assets.');
+        setOverallLogs(prev => [...prev, `[ORCHESTRATOR] Pipeline paused for approval: Requires human review of draft ad copy before generating visual assets.`]);
+        return; // Pause execution loop
+      }
+      
+      // Simulate error for task 3
+      if (i === 3 && Math.random() < 0.2) { // 20% chance of error
+         setPipelineState('error');
+         setErrorDetails(`Failed to generate visual assets: Image generation API rate limit exceeded.`);
+         setOverallLogs(prev => [...prev, `[ERROR] Failed to generate visual assets: Image generation API rate limit exceeded.`]);
+         setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: 'error', logs: [...t.logs, `[ERROR] Image generation API rate limit exceeded.`] } : t));
+         return;
+      }
+
       setActiveTask(task.id);
       
       // Update task to running
@@ -105,6 +155,38 @@ export const PipelineExecutionViewer = () => {
           </button>
         </div>
 
+          {/* Approval Gate UI */}
+          {pipelineState === 'waiting_approval' && (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start">
+                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-yellow-800 text-sm md:text-base">Approval Required</h3>
+                  <p className="text-yellow-700 text-xs md:text-sm mt-1">{pauseReason}</p>
+                </div>
+              </div>
+              <div className="flex space-x-3 w-full md:w-auto">
+                <button onClick={handleReject} className="flex-1 md:flex-none px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                  Reject
+                </button>
+                <button onClick={handleApprove} className="flex-1 md:flex-none px-4 py-2 bg-yellow-600 text-white rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
+                  Approve
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Error Escalation UI */}
+          {pipelineState === 'error' && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
+              <XCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
+              <div>
+                <h3 className="font-semibold text-red-800 text-sm md:text-base">Execution Error</h3>
+                <p className="text-red-700 text-xs md:text-sm mt-1">{errorDetails}</p>
+              </div>
+            </div>
+          )}
+
         {/* DAG / Task List Visualizer */}
         <div className="relative">
           <div className="absolute left-6 md:left-8 top-0 bottom-0 w-0.5 bg-gray-100 z-0"></div>
@@ -170,35 +252,77 @@ export const PipelineExecutionViewer = () => {
             )}
             <div ref={logsEndRef} />
           </div>
-        </div>
 
-        {/* Active Agent Context/Logs */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
-          <div className="bg-gray-50 md:bg-gray-50 px-3 md:px-4 py-2 md:py-3 border-b border-gray-200 flex items-center justify-between">
-            <div className="flex items-center text-gray-700 font-medium text-[10px] md:text-sm uppercase tracking-wider md:tracking-normal md:normal-case">
-              <FileText className="w-4 h-4 mr-2 text-indigo-500 hidden md:block" />
-              Agent Execution Scope
+          {/* Active Agent Context/Logs & Chat */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+            <div className="bg-gray-50 md:bg-gray-50 px-3 md:px-4 py-2 md:py-3 border-b border-gray-200 flex items-center justify-between">
+              <div className="flex items-center text-gray-700 font-medium text-[10px] md:text-sm uppercase tracking-wider md:tracking-normal md:normal-case">
+                <FileText className="w-4 h-4 mr-2 text-indigo-500 hidden md:block" />
+                Agent Execution Scope
+              </div>
+              {activeTaskData && (
+                 <span className="text-[10px] md:text-xs bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded-sm md:rounded font-mono border border-indigo-100">
+                   {activeTaskData.agent}
+                 </span>
+              )}
             </div>
-            {activeTaskData && (
-               <span className="text-[10px] md:text-xs bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded-sm md:rounded font-mono border border-indigo-100">
-                 {activeTaskData.agent}
-               </span>
-            )}
-          </div>
-          <div className="p-3 md:p-4 flex-1 overflow-y-auto bg-gray-50 font-mono text-[11px] md:text-sm space-y-2">
-            {(!activeTaskData || activeTaskData.logs.length === 0) ? (
-               <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-2">
-                 <Terminal className="w-6 h-6 md:w-8 md:h-8 opacity-20" />
-                 <span>No active agent logs.</span>
-               </div>
-            ) : (
-              activeTaskData.logs.map((log, i) => (
-                <div key={i} className="text-slate-700 break-words">
-                  <span className="text-slate-400 select-none mr-2">{'>'}</span>{log}
-                </div>
-              ))
-            )}
-            <div ref={logsEndRef} />
+            <div className="p-3 md:p-4 flex-1 overflow-y-auto bg-gray-50 font-mono text-[11px] md:text-sm space-y-2 border-b border-gray-200 min-h-[150px]">
+              {(!activeTaskData || activeTaskData.logs.length === 0) ? (
+                 <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-2">
+                   <Terminal className="w-6 h-6 md:w-8 md:h-8 opacity-20" />
+                   <span>No active agent logs.</span>
+                 </div>
+              ) : (
+                activeTaskData.logs.map((log, i) => (
+                  <div key={i} className="text-slate-700 break-words">
+                    <span className="text-slate-400 select-none mr-2">{'>'}</span>{log}
+                  </div>
+                ))
+              )}
+              <div ref={logsEndRef} />
+            </div>
+
+            {/* Mid-Execution Chat Interface */}
+            <div className="flex flex-col h-[200px] bg-white">
+              <div className="bg-gray-100 px-3 py-2 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                Mid-Execution Chat
+              </div>
+              <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                {chatMessages.length === 0 ? (
+                  <div className="text-center text-gray-400 text-xs mt-4">
+                    Send a message to interject or provide feedback to the active agent.
+                  </div>
+                ) : (
+                  chatMessages.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                        msg.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))
+                )}
+                <div ref={logsEndRef} />
+              </div>
+              <form onSubmit={handleSendChatMessage} className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder={pipelineState === 'idle' || pipelineState === 'completed' ? "Pipeline not active" : "Message active agent..."}
+                  disabled={pipelineState === 'idle' || pipelineState === 'completed'}
+                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+                />
+                <button
+                  type="submit"
+                  disabled={pipelineState === 'idle' || pipelineState === 'completed' || !chatInput.trim()}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
