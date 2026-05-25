@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 from .. import schemas, dependencies
 from ..services.llm_runner import llm_runner
@@ -56,4 +56,47 @@ async def generate_document(request: schemas.DocumentGenerateRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate document: {str(e)}"
+        )
+
+@router.post("/ingest", response_model=schemas.ChatScopeResponse)
+async def ingest_document(file: UploadFile = File(...)):
+    """
+    Ingests an existing document (e.g. PRD, spec) to automatically seed the extraction context.
+    """
+    try:
+        content = await file.read()
+        extraction_data = await llm_runner.ingest_document(content, file.filename)
+        
+        extraction = schemas.ProjectScopeExtraction(**extraction_data)
+        
+        return schemas.ChatScopeResponse(
+            extraction=extraction,
+            chat_response=f"Successfully ingested {file.filename} and extracted project context."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to ingest document: {str(e)}"
+        )
+
+@router.post("/refine", response_model=schemas.DocumentRefineResponse)
+async def refine_document(request: schemas.DocumentRefineRequest):
+    """
+    Iterative refinement loop: updates a document based on natural language feedback.
+    """
+    try:
+        result = await llm_runner.refine_document(
+            doc_type=request.doc_type,
+            current_content=request.current_content,
+            feedback=request.feedback
+        )
+        return schemas.DocumentRefineResponse(
+            content=result["content"],
+            doc_type=request.doc_type,
+            chat_response=result["chat_response"]
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to refine document: {str(e)}"
         )

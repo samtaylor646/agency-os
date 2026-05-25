@@ -66,3 +66,38 @@ def test_generate_document_error(mock_generate_doc):
     
     assert response.status_code == 500
     assert "Doc Error" in response.json()["detail"]
+
+@patch('server.routers.chat.llm_runner.ingest_document', new_callable=AsyncMock)
+def test_ingest_document_success(mock_ingest):
+    mock_ingest.return_value = {
+        "name": "Ingested Project",
+        "description": "Extracted from test.txt.",
+        "tech_stack": ["Unknown"],
+        "raw_message": "Ingested from file: test.txt"
+    }
+
+    files = {'file': ('test.txt', b'my text content')}
+    response = client.post("/api/v1/chat/ingest", files=files)
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert "Successfully ingested test.txt" in data["chat_response"]
+    assert data["extraction"]["name"] == "Ingested Project"
+
+@patch('server.routers.chat.llm_runner.refine_document', new_callable=AsyncMock)
+def test_refine_document_success(mock_refine):
+    mock_refine.return_value = {
+        "content": "Updated content here",
+        "chat_response": "I've updated the prd."
+    }
+
+    response = client.post(
+        "/api/v1/chat/refine",
+        json={"doc_type": "prd", "current_content": "Old content", "feedback": "Make it better"}
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["doc_type"] == "prd"
+    assert data["content"] == "Updated content here"
+    assert data["chat_response"] == "I've updated the prd."

@@ -121,3 +121,13 @@ class DocumentGenerateRequest(BaseModel):
 class DocumentGenerateResponse(BaseModel):
     content: str
     doc_type: str
+
+class DocumentRefineRequest(BaseModel):
+    doc_type: str
+    current_content: str
+    feedback: str
+
+class DocumentRefineResponse(BaseModel):
+    content: str
+    doc_type: str
+    chat_response: str
