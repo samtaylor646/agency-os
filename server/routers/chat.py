@@ -36,3 +36,24 @@ async def chat_scope(request: schemas.ChatScopeRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to process chat scope: {str(e)}"
         )
+
+@router.post("/generate-document", response_model=schemas.DocumentGenerateResponse)
+async def generate_document(request: schemas.DocumentGenerateRequest):
+    """
+    Generates a specific project document (PRD, architecture, tasks) 
+    based on the provided project context.
+    """
+    try:
+        content = await llm_runner.generate_document(
+            doc_type=request.doc_type,
+            context=request.context
+        )
+        return schemas.DocumentGenerateResponse(
+            content=content,
+            doc_type=request.doc_type
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate document: {str(e)}"
+        )

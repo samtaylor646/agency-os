@@ -14,7 +14,29 @@ class LLMRunner:
         Simulates generating a text response from an LLM.
         """
         await asyncio.sleep(0.5) # Simulate network delay
-        return f"Mock response to: {prompt[:50]}..."
+        
+        scoping_prompt = system_prompt or "You are an expert AI orchestrator. Your goal is to help scope a software project by asking clarifying questions about the goal, target audience, and key features. Be concise and focus on actionable insights."
+        
+        return f"Mock response (Guided by prompt: {scoping_prompt[:40]}...) to: {prompt[:50]}..."
+
+    async def generate_document(self, doc_type: str, context: Dict[str, Any]) -> str:
+        """
+        Simulates generating a specific project document based on context.
+        """
+        await asyncio.sleep(1.0) # Simulate generation delay
+        
+        name = context.get("name", "Unknown Project")
+        desc = context.get("description", "No description provided.")
+        stack = ", ".join(context.get("tech_stack", ["Unknown"]))
+        
+        if doc_type == "prd":
+            return f"# PRD: {name}\n\n## Overview\n{desc}\n\n## Goals\n- Build an MVP\n- Validate market"
+        elif doc_type == "architecture":
+            return f"# Architecture Spec: {name}\n\n## Stack\n{stack}\n\n## Components\n- Frontend UI\n- Backend API"
+        elif doc_type == "tasks":
+            return f"# Task List: {name}\n\n- [ ] Scaffold project\n- [ ] Implement {stack} components\n- [ ] Write tests"
+        
+        return f"# {doc_type.upper()}: {name}\nGenerated content based on {desc}"
 
     async def parse_intent(self, message: str) -> Dict[str, Any]:
         """

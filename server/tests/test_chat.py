@@ -40,3 +40,29 @@ def test_chat_scope_error(mock_parse):
     
     assert response.status_code == 500
     assert "LLM Error" in response.json()["detail"]
+
+@patch('server.routers.chat.llm_runner.generate_document', new_callable=AsyncMock)
+def test_generate_document_success(mock_generate_doc):
+    mock_generate_doc.return_value = "# PRD\n\nContent here"
+
+    response = client.post(
+        "/api/v1/chat/generate-document",
+        json={"doc_type": "prd", "context": {"name": "Test", "description": "Test doc", "tech_stack": ["React"]}}
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["doc_type"] == "prd"
+    assert data["content"] == "# PRD\n\nContent here"
+
+@patch('server.routers.chat.llm_runner.generate_document', new_callable=AsyncMock)
+def test_generate_document_error(mock_generate_doc):
+    mock_generate_doc.side_effect = Exception("Doc Error")
+
+    response = client.post(
+        "/api/v1/chat/generate-document",
+        json={"doc_type": "prd", "context": {"name": "Test"}}
+    )
+    
+    assert response.status_code == 500
+    assert "Doc Error" in response.json()["detail"]

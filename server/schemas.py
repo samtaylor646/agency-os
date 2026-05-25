@@ -113,3 +113,11 @@ class ProjectScopeExtraction(BaseModel):
 class ChatScopeResponse(BaseModel):
     extraction: ProjectScopeExtraction
     chat_response: str
+
+class DocumentGenerateRequest(BaseModel):
+    doc_type: str
+    context: Dict[str, Any]
+
+class DocumentGenerateResponse(BaseModel):
+    content: str
+    doc_type: str

@@ -6,7 +6,23 @@ async def test_generate_response():
     runner = LLMRunner()
     prompt = "Hello, what is the meaning of life?"
     response = await runner.generate_response(prompt)
-    assert "Mock response to: Hello, what is the meaning of life?..." == response
+    assert "Mock response" in response
+    assert prompt[:50] in response
+
+@pytest.mark.asyncio
+async def test_generate_document():
+    runner = LLMRunner()
+    context = {"name": "Test App", "description": "A test app", "tech_stack": ["React", "Python"]}
+    
+    prd = await runner.generate_document("prd", context)
+    assert "# PRD: Test App" in prd
+    
+    arch = await runner.generate_document("architecture", context)
+    assert "# Architecture Spec: Test App" in arch
+    assert "React, Python" in arch
+    
+    tasks = await runner.generate_document("tasks", context)
+    assert "# Task List: Test App" in tasks
 
 @pytest.mark.asyncio
 async def test_parse_intent():
