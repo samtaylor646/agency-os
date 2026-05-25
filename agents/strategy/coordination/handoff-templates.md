@@ -227,6 +227,9 @@ Use when transitioning between NEXUS phases.
 | 2 | [Criterion] | [Threshold] | ✅ PASS / ❌ FAIL | [Evidence reference] |
 | 3 | [Criterion] | [Threshold] | ✅ PASS / ❌ FAIL | [Evidence reference] |
 
+## Phase Gate Tasks
+- [ ] Memory files (`changelog.md`, `active_context.md`) updated with Phase Gate completion details.
+
 ## Documents Carried Forward
 1. [Document name] — [Purpose for next phase]
 2. [Document name] — [Purpose for next phase]
@@ -264,6 +267,9 @@ Use at sprint boundaries.
 | **Duration** | [Start date] → [End date] |
 | **Sprint Goal** | [Goal statement] |
 | **Velocity** | [Planned] / [Actual] story points |
+
+## Sprint Tasks
+- [ ] Memory files (`changelog.md`, `active_context.md`) updated with Sprint completion details.
 
 ## Completion Status
 | Task ID | Description | Status | QA Attempts | Notes |

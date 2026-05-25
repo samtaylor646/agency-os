@@ -16,6 +16,8 @@ This PRD defines the requirements for the "Conversational Core Engine" of Agency
 - **Auto-Scoping Engine:** System to generate structured Markdown documents (PRD, Architecture, Tasks) based on chat history.
 - **Agent Selection Logic:** Automated mapping of extracted project requirements to available agents in the `/agents` registry.
 - **Execution Dashboard:** UI updates to show real-time agent activity initiated from the chat.
+- **Custom Specialized Agents:** Ability for users to define and integrate custom agents using the standardized `agency-agents` format.
+- **Document-Driven Task Ingestion:** Support for uploading existing documents (PRDs, briefs) to automatically seed the project scoping and execution pipeline.
 
 ### 3.2. Out of Scope
 - Voice-to-text integration (planned for later).
@@ -38,6 +40,16 @@ This PRD defines the requirements for the "Conversational Core Engine" of Agency
 - **Req 3.1:** Upon clicking "Execute Project", the system must parse the generated task list and assign appropriate agents.
 - **Req 3.2:** The system must create an initial task queue in the orchestrator script (`central_runner.py`).
 - **Req 3.3:** The UI must transition from "Planning Mode" to "Execution Mode", displaying the status of the assigned agents.
+
+### Feature 4: Custom Agent Integration
+- **Req 4.1:** The system must provide an interface (or configuration path) to define new custom agents.
+- **Req 4.2:** Custom agents must be saved and parsed using the `msitarzewski/agency-agents` format for standard interoperability.
+- **Req 4.3:** The core pipeline must instantly recognize and assign tasks to newly created custom agents.
+
+### Feature 5: Document Ingestion Pipeline
+- **Req 5.1:** Users must be able to upload unstructured or structured documents (PDF, Markdown, text) into the project context.
+- **Req 5.2:** The Orchestrator must analyze the uploaded documents and translate them into a structured execution pipeline of tasks.
+- **Req 5.3:** Users must be able to review and approve the generated task list before the Nexus Pipeline begins execution.
 
 ## 5. Success Metrics
 - **Time to First Spec:** Decrease the average time from project initiation to a completed PRD/Task list by 80%.

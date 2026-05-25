@@ -17,8 +17,8 @@ This prohibition includes, but is not limited to:
 Our sole focus is achieving a functional, CLI/API-driven Core Loop. The project is NOT ready for a frontend until this backend loop executes flawlessly.
 
 **The Core Loop consists strictly of:**
-1. **Project Creation:** Ingesting a user request/objective via API or CLI.
-2. **AI Scoping:** The LLM dynamically interpreting the request, breaking it down into an execution graph, and mapping it to specialized agents.
+1. **Project Creation & Ingestion:** Ingesting a user request/objective via API, CLI, or by uploading unstructured documents (PRDs, briefs).
+2. **AI Scoping:** The LLM dynamically interpreting the request (and uploaded docs), breaking it down into an execution graph, and mapping it to specialized agents (including dynamically loaded custom agents via `agency-agents` format).
 3. **Agent Execution:** Orchestrating the necessary agents to execute the scoped tasks and compile the final output.
 
 ## 🛠️ OPERATIONAL MANDATES

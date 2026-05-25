@@ -6,7 +6,8 @@ import { RBACManager } from './RBACManager';
 import { AuditLogViewer } from './AuditLogViewer';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { Marketplace } from './Marketplace';
-import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2, Menu, X, Search, Send } from 'lucide-react';
+import ChatScopeInterface from './ChatScopeInterface';
+import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2, Menu, X, Search, Send, MessageSquare } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button 
@@ -295,6 +296,12 @@ export default function AgencyPanel() {
               active={activeTab === 'dashboard'} 
               onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }} 
             />
+            <SidebarItem 
+              icon={MessageSquare} 
+              label="Project Scope" 
+              active={activeTab === 'scope'} 
+              onClick={() => { setActiveTab('scope'); setIsMobileMenuOpen(false); }} 
+            />
             {userRole === 'Agency Admin' && (
               <SidebarItem 
                 icon={Settings} 
@@ -397,6 +404,11 @@ export default function AgencyPanel() {
               ) : (
                 <ClientPortalView />
               )
+            )}
+            {activeTab === 'scope' && (
+              <div className="h-[calc(100vh-10rem)] w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <ChatScopeInterface />
+              </div>
             )}
             {activeTab === 'settings' && userRole === 'Agency Admin' && (
               <WorkspaceManagementUI />

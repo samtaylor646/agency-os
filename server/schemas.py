@@ -100,3 +100,16 @@ class WebhookPayload(BaseModel):
     event_type: str
     data: Dict[str, Any]
     timestamp: Optional[datetime] = None
+
+class ChatScopeRequest(BaseModel):
+    message: str
+
+class ProjectScopeExtraction(BaseModel):
+    name: str
+    description: str
+    tech_stack: List[str]
+    raw_message: str
+
+class ChatScopeResponse(BaseModel):
+    extraction: ProjectScopeExtraction
+    chat_response: str

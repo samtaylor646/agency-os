@@ -15,12 +15,14 @@ This roadmap outlines the strategic pivot to prioritize the Conversational Proje
 
 - **Prompt Engineering for Scoping:** Develop specialized prompts for the Orchestrator AI to ask the right clarifying questions.
 - **Document Generators:** Implement backend services to dynamically generate PRDs, Architecture Specs, and Task Checklists based on user input.
+- **Document Ingestion Engine:** Allow users to bypass chat generation by uploading existing specs/PRDs to automatically seed the execution pipeline.
 - **Iterative Refinement Loop:** Allow users to request changes to generated docs via natural language, updating the docs in real-time.
 
 ## Phase 3: Agent Connection & Orchestration (The Nexus Pipeline)
-**Goal:** Bridge the generated plans directly into agent execution.
+**Goal:** Bridge the generated plans directly into agent execution, guided by the [Nexus Strategy](../../agents/strategy/nexus-strategy.md).
 
 - **Dynamic Agent Selection:** Implement logic to map task requirements to the specific roles defined in the `/agents` directory.
+- **Custom Agent Support (`agency-agents` format):** Build parsing and creation tools to allow users to plug in custom, specialized agents seamlessly.
 - **Task Queue Generation:** Automatically translate the generated Markdown task list into actionable items for `central_runner.py`.
 - **Execution Visibility:** Update the frontend Dashboard to display real-time logs and statuses of agents working on the newly created project.
 

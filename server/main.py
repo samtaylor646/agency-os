@@ -12,7 +12,7 @@ from datetime import timedelta
 
 from . import models, schemas, auth, dependencies
 from .database import engine, get_db
-from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace, audit
+from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace, audit, chat
 from .context import set_tenant_id, get_tenant_id
 from scripts.central_runner import DAGOrchestrator
 
@@ -72,6 +72,7 @@ app.include_router(rbac.router)
 app.include_router(analytics.router)
 app.include_router(marketplace.router)
 app.include_router(audit.router)
+app.include_router(chat.router)
 
 @app.get('/')
 def read_root():

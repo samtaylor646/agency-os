@@ -18,10 +18,15 @@ Agency OS has established a robust enterprise foundation (RBAC, Multi-Tenancy, A
    - Iterative refinement loop: the AI proposes a scope, and the user refines it via chat.
 
 3. **Intelligent Agent Orchestration (The Nexus Pipeline):**
-   - Dynamic selection of appropriate specialized agents from the registry based on project requirements.
+   - Dynamic selection of appropriate specialized agents from the registry based on project requirements (Guided by [Nexus Strategy](../../agents/strategy/nexus-strategy.md)).
+   - Support for user-defined **Custom Specialized Agents**, interoperable via the standard `agency-agents` format, allowing domain-specific tasks (e.g., WordPress/Salesforce).
    - Automated handoffs and coordination between agents (e.g., Product Manager agent hands off to UI Designer agent, then to Frontend Developer agent).
 
-4. **Transparent Execution & Monitoring:**
+4. **Document-Driven Task Ingestion:**
+   - Seamlessly convert existing documentation into action.
+   - Upload PRDs, briefs, or meeting notes to have the Orchestrator extract requirements and automatically seed the project's execution pipeline.
+
+5. **Transparent Execution & Monitoring:**
    - Real-time visibility into agent activities and task progress.
    - Interactive feedback loops allowing users to intervene, approve, or redirect agents during execution.
 
