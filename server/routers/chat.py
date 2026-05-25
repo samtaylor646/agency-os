@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
-from .. import schemas, dependencies
+from .. import schemas, dependencies, models
 from ..services.llm_runner import llm_runner
 
 router = APIRouter(
@@ -37,29 +37,37 @@ async def chat_scope(request: schemas.ChatScopeRequest):
             detail=f"Failed to process chat scope: {str(e)}"
         )
 
-@router.post("/generate-document", response_model=schemas.DocumentGenerateResponse)
-async def generate_document(request: schemas.DocumentGenerateRequest):
+@router.post("/{chat_id}/generate/{doc_type}", response_model=schemas.DocumentOut)
+async def generate_document_new(chat_id: int, doc_type: str, request: schemas.DocumentGenerateRequest, db: Session = Depends(dependencies.get_db)):
     """
     Generates a specific project document (PRD, architecture, tasks) 
-    based on the provided project context.
+    based on the provided project context, and saves it to the db.
     """
     try:
         content = await llm_runner.generate_document(
-            doc_type=request.doc_type,
+            doc_type=doc_type,
             context=request.context
         )
-        return schemas.DocumentGenerateResponse(
+        
+        doc = models.Document(
+            chat_id=chat_id,
+            title=f"Generated {doc_type}",
             content=content,
-            doc_type=request.doc_type
+            type=doc_type
         )
+        db.add(doc)
+        db.commit()
+        db.refresh(doc)
+        
+        return doc
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate document: {str(e)}"
         )
 
-@router.post("/ingest", response_model=schemas.ChatScopeResponse)
-async def ingest_document(file: UploadFile = File(...)):
+@router.post("/{chat_id}/documents/upload", response_model=schemas.ChatScopeResponse)
+async def ingest_document(chat_id: int, file: UploadFile = File(...)):
     """
     Ingests an existing document (e.g. PRD, spec) to automatically seed the extraction context.
     """

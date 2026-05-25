@@ -171,6 +171,15 @@ class IngestedDocument(Base):
     status = Column(String(50), default="pending")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+class Document(Base):
+    __tablename__ = "documents"
+    id = Column(Integer, primary_key=True, index=True)
+    chat_id = Column(Integer, index=True, nullable=True) # or pipeline_run_id
+    title = Column(String(255), nullable=False)
+    content = Column(String, nullable=False)
+    type = Column(String(50), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 class CustomAgent(Base):
     __tablename__ = "custom_agents"
     id = Column(String(255), primary_key=True, index=True)

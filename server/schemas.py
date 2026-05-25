@@ -114,6 +114,17 @@ class ChatScopeResponse(BaseModel):
     extraction: ProjectScopeExtraction
     chat_response: str
 
+class DocumentOut(BaseModel):
+    id: int
+    chat_id: Optional[int]
+    title: str
+    content: str
+    type: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class DocumentGenerateRequest(BaseModel):
     doc_type: str
     context: Dict[str, Any]

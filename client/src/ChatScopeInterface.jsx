@@ -67,6 +67,34 @@ const ChatScopeInterface = () => {
     }
   };
 
+  const [rightPanelTab, setRightPanelTab] = useState('details'); // details, prd, spec, tasks
+  const [generatedDocs, setGeneratedDocs] = useState({
+    prd: '',
+    spec: '',
+    tasks: ''
+  });
+
+  const handleGenerateDocument = async (docType) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/v1/chat/1/generate/${docType}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doc_type: docType, context: projectDetails })
+      });
+      if (!response.ok) throw new Error('Generation failed');
+      const data = await response.json();
+      setGeneratedDocs(prev => ({ ...prev, [docType]: data.content || `Generated ${docType} content placeholder...` }));
+      setRightPanelTab(docType);
+    } catch (error) {
+      console.error(error);
+      setGeneratedDocs(prev => ({ ...prev, [docType]: `# Error generating ${docType}\n\nPlease try again.` }));
+      setRightPanelTab(docType);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-full w-full bg-gray-50 text-gray-800 font-sans">
       
@@ -149,14 +177,23 @@ const ChatScopeInterface = () => {
       {/* Right Side: Extracted Details & Documents Preview */}
       <div className={`${mobileTab === 'preview' ? 'flex' : 'hidden'} md:flex w-full md:w-1/2 flex-col bg-gray-50 overflow-hidden`}>
         <div className="hidden md:flex items-center px-4 py-3 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 font-medium text-sm shrink-0 gap-4">
-          <button className="font-bold border-b-2 border-blue-600 pb-1">Project Details</button>
-          <button className="text-gray-500 hover:text-gray-700 pb-1">Draft PRD</button>
-          <button className="text-gray-500 hover:text-gray-700 pb-1">Tech Spec</button>
-          <button className="text-gray-500 hover:text-gray-700 pb-1">Task List</button>
+          <button onClick={() => setRightPanelTab('details')} className={`pb-1 ${rightPanelTab === 'details' ? 'font-bold border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>Project Details</button>
+          <button onClick={() => setRightPanelTab('prd')} className={`pb-1 ${rightPanelTab === 'prd' ? 'font-bold border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>Draft PRD</button>
+          <button onClick={() => setRightPanelTab('spec')} className={`pb-1 ${rightPanelTab === 'spec' ? 'font-bold border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>Tech Spec</button>
+          <button onClick={() => setRightPanelTab('tasks')} className={`pb-1 ${rightPanelTab === 'tasks' ? 'font-bold border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>Task List</button>
         </div>
         
         <div className="flex-1 overflow-y-auto p-4 md:p-6">
+          {rightPanelTab === 'details' ? (
           <div className="bg-white rounded-md border border-gray-200 p-5 shadow-sm space-y-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-gray-800">Project Extraction</h2>
+              <div className="flex gap-2">
+                <button onClick={() => handleGenerateDocument('prd')} className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded border border-indigo-200 hover:bg-indigo-100">Gen PRD</button>
+                <button onClick={() => handleGenerateDocument('spec')} className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded border border-indigo-200 hover:bg-indigo-100">Gen Spec</button>
+                <button onClick={() => handleGenerateDocument('tasks')} className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded border border-indigo-200 hover:bg-indigo-100">Gen Tasks</button>
+              </div>
+            </div>
             <div>
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Project Name</h3>
               <div className="text-base text-gray-900 font-medium">
@@ -189,6 +226,14 @@ const ChatScopeInterface = () => {
               )}
             </div>
           </div>
+          ) : (
+            <div className="bg-white rounded-md border border-gray-200 p-5 shadow-sm space-y-4 h-full">
+               <h2 className="text-lg font-bold text-gray-800 capitalize">{rightPanelTab}</h2>
+               <div className="text-sm text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 p-4 rounded border">
+                 {generatedDocs[rightPanelTab] || `Click 'Gen ${rightPanelTab}' from the Project Details tab to generate this document.`}
+               </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
