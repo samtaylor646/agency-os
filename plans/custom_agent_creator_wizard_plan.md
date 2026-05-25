@@ -27,17 +27,17 @@ The following checklist maps out the execution order.
 - [ ] **Task 2 (Backend Architect):** Define the exact output format (YAML frontmatter vs pure YAML) required to match `config/agent_base.yaml` and update the Pydantic schema design (`schemas.CustomAgentCreate`).
 
 ### Phase 2: Backend Implementation
-- [ ] **Task 3 (Backend Architect):** Update `server/schemas.py` to include new fields: `identity` (name, role, version), `system_rules` (path, enforcement_level), `capabilities` (list), `constraints` (list), and `system_prompt` (string).
-- [ ] **Task 4 (Backend Architect):** Refactor `generate_agent_markdown` in `server/routers/custom_agents.py` to format the file properly according to the new schema.
-- [ ] **Task 5 (API Tester / Backend Architect):** Test the updated API endpoint via curl or Swagger UI to ensure the generated file matches the template.
+- [x] **Task 3 (Backend Architect):** Update `server/schemas.py` to include new fields: `identity` (name, role, version), `system_rules` (path, enforcement_level), `capabilities` (list), `constraints` (list), and `system_prompt` (string).
+- [x] **Task 4 (Backend Architect):** Refactor `generate_agent_markdown` in `server/routers/custom_agents.py` to format the file properly according to the new schema.
+- [x] **Task 5 (API Tester / Backend Architect):** Test the updated API endpoint via curl or Swagger UI to ensure the generated file matches the template.
 
 ### Phase 3: Frontend Implementation
-- [ ] **Task 6 (Frontend Developer):** Refactor `CustomAgentCreator.jsx` to use a multi-step wizard state (e.g., `currentStep` state variable).
-- [ ] **Task 7 (Frontend Developer):** Build Step 1: Identity (Name, Role, Version).
-- [ ] **Task 8 (Frontend Developer):** Build Step 2: Rules & Constraints (System rules path, enforcement level, markdown list for constraints).
-- [ ] **Task 9 (Frontend Developer):** Build Step 3: Capabilities (Markdown list input).
-- [ ] **Task 10 (Frontend Developer):** Build Step 4: System Prompt & Review (Textarea for prompt, final review, and Submit button).
-- [ ] **Task 11 (Frontend Developer):** Wire the wizard submission to the updated backend API payload structure.
+- [x] **Task 6 (Frontend Developer):** Refactor `CustomAgentCreator.jsx` to use a multi-step wizard state (e.g., `currentStep` state variable).
+- [x] **Task 7 (Frontend Developer):** Build Step 1: Identity (Name, Role, Version).
+- [x] **Task 8 (Frontend Developer):** Build Step 2: Rules & Constraints (System rules path, enforcement level, markdown list for constraints).
+- [x] **Task 9 (Frontend Developer):** Build Step 3: Capabilities (Markdown list input).
+- [x] **Task 10 (Frontend Developer):** Build Step 4: System Prompt & Review (Textarea for prompt, final review, and Submit button).
+- [x] **Task 11 (Frontend Developer):** Wire the wizard submission to the updated backend API payload structure.
 
 ### Phase 4: QA and Handoff
 - [ ] **Task 12 (Evidence Collector):** Perform end-to-end testing of the wizard, providing screenshot evidence of each step and the final generated agent file.
