@@ -40,5 +40,5 @@ The following checklist maps out the execution order.
 - [x] **Task 11 (Frontend Developer):** Wire the wizard submission to the updated backend API payload structure.
 
 ### Phase 4: QA and Handoff
-- [ ] **Task 12 (Evidence Collector):** Perform end-to-end testing of the wizard, providing screenshot evidence of each step and the final generated agent file.
+- [x] **Task 12 (Evidence Collector):** Perform end-to-end testing of the wizard, providing screenshot evidence of each step and the final generated agent file.
 - [ ] **Task 13 (Agents Orchestrator):** Review QA findings, finalize the epic, and prepare handoff documentation.
