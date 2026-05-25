@@ -69,5 +69,6 @@ AgencyOS is designed for individuals and teams who need to scale their output, r
 ### D. The Enterprise Foundation (Security & Administration)
 *   **Multi-Tenancy & Workspaces:** Secure, logical isolation of data, projects, and resources per client or team.
 *   **Role-Based Access Control (RBAC):** Granular permission settings dictating what human members and AI agents can access and execute.
+*   **API Key Management:** Full lifecycle management (generation, secure display, and revocation) of API keys for external integrations and service access.
 *   **Comprehensive Audit Logging:** Immutable tracking of all human and agent actions for security, compliance, and troubleshooting.
 *   **Secure Execution Sandbox:** Isolated environments for agents to run scripts and execute code safely.

@@ -6,6 +6,7 @@ This roadmap outlines the strategic plan to build out the Conversational Project
 **Goal:** Transition the user interface to be chat-first and integrate the LLM runner for basic conversational scoping.
 
 - **UI Refactoring:** Replace traditional project creation forms with a conversational interface.
+- **Settings & Administration Wiring:** Fully functional integration of RBAC, API Keys, Audit Logs, and multi-tenant isolation between the frontend UI and FastAPI backend.
 - **LLM Runner Integration:** Connect frontend chat UI to backend LLM engine (OpenAI/Anthropic) via `server.main`.
 - **Basic Intent Parsing:** Extract core project details (name, description, tech stack).
 - **Split-View Prototyping:** Build UI component to show chat alongside auto-generating documents.

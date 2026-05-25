@@ -33,6 +33,7 @@ Agency OS has established a robust enterprise foundation (RBAC, Multi-Tenancy, A
 ## The Foundation (Already Built)
 - **Multi-Tenancy & Workspaces:** Secure isolation of projects and resources.
 - **Role-Based Access Control (RBAC):** Granular permissions for team members and agents.
+- **API Key Management:** Full lifecycle management (generation, secure display, and revocation) of API keys.
 - **Audit Logging:** Comprehensive tracking of all actions for compliance and security.
 
 ## Target Audience
