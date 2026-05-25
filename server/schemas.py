@@ -132,13 +132,21 @@ class DocumentRefineResponse(BaseModel):
     doc_type: str
     chat_response: str
 
-class CustomAgentCreate(BaseModel):
+class AgentIdentity(BaseModel):
     name: str
     role: str
-    description: Optional[str] = ""
+    version: str
+
+class AgentSystemRules(BaseModel):
+    path: str
+    enforcement_level: str
+
+class CustomAgentCreate(BaseModel):
+    identity: AgentIdentity
+    system_rules: AgentSystemRules
+    capabilities: List[str]
+    constraints: List[str]
     system_prompt: str
-    capabilities: str
-    guardrails: str
 
 class CustomAgentOut(BaseModel):
     id: str

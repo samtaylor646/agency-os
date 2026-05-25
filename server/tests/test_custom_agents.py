@@ -1,0 +1,88 @@
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from server.main import app
+from server.database import Base, get_db
+from server import models
+import uuid
+import os
+import shutil
+
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test_custom_agents.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def override_get_db():
+    try:
+        db = TestingSessionLocal()
+        yield db
+    finally:
+        db.close()
+
+app.dependency_overrides[get_db] = override_get_db
+
+@pytest.fixture(scope="module", autouse=True)
+def setup_db():
+    Base.metadata.create_all(bind=engine)
+    db = TestingSessionLocal()
+    
+    workspace = models.Workspace(name="Test Workspace")
+    db.add(workspace)
+    db.commit()
+    db.refresh(workspace)
+    
+    user = models.User(email="test@example.com", hashed_password="hashed_password", tenant_id=workspace.id)
+    db.add(user)
+    db.commit()
+    
+    yield
+    
+    db.close()
+    Base.metadata.drop_all(bind=engine)
+    if os.path.exists("./test_custom_agents.db"):
+        os.remove("./test_custom_agents.db")
+    if os.path.exists("agents/custom"):
+        shutil.rmtree("agents/custom", ignore_errors=True)
+
+def test_create_custom_agent():
+    client = TestClient(app)
+    
+    # Needs auth token typically, assuming test uses a mock or we need to add one.
+    # Actually, we can bypass auth for simple tests by overriding get_api_or_user_tenant_context.
+    from server.dependencies import get_api_or_user_tenant_context
+    app.dependency_overrides[get_api_or_user_tenant_context] = lambda: 1
+    
+    payload = {
+        "identity": {
+            "name": "Wizard Agent",
+            "role": "Test Role",
+            "version": "1.0.0"
+        },
+        "system_rules": {
+            "path": "config/settings.md",
+            "enforcement_level": "Strict"
+        },
+        "capabilities": ["cap1", "cap2"],
+        "constraints": ["const1", "const2"],
+        "system_prompt": "You are a wizard."
+    }
+    
+    response = client.post("/api/v1/custom_agents", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["name"] == "Wizard Agent"
+    assert data["role"] == "Test Role"
+    assert "filepath" in data
+    
+    # Read the file
+    filepath = data["filepath"]
+    assert os.path.exists(filepath)
+    with open(filepath, "r") as f:
+        content = f.read()
+    
+    assert "Wizard Agent" in content
+    assert "Test Role" in content
+    assert "cap1" in content
+    assert "const1" in content
+    assert "You are a wizard." in content
