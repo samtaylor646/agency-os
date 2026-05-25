@@ -60,7 +60,8 @@ export const WorkspaceProvider = ({ children }) => {
       activeWorkspace,
       userRole,
       setUserRole,
-      apiFetch 
+      apiFetch,
+      setWorkspaces
     }}>
       {children}
     </WorkspaceContext.Provider>

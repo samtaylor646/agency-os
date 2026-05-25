@@ -156,6 +156,7 @@ class Template(Base):
     template_type = Column(String(255), nullable=False) # e.g. "agent", "workflow"
     content = Column(JSON, nullable=False)
     version = Column(String(255), nullable=False, default="1.0.0")
+    tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -176,6 +177,7 @@ class CustomAgent(Base):
     name = Column(String(255), nullable=False)
     role = Column(String(255), nullable=False)
     filepath = Column(String(255), unique=True, nullable=False)
+    tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False, default=1)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 

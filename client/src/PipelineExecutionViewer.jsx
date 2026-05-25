@@ -78,44 +78,44 @@ export const PipelineExecutionViewer = () => {
   const activeTaskData = tasks.find(t => t.id === activeTask) || tasks.find(t => t.status === 'error') || tasks[tasks.length - 1];
 
   return (
-    <div className="flex flex-col h-full space-y-6">
-      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
+    <div className="flex flex-col h-full space-y-4 md:space-y-6">
+      <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-200 md:border-gray-100 md:shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4 mb-4 md:mb-6">
           <div>
-            <h2 className="text-xl font-bold text-gray-800 flex items-center">
-              <Activity className="w-6 h-6 mr-2 text-blue-600" />
-              Pipeline Execution Viewer
+            <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center tracking-tight">
+              <Activity className="w-5 h-5 md:w-6 md:h-6 mr-2 text-blue-600 shrink-0" />
+              Pipeline Execution
             </h2>
-            <p className="text-gray-600 text-sm mt-1">Monitor real-time task orchestration and agent execution.</p>
+            <p className="text-gray-600 text-xs md:text-sm mt-1">Monitor real-time task orchestration and agent execution.</p>
           </div>
           <button 
             onClick={startPipeline}
             disabled={pipelineState === 'running'}
-            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm md:text-base font-medium transition-colors w-full sm:w-auto shrink-0 uppercase tracking-wider md:tracking-normal md:normal-case ${
               pipelineState === 'running' 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                : 'bg-blue-600 text-white hover:bg-blue-700'
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 md:border-transparent' 
+                : 'bg-blue-600 md:bg-blue-600 text-white hover:bg-blue-700 md:hover:bg-blue-700'
             }`}
           >
             {pipelineState === 'running' ? (
-              <><Clock className="w-5 h-5 mr-2 animate-spin" /> Running...</>
+              <><Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" /> Running...</>
             ) : (
-              <><Play className="w-5 h-5 mr-2" /> Start Pipeline</>
+              <><Play className="w-4 h-4 md:w-5 md:h-5 mr-2" /> Start Pipeline</>
             )}
           </button>
         </div>
 
         {/* DAG / Task List Visualizer */}
         <div className="relative">
-          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-100 z-0"></div>
-          <div className="space-y-4 relative z-10">
+          <div className="absolute left-6 md:left-8 top-0 bottom-0 w-0.5 bg-gray-100 z-0"></div>
+          <div className="space-y-3 md:space-y-4 relative z-10">
             {tasks.map((task, index) => (
               <div 
                 key={task.id} 
-                className={`flex items-start space-x-4 p-4 rounded-xl border transition-all ${
-                  task.status === 'running' ? 'border-blue-300 bg-blue-50 shadow-sm' : 
-                  task.status === 'completed' ? 'border-green-200 bg-green-50/30' : 
-                  'border-gray-100 bg-white'
+                className={`flex items-start space-x-3 md:space-x-4 p-3 md:p-4 rounded-xl border transition-all ${
+                  task.status === 'running' ? 'border-blue-300 bg-blue-50/50 md:bg-blue-50 shadow-sm' : 
+                  task.status === 'completed' ? 'border-green-200 bg-green-50/20 md:bg-green-50/30' : 
+                  'border-gray-200 md:border-gray-100 bg-white'
                 }`}
               >
                 <div className="bg-white rounded-full p-1 border-2 border-white shadow-sm mt-0.5">
@@ -149,14 +149,14 @@ export const PipelineExecutionViewer = () => {
       </div>
 
       {/* Logs and Terminal View */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-[300px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 flex-1 min-h-[300px]">
         {/* Orchestrator Logs */}
         <div className="bg-gray-900 rounded-xl border border-gray-800 shadow-inner flex flex-col overflow-hidden">
-          <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center">
+          <div className="bg-gray-800 px-3 md:px-4 py-2 border-b border-gray-700 flex items-center">
             <Terminal className="w-4 h-4 text-gray-400 mr-2" />
-            <span className="text-sm font-medium text-gray-300 font-mono">Orchestrator Logs</span>
+            <span className="text-[10px] md:text-sm font-medium text-gray-300 font-mono uppercase tracking-wider md:tracking-normal md:normal-case">Orchestrator Logs</span>
           </div>
-          <div className="p-4 flex-1 overflow-y-auto font-mono text-sm space-y-2">
+          <div className="p-3 md:p-4 flex-1 overflow-y-auto font-mono text-[11px] md:text-sm space-y-2">
             {overallLogs.length === 0 ? (
               <span className="text-gray-500 italic">Waiting for pipeline to start...</span>
             ) : (
@@ -174,26 +174,26 @@ export const PipelineExecutionViewer = () => {
 
         {/* Active Agent Context/Logs */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-            <div className="flex items-center text-gray-700 font-medium text-sm">
-              <FileText className="w-4 h-4 mr-2 text-indigo-500" />
+          <div className="bg-gray-50 md:bg-gray-50 px-3 md:px-4 py-2 md:py-3 border-b border-gray-200 flex items-center justify-between">
+            <div className="flex items-center text-gray-700 font-medium text-[10px] md:text-sm uppercase tracking-wider md:tracking-normal md:normal-case">
+              <FileText className="w-4 h-4 mr-2 text-indigo-500 hidden md:block" />
               Agent Execution Scope
             </div>
             {activeTaskData && (
-               <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded font-mono border border-indigo-100">
+               <span className="text-[10px] md:text-xs bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded-sm md:rounded font-mono border border-indigo-100">
                  {activeTaskData.agent}
                </span>
             )}
           </div>
-          <div className="p-4 flex-1 overflow-y-auto bg-slate-50 font-mono text-sm space-y-2">
+          <div className="p-3 md:p-4 flex-1 overflow-y-auto bg-gray-50 font-mono text-[11px] md:text-sm space-y-2">
             {(!activeTaskData || activeTaskData.logs.length === 0) ? (
                <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-2">
-                 <Terminal className="w-8 h-8 opacity-20" />
+                 <Terminal className="w-6 h-6 md:w-8 md:h-8 opacity-20" />
                  <span>No active agent logs.</span>
                </div>
             ) : (
               activeTaskData.logs.map((log, i) => (
-                <div key={i} className="text-slate-700">
+                <div key={i} className="text-slate-700 break-words">
                   <span className="text-slate-400 select-none mr-2">{'>'}</span>{log}
                 </div>
               ))

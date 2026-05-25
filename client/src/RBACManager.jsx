@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, ShieldAlert, Check } from 'lucide-react';
+import { Shield, ShieldAlert, Check, Plus, Minus } from 'lucide-react';
 import { useWorkspace } from './WorkspaceContext';
 
 export const RBACManager = () => {
@@ -64,19 +64,19 @@ export const RBACManager = () => {
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center space-x-3 mb-2">
-              <Shield className="w-6 h-6 text-indigo-600" />
+              <Shield className="w-6 h-6 text-indigo-600 shrink-0" />
               <h2 className="text-xl font-bold text-gray-800">Role-Based Access Control</h2>
             </div>
             <p className="text-gray-600">Manage custom roles and granular permissions for your workspace.</p>
           </div>
           <button 
             onClick={() => setIsAdding(!isAdding)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2"
+            className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto shrink-0 shadow-sm"
           >
-            <Check className="w-4 h-4" />
+            {isAdding ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             <span>{isAdding ? 'Cancel' : 'Create Role'}</span>
           </button>
         </div>
@@ -119,7 +119,7 @@ export const RBACManager = () => {
                 />
               </div>
             </div>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+            <button type="submit" className="w-full md:w-auto bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
               Save Role
             </button>
           </form>

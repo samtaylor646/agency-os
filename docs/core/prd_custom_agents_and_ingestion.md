@@ -18,6 +18,7 @@ AgencyOS is evolving to empower users to define their own specialized agents and
   * Users can specify agent Name, Role, Goal, Backstory, Capabilities, and Tools.
   * System must export/save the agent configuration matching the markdown/YAML format of `agency-agents`.
   * Custom agents must be immediately available to the central runner (`central_runner.py`) for task assignment.
+  * *Update (Completed):* Exact YAML generation ensures strict schema adherence required by the engine, including robust error handling for user inputs to prevent malformed configurations.
   * *Example Use Case:* A user needs a niche CMS expert (e.g., Ghost or Webflow). They use the creator to define the rules, and the agent is added to their workspace.
 
 ### 3.2 Document-Driven Task Pipeline

@@ -20,11 +20,11 @@ To ensure this epic is completed with maximum quality according to the NEXUS pip
 
 ## 3. Subtasks and Execution Checklist
 
-The following checklist maps out the execution order. 
+The following checklist maps out the execution order.
 
 ### Phase 1: Planning and Architecture
-- [ ] **Task 1 (UX Architect):** Define the multi-step wizard UI flow and form fields mapping to the template structure.
-- [ ] **Task 2 (Backend Architect):** Define the exact output format (YAML frontmatter vs pure YAML) required to match `config/agent_base.yaml` and update the Pydantic schema design (`schemas.CustomAgentCreate`).
+- [x] **Task 1 (UX Architect):** Define the multi-step wizard UI flow and form fields mapping to the template structure.
+- [x] **Task 2 (Backend Architect):** Define the exact output format (YAML frontmatter vs pure YAML) required to match `config/agent_base.yaml` and update the Pydantic schema design (`schemas.CustomAgentCreate`).
 
 ### Phase 2: Backend Implementation
 - [x] **Task 3 (Backend Architect):** Update `server/schemas.py` to include new fields: `identity` (name, role, version), `system_rules` (path, enforcement_level), `capabilities` (list), `constraints` (list), and `system_prompt` (string).
@@ -41,4 +41,4 @@ The following checklist maps out the execution order.
 
 ### Phase 4: QA and Handoff
 - [x] **Task 12 (Evidence Collector):** Perform end-to-end testing of the wizard, providing screenshot evidence of each step and the final generated agent file.
-- [ ] **Task 13 (Agents Orchestrator):** Review QA findings, finalize the epic, and prepare handoff documentation.
+- [x] **Task 13 (Agents Orchestrator):** Review QA findings, finalize the epic, and prepare handoff documentation.

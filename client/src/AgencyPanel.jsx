@@ -9,6 +9,8 @@ import { Marketplace } from './Marketplace';
 import CustomAgentCreator from './CustomAgentCreator';
 import ChatScopeInterface from './ChatScopeInterface';
 import PipelineExecutionViewer from './PipelineExecutionViewer';
+import CreateWorkspaceModal from './CreateWorkspaceModal';
+import { ApiKeysModal, InviteUserModal, EditUserModal } from './WorkspaceSettingsModals';
 import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2, Menu, X, Search, Send, MessageSquare, Bot, Cpu } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
@@ -47,18 +49,12 @@ const WorkflowManager = () => {
     };
 
     try {
-      // Assuming a token might be needed in a real app, for MVP we just hit the endpoint.
-      // Wait, let's just make the request. We might need a token if auth is required, but we can try without or just pass a dummy one if not enforced strictly.
-      // Actually /workflows/run has current_user = Depends(auth.get_current_user)
-      // For the sake of the MVP UI we'll just demonstrate the fetch.
-      // We should probably get a token first.
-      
       const tokenRes = await fetch('/api/v1/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
           username: 'admin@agencyos.com',
-          password: 'password123' // default pass from MVP specs
+          password: 'password123'
         })
       });
       
@@ -128,40 +124,65 @@ const WorkflowManager = () => {
 };
 
 // --- Workspaces Admin View ---
-const WorkspaceManagementUI = () => {
+const WorkspaceManagementUI = ({ showNotification }) => {
   const { activeWorkspace } = useWorkspace();
+  const [members, setMembers] = useState([]);
+  const [isApiKeysOpen, setIsApiKeysOpen] = useState(false);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
+
+  const fetchMembers = async () => {
+    if (!activeWorkspace) return;
+    try {
+      const res = await fetch(`/api/v1/rbac/workspaces/${activeWorkspace.id}/members`);
+      if (res.ok) {
+        setMembers(await res.json());
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, [activeWorkspace]);
   
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Workspace Settings: {activeWorkspace?.name}</h2>
+    <div className="space-y-4 md:space-y-6">
+      <ApiKeysModal isOpen={isApiKeysOpen} onClose={() => setIsApiKeysOpen(false)} showNotification={showNotification} />
+      <InviteUserModal isOpen={isInviteOpen} onClose={() => setIsInviteOpen(false)} showNotification={showNotification} onInviteSuccess={fetchMembers} />
+      <EditUserModal isOpen={!!userToEdit} onClose={() => setUserToEdit(null)} user={userToEdit} showNotification={showNotification} onUpdateSuccess={fetchMembers} />
+      
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 p-4 md:p-6 border-b border-gray-200 md:rounded-xl md:border md:border-gray-100 md:shadow-sm">
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4 tracking-tight">Workspace Settings: {activeWorkspace?.name}</h2>
         <p className="text-gray-600 mb-6">Manage settings and integrations for this specific client workspace.</p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <h3 className="font-semibold text-gray-800 mb-2">API Keys</h3>
-            <p className="text-sm text-gray-500 mb-4">Manage API access for this workspace.</p>
-            <button className="text-blue-600 text-sm font-medium hover:underline" onClick={() => alert("Manage Keys action triggered")}>Manage Keys</button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <div className="p-3 md:p-4 border border-gray-200 rounded-xl flex flex-col items-start bg-gray-50 md:bg-transparent">
+            <h3 className="font-medium text-gray-800 mb-1 md:mb-2 text-sm md:text-base">API Keys</h3>
+            <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-4">Manage API access for this workspace.</p>
+            <button className="w-full md:w-auto text-blue-600 bg-white md:bg-transparent border border-gray-200 md:border-transparent py-1.5 md:py-0 rounded-sm text-xs font-semibold md:text-sm md:font-medium hover:underline mt-auto uppercase tracking-wider md:tracking-normal md:normal-case" onClick={() => setIsApiKeysOpen(true)}>Manage Keys</button>
           </div>
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <h3 className="font-semibold text-gray-800 mb-2">Billing Context</h3>
-            <p className="text-sm text-gray-500 mb-4">View usage limits for {activeWorkspace?.name}.</p>
-            <button className="text-blue-600 text-sm font-medium hover:underline" onClick={() => alert("View Usage action triggered")}>View Usage</button>
+          <div className="p-3 md:p-4 border border-gray-200 rounded-xl flex flex-col items-start bg-gray-50 md:bg-transparent">
+            <h3 className="font-medium text-gray-800 mb-1 md:mb-2 text-sm md:text-base">Billing Context</h3>
+            <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-4">View usage limits for {activeWorkspace?.name}.</p>
+            <button className="w-full md:w-auto text-blue-600 bg-white md:bg-transparent border border-gray-200 md:border-transparent py-1.5 md:py-0 rounded-sm text-xs font-semibold md:text-sm md:font-medium hover:underline mt-auto uppercase tracking-wider md:tracking-normal md:normal-case" onClick={() => showNotification("Billing / Usage module not implemented yet")}>View Usage</button>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Users & Invites</h2>
-          <button className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 transition-colors" onClick={() => alert("Invite User action triggered")}>
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 p-4 md:p-6 border-b border-gray-200 md:rounded-xl md:border md:border-gray-100 md:shadow-sm">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-3">
+          <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-tight">Users & Invites</h2>
+          <button className="w-full md:w-auto flex items-center justify-center space-x-1 bg-blue-600 md:bg-blue-600 text-white px-3 py-2 md:py-1.5 rounded-sm md:rounded-md text-[10px] md:text-sm font-semibold uppercase tracking-wider md:tracking-normal md:normal-case md:font-normal hover:bg-blue-700 md:hover:bg-blue-700 transition-colors" onClick={() => setIsInviteOpen(true)}>
             <Plus className="w-4 h-4" />
             <span>Invite User</span>
           </button>
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          {/* Desktop Table */}
+          <table className="hidden md:table w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-gray-200 text-gray-500 text-sm">
                 <th className="py-3 font-medium">User</th>
@@ -171,20 +192,40 @@ const WorkspaceManagementUI = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-gray-100 text-sm">
-                <td className="py-3 text-gray-800">admin@agency.com</td>
-                <td className="py-3 text-gray-600">Agency Admin</td>
-                <td className="py-3 text-green-600">Active</td>
-                <td className="py-3"><button className="text-gray-400 hover:text-gray-600">Edit</button></td>
-              </tr>
-              <tr className="border-b border-gray-100 text-sm">
-                <td className="py-3 text-gray-800">client@acme.com</td>
-                <td className="py-3 text-gray-600">Client Approver</td>
-                <td className="py-3 text-yellow-600">Pending</td>
-                <td className="py-3"><button className="text-gray-400 hover:text-gray-600">Edit</button></td>
-              </tr>
+              {members.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="py-4 text-center text-gray-500 text-sm">No members found</td>
+                </tr>
+              )}
+              {members.map(member => (
+                <tr key={member.id} className="border-b border-gray-100 text-sm">
+                  <td className="py-3 text-gray-800">{member.email || `User #${member.user_id}`}</td>
+                  <td className="py-3 text-gray-600">{member.role_name}</td>
+                  <td className="py-3 text-green-600">Active</td>
+                  <td className="py-3"><button className="text-gray-400 hover:text-gray-600" onClick={() => setUserToEdit(member)}>Edit</button></td>
+                </tr>
+              ))}
             </tbody>
           </table>
+
+          {/* Mobile List View */}
+          <div className="md:hidden divide-y divide-gray-200 border-t border-gray-200">
+            {members.length === 0 && (
+              <div className="py-4 text-center text-gray-500 text-sm">No members found</div>
+            )}
+            {members.map(member => (
+              <div key={member.id} className="py-3 space-y-1">
+                <div className="flex justify-between items-start">
+                  <span className="font-mono text-sm text-blue-800">{member.email || `User #${member.user_id}`}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm">Active</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-500 font-semibold">{member.role_name}</span>
+                  <button className="text-blue-600 font-semibold uppercase tracking-wider text-[10px]" onClick={() => setUserToEdit(member)}>Edit</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       
@@ -197,45 +238,122 @@ const WorkspaceManagementUI = () => {
 const ClientPortalView = () => {
   const { activeWorkspace } = useWorkspace();
 
+  const handleDownload = () => {
+    window.location.href = '/api/v1/analytics/export';
+  };
+
   return (
     <div className="space-y-6">
-      <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl">
-        <h2 className="text-xl font-bold text-blue-900 mb-2">Welcome back to {activeWorkspace?.name} Portal</h2>
-        <p className="text-blue-700">View your active campaigns, approve content, and track performance.</p>
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-6 rounded-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <Activity className="w-32 h-32 text-blue-900" />
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-center space-x-3 mb-2">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <h2 className="text-xl font-bold text-blue-900">System Status: {activeWorkspace?.name}</h2>
+          </div>
+          <p className="text-blue-700 text-sm">Real-time metrics, active campaigns, and required approvals.</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-1">Pending Approvals</h3>
-            <p className="text-3xl font-bold text-gray-900 mb-4">3</p>
-            <p className="text-sm text-gray-500">2 Social Posts, 1 Blog Article</p>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        {/* Metric 1 */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+          <div className="p-3 md:p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <h3 className="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Approvals</h3>
+            <span className="flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-sm md:rounded-md bg-amber-100 text-amber-600">
+              <CheckCircle className="w-3 h-3 md:w-3.5 md:h-3.5" />
+            </span>
           </div>
-          <button className="mt-4 flex items-center text-blue-600 text-sm font-medium hover:underline">
-            Review Now <ArrowRight className="w-4 h-4 ml-1" />
-          </button>
-        </div>
-        
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-1">Active Pipelines</h3>
-            <p className="text-3xl font-bold text-gray-900 mb-4">2</p>
-            <p className="text-sm text-green-600">All running smoothly</p>
+          <div className="p-3 md:p-5 flex-1 flex flex-col">
+            <div className="flex items-end space-x-2 mb-3 md:mb-4">
+              <span className="text-3xl md:text-4xl font-mono text-blue-900 tracking-tight">3</span>
+              <span className="text-xs md:text-sm font-medium text-amber-500 mb-1">Action Required</span>
+            </div>
+            
+            <div className="space-y-2 mb-4 md:mb-6">
+              <div className="flex justify-between text-[10px] md:text-xs text-slate-500">
+                <span>Social Posts</span>
+                <span className="font-mono text-slate-700">2</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-sm md:rounded-full h-1 md:h-1.5">
+                <div className="bg-slate-400 h-1 md:h-1.5 rounded-sm md:rounded-full" style={{ width: '66%' }}></div>
+              </div>
+              <div className="flex justify-between text-[10px] md:text-xs text-slate-500">
+                <span>Blog Articles</span>
+                <span className="font-mono text-slate-700">1</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-sm md:rounded-full h-1 md:h-1.5">
+                <div className="bg-slate-400 h-1 md:h-1.5 rounded-sm md:rounded-full" style={{ width: '33%' }}></div>
+              </div>
+            </div>
+            
+            <button className="mt-auto w-full py-1.5 md:py-2 bg-blue-600 text-white rounded-sm md:rounded text-xs md:text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center uppercase tracking-wider md:tracking-normal md:normal-case">
+              Review <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 ml-1.5" />
+            </button>
           </div>
-          <button className="mt-4 flex items-center text-blue-600 text-sm font-medium hover:underline">
-            View Details <ArrowRight className="w-4 h-4 ml-1" />
-          </button>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-1">Recent Reports</h3>
-            <p className="text-3xl font-bold text-gray-900 mb-4">Q2</p>
-            <p className="text-sm text-gray-500">Performance Summary</p>
+        {/* Metric 2 */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+          <div className="p-3 md:p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <h3 className="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Pipelines</h3>
+            <span className="flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-sm md:rounded-md bg-emerald-100 text-emerald-600">
+              <Activity className="w-3 h-3 md:w-3.5 md:h-3.5" />
+            </span>
           </div>
-          <button className="mt-4 flex items-center text-blue-600 text-sm font-medium hover:underline">
-            Download <ArrowRight className="w-4 h-4 ml-1" />
-          </button>
+          <div className="p-3 md:p-5 flex-1 flex flex-col">
+            <div className="flex items-end space-x-2 mb-3 md:mb-4">
+              <span className="text-3xl md:text-4xl font-mono text-blue-900 tracking-tight">2</span>
+              <span className="text-xs md:text-sm font-medium text-emerald-500 mb-1">Healthy</span>
+            </div>
+            
+            <div className="h-10 md:h-16 flex items-end space-x-1 mb-4 md:mb-6 mt-auto">
+              {[40, 70, 45, 90, 65, 100, 80].map((val, i) => (
+                <div key={i} className="flex-1 bg-slate-100 rounded-t-sm relative group cursor-crosshair">
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 bg-emerald-400 rounded-t-sm transition-all duration-300 group-hover:bg-emerald-500"
+                    style={{ height: `${val}%` }}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            <button className="mt-auto w-full py-1.5 md:py-2 border border-gray-200 text-slate-700 rounded-sm md:rounded text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center uppercase tracking-wider md:tracking-normal md:normal-case">
+              Monitor <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 ml-1.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Metric 3 */}
+        <div className="col-span-2 md:col-span-1 bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+          <div className="p-3 md:p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <h3 className="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider">Performance Reports</h3>
+            <span className="flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-sm md:rounded-md bg-indigo-100 text-indigo-600">
+              <BarChart2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
+            </span>
+          </div>
+          <div className="p-3 md:p-5 flex-1 flex flex-col">
+            <div className="flex items-end space-x-2 mb-3 md:mb-4">
+              <span className="text-3xl md:text-4xl font-mono text-blue-900 tracking-tight">Q2</span>
+              <span className="text-xs md:text-sm font-medium text-indigo-500 mb-1">Generated</span>
+            </div>
+            
+            <div className="bg-gray-50 rounded-sm p-2 md:p-3 border border-gray-100 mb-4 md:mb-6">
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-mono text-[10px] md:text-xs font-medium text-slate-700">Q2 Summary.pdf</span>
+                <span className="font-mono text-[10px] md:text-xs text-slate-400">2.4 MB</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-mono text-[10px] md:text-xs text-slate-500">Generated: Today, 09:41 AM</span>
+              </div>
+            </div>
+            
+            <button onClick={handleDownload} className="mt-auto w-full py-1.5 md:py-2 border border-gray-200 text-slate-700 rounded-sm md:rounded text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center uppercase tracking-wider md:tracking-normal md:normal-case">
+              Download <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 ml-1.5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -247,16 +365,53 @@ export default function AgencyPanel() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [notification, setNotification] = useState(null);
   
-  // Listen for the custom event to simulate creating a workspace
   useEffect(() => {
-    const handleOpenCreate = () => alert('Create Workspace Modal would open here.');
+    const handleOpenCreate = () => setIsCreateModalOpen(true);
     document.addEventListener('open-create-workspace', handleOpenCreate);
     return () => document.removeEventListener('open-create-workspace', handleOpenCreate);
   }, []);
 
+  const showNotification = (message) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleSendPrompt = async () => {
+    if (!chatInput.trim()) return;
+    
+    showNotification(`Processing your request: "${chatInput}"...`);
+    
+    try {
+      const response = await fetch('/api/v1/chat/scope', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: chatInput }),
+      });
+      if (response.ok) {
+        showNotification("Request sent successfully to orchestration engine.");
+      } else {
+        showNotification("Failed to send request. Engine might be offline.");
+      }
+    } catch (err) {
+      showNotification("Error: Could not reach the engine.");
+    }
+
+    setChatInput('');
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50 font-sans overflow-hidden">
+    <div className="flex h-screen bg-gray-50 font-sans overflow-hidden relative">
+      {/* Toast Notification Layer */}
+      {notification && (
+        <div className="absolute top-4 right-4 z-[100] bg-gray-800 text-white px-4 py-3 rounded shadow-lg flex items-center space-x-2 transition-all">
+          <AlertCircle className="w-5 h-5 text-blue-400" />
+          <span className="text-sm font-medium">{notification}</span>
+        </div>
+      )}
+
       {/* Mobile sidebar overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -384,8 +539,8 @@ export default function AgencyPanel() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-8">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <header className="bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-8">
           <div className="flex items-center">
             <button 
               className="md:hidden mr-3 text-gray-500 hover:text-gray-700"
@@ -421,7 +576,7 @@ export default function AgencyPanel() {
               </div>
             )}
             {activeTab === 'settings' && userRole === 'Agency Admin' && (
-              <WorkspaceManagementUI />
+              <WorkspaceManagementUI showNotification={showNotification} />
             )}
             {activeTab === 'agents' && userRole === 'Agency Admin' && (
               <CustomAgentCreator />
@@ -451,37 +606,36 @@ export default function AgencyPanel() {
           </div>
           
           {/* Chat Prompt Box */}
-          <div className="max-w-3xl mx-auto w-full mt-auto fixed bottom-6 left-0 right-0 md:pl-64 px-4 pointer-events-none">
-            <div className="bg-white rounded-full shadow-lg border border-gray-200 p-2 flex items-center pointer-events-auto">
-              <Search className="w-5 h-5 text-gray-400 ml-3 mr-2" />
+          <div className="max-w-3xl mx-auto w-full mt-auto fixed bottom-0 md:bottom-6 left-0 right-0 md:pl-64 md:px-4 pointer-events-none">
+            <div className="bg-white/80 md:bg-white backdrop-blur-md md:backdrop-blur-none rounded-none md:rounded-full shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-lg border-t md:border border-gray-200 p-2 md:p-2 flex items-center pointer-events-auto">
+              <Search className="w-5 h-5 text-gray-400 ml-3 mr-2 hidden md:block" />
               <input
                 type="text"
                 placeholder="Ask AgencyOS a question or generate a workflow..."
-                className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-1 outline-none text-gray-800"
+                className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 md:py-2 px-3 md:px-1 outline-none text-gray-800 placeholder-gray-500"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && chatInput) {
-                    alert(`Message sent: ${chatInput}`);
-                    setChatInput('');
+                  if (e.key === 'Enter') {
+                    handleSendPrompt();
                   }
                 }}
               />
               <button 
-                className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors ml-2"
-                onClick={() => {
-                  if (chatInput) {
-                    alert(`Message sent: ${chatInput}`);
-                    setChatInput('');
-                  }
-                }}
+                className="bg-transparent md:bg-blue-600 text-blue-600 md:text-white p-2 md:p-2 rounded-sm md:rounded-full hover:bg-gray-100 md:hover:bg-blue-700 transition-colors ml-1 md:ml-2"
+                onClick={handleSendPrompt}
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-5 h-5 md:w-4 md:h-4" />
               </button>
             </div>
           </div>
         </div>
       </main>
+
+      <CreateWorkspaceModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+      />
     </div>
   );
 }

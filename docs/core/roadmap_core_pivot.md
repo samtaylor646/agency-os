@@ -22,7 +22,7 @@ This roadmap outlines the strategic pivot to prioritize the Conversational Proje
 **Goal:** Bridge the generated plans directly into agent execution, guided by the [Nexus Strategy](../../agents/strategy/nexus-strategy.md).
 
 - **Dynamic Agent Selection:** Implement logic to map task requirements to the specific roles defined in the `/agents` directory.
-- **Custom Agent Support (`agency-agents` format):** Build parsing and creation tools to allow users to plug in custom, specialized agents seamlessly.
+- **Custom Agent Support (`agency-agents` format):** Build parsing and creation tools to allow users to plug in custom, specialized agents seamlessly. (Completed: Phase 1-4 Wizard Implementation with YAML integration and robust error handling)
 - **Task Queue Generation:** Automatically translate the generated Markdown task list into actionable items for `central_runner.py`.
 - **Execution Visibility:** Update the frontend Dashboard to display real-time logs and statuses of agents working on the newly created project.
 

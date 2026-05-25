@@ -39,7 +39,7 @@ export const Marketplace = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
           <div className="flex items-center space-x-3 mb-2">
             <Store className="w-6 h-6 text-indigo-600" />
@@ -47,7 +47,7 @@ export const Marketplace = () => {
           </div>
           <p className="text-gray-600">Browse and install pre-configured agents and workflows into your workspace.</p>
         </div>
-        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2">
+        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto shrink-0">
           <Plus className="w-4 h-4" />
           <span>Publish Template</span>
         </button>

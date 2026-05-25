@@ -46,7 +46,10 @@ export const AuditLogViewer = () => {
             <Database className="w-6 h-6 text-gray-800" />
             <h2 className="text-xl font-bold text-gray-800">Audit Logs</h2>
           </div>
-          <button className="flex items-center space-x-2 text-sm text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50">
+          <button 
+            onClick={() => window.location.href = '/api/v1/workspaces/audit-logs/export'}
+            className="flex items-center space-x-2 text-sm text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50"
+          >
             <Download className="w-4 h-4" />
             <span>Export CSV</span>
           </button>
@@ -56,7 +59,8 @@ export const AuditLogViewer = () => {
           <p className="text-gray-500">Loading audit logs...</p>
         ) : (
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
+            {/* Desktop View */}
+            <table className="min-w-full divide-y divide-gray-200 hidden md:table">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
@@ -80,6 +84,28 @@ export const AuditLogViewer = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* Mobile View */}
+            <div className="md:hidden divide-y divide-slate-200 border-t border-gray-200">
+              {logs.map(log => (
+                <div key={log.id} className="py-3 px-1">
+                  <div className="flex justify-between">
+                    <span className="font-mono text-[11px] text-slate-500">
+                      {new Date(log.created_at).toLocaleDateString(undefined, {month: '2-digit', day: '2-digit'})} {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <span className="text-xs font-semibold text-blue-600 truncate max-w-[150px]">
+                      {log.user}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex justify-between items-center">
+                    <span className="font-mono text-xs truncate pr-2 text-slate-700">{log.resource}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-sm shrink-0 border border-gray-200">
+                      {log.action}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

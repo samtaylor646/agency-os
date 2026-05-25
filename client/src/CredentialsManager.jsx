@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useWorkspace } from './WorkspaceContext';
-import { Plus, Trash2, Key, AlertCircle, CheckCircle } from 'lucide-react';
+import { Plus, Trash2, Key, AlertCircle, CheckCircle, Minus } from 'lucide-react';
 
 export const CredentialsManager = () => {
   const { activeWorkspace } = useWorkspace();
@@ -124,16 +124,16 @@ export const CredentialsManager = () => {
 
   return (
     <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mt-6">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-xl font-bold text-gray-800">LLM Credentials Vault</h2>
           <p className="text-gray-600 text-sm mt-1">Securely manage API keys for LLM providers (encrypted at rest).</p>
         </div>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center space-x-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-200 transition-colors"
+          className="flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors w-full sm:w-auto shrink-0"
         >
-          <Plus className="w-4 h-4" />
+          {isAdding ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           <span>{isAdding ? 'Cancel' : 'Add Credential'}</span>
         </button>
       </div>
@@ -158,7 +158,7 @@ export const CredentialsManager = () => {
               <select 
                 value={newCred.provider} 
                 onChange={(e) => setNewCred({...newCred, provider: e.target.value})}
-                className="w-full border border-gray-300 rounded p-2 text-sm"
+                className="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow appearance-none"
               >
                 <option value="openai">OpenAI</option>
                 <option value="anthropic">Anthropic</option>
@@ -172,11 +172,11 @@ export const CredentialsManager = () => {
                 value={newCred.key}
                 onChange={(e) => setNewCred({...newCred, key: e.target.value})}
                 placeholder="sk-..."
-                className="w-full border border-gray-300 rounded p-2 text-sm"
+                className="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
               />
             </div>
           </div>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+          <button type="submit" className="w-full md:w-auto bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
             Save Credential
           </button>
         </form>
