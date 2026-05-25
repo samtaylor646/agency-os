@@ -6,8 +6,10 @@ import { RBACManager } from './RBACManager';
 import { AuditLogViewer } from './AuditLogViewer';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { Marketplace } from './Marketplace';
+import CustomAgentCreator from './CustomAgentCreator';
 import ChatScopeInterface from './ChatScopeInterface';
-import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2, Menu, X, Search, Send, MessageSquare } from 'lucide-react';
+import PipelineExecutionViewer from './PipelineExecutionViewer';
+import { Users, Settings, Activity, FileText, Share2, Plus, ArrowRight, Play, CheckCircle, Clock, AlertCircle, Shield, Database, Store, BarChart2, Menu, X, Search, Send, MessageSquare, Bot, Cpu } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button 
@@ -311,11 +313,19 @@ export default function AgencyPanel() {
               />
             )}
             <SidebarItem 
-              icon={Play} 
-              label="Workflows" 
+              icon={Cpu} 
+              label="Pipeline Execution" 
               active={activeTab === 'workflows'} 
               onClick={() => { setActiveTab('workflows'); setIsMobileMenuOpen(false); }} 
             />
+            {userRole === 'Agency Admin' && (
+              <SidebarItem 
+                icon={Bot} 
+                label="Custom Agents" 
+                active={activeTab === 'agents'} 
+                onClick={() => { setActiveTab('agents'); setIsMobileMenuOpen(false); }} 
+              />
+            )}
             <SidebarItem 
               icon={FileText} 
               label="Files & Assets" 
@@ -413,8 +423,11 @@ export default function AgencyPanel() {
             {activeTab === 'settings' && userRole === 'Agency Admin' && (
               <WorkspaceManagementUI />
             )}
+            {activeTab === 'agents' && userRole === 'Agency Admin' && (
+              <CustomAgentCreator />
+            )}
             {activeTab === 'workflows' && (
-              <WorkflowManager />
+              <PipelineExecutionViewer />
             )}
             {activeTab === 'files' && (
               <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center py-12">

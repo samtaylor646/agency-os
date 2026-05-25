@@ -160,6 +160,25 @@ class Template(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
+class IngestedDocument(Base):
+    __tablename__ = "ingested_documents"
+    id = Column(String(255), primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    filename = Column(String(255), nullable=False)
+    file_type = Column(String(50), nullable=False)
+    storage_path = Column(String(255), nullable=False)
+    status = Column(String(50), default="pending")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class CustomAgent(Base):
+    __tablename__ = "custom_agents"
+    id = Column(String(255), primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    role = Column(String(255), nullable=False)
+    filepath = Column(String(255), unique=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
 # Example of other core entities with tenant_id for Logical Isolation
 class Agent(Base):
     __tablename__ = "agents"

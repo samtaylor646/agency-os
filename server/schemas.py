@@ -131,3 +131,21 @@ class DocumentRefineResponse(BaseModel):
     content: str
     doc_type: str
     chat_response: str
+
+class CustomAgentCreate(BaseModel):
+    name: str
+    role: str
+    description: Optional[str] = ""
+    system_prompt: str
+    capabilities: str
+    guardrails: str
+
+class CustomAgentOut(BaseModel):
+    id: str
+    name: str
+    role: str
+    filepath: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
