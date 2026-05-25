@@ -9,11 +9,13 @@ This redesign focuses on the intro/home experience to match modern LLMs (e.g., C
 The app's entry point will be redesigned to mirror the focused, intent-driven interfaces of modern LLMs.
 
 ### Layout Strategy
-*   **Collapsible Left Menu (Sidebar):** A standard side navigation panel that can collapse to icons or completely slide out of view. It will contain global navigation, recent workspaces, chat history, and settings.
+*   **Collapsible Left Menu (Hybrid Sidebar):** A standard side navigation panel that balances the "chat-first" approach with necessary B2B operating system controls (similar to Gemini's "Gems" or Claude's "Projects").
+    *   **Included Items:** Global navigation ("New Chat" / Home), Recent workspaces / Chat history, a **"Workspace Tools"** section (Custom Agents, Analytics, Marketplace, Files) for rapid state management, and bottom-pinned utility links (Settings, Access Control, Audit Logs, Workflows).
 *   **Centered Main Workspace (Empty State):** A clean, distraction-free central layout featuring:
     *   A prominent welcome message.
     *   Suggested prompt chips or quick-action buttons (e.g., "Start a new project," "Analyze documents").
     *   A central, oversized search/input bar for immediate interaction.
+    *   **RBAC Condition:** The Intro Page is the exclusive landing page for `Agency Admin` and `Agency Staff`. `Client Approver` and `Client Viewer` roles bypass this entirely and land directly on the Client Dashboard.
 *   **Transition to Active State:** Upon input submission, the central bar animates to the bottom or top (depending on context), and the main area populates with the active session or results.
 
 ## 3. Accessibility Focus
@@ -26,12 +28,12 @@ To ensure the vital success of this redesign, tasks are explicitly assigned to s
 ### 1. Design & UX Architecture
 *   **Agent Assigned:** `design-ux-architect`
 *   **Second Chair / Reviewer:** `product-manager` (Ensures the intent-driven empty states and quick-action buttons perfectly align with the target user journey and business goals).
-*   **Tasks:** Defines layout strategies, navigation patterns, and user flows for the Intro Page. Drafts empty states, onboarding flows, and microcopy to ensure a premium modern LLM feel.
+*   **Tasks:** Defines layout strategies, navigation patterns, and user flows for the Intro Page. Drafts empty states, onboarding flows, and microcopy to ensure a premium modern LLM feel. Identifies and corrects any UX regressions (such as the accidental re-introduction of legacy sidebar menus).
 
 ### 2. Frontend Engineering
 *   **Agent Assigned:** `engineering-frontend-developer`
 *   **Second Chair / Reviewer:** `design-ux-architect` (Reviews the implementation of central search bar animations and layout shifts for smoothness, timing, and design fidelity).
-*   **Tasks:** Implements the Intro Page layout. Builds reusable components (Sidebar, Collapsible Panels) adhering to the global design system. Handles the animation of the central search bar transitioning to the active workspace state.
+*   **Tasks:** Implements the Intro Page layout. Builds reusable components (Sidebar, Collapsible Panels) adhering to the global design system. Handles the animation of the central search bar transitioning to the active workspace state. **Immediate Task:** Implement the "Hybrid Sidebar" by reinstating the "Workspace Tools" section (Agents, Analytics, Marketplace, Files) ensuring correct role-based visibility.
 
 ### 3. Quality Assurance
 *   **Agent Assigned:** `testing-evidence-collector`
@@ -42,7 +44,7 @@ To ensure the vital success of this redesign, tasks are explicitly assigned to s
 Implementing an LLM-style Intro Page fundamentally alters the application's entry flow:
 *   **Immediate Action Over Exploration:** The default dashboard is replaced by an action-first prompt interface. Users bypass traditional navigation menus to declare their intent immediately, compressing the funnel from "login to action."
 *   **Contextual Initialization & Disambiguation:** The transition from the empty state to the active state signifies workspace instantiation. The flow dynamically loads the necessary context based on the user's initial prompt. **Disambiguation UI State:** If the backend intent parser cannot confidently determine the user's goal, the UI must gracefully display a disambiguation state offering clarifying quick-action chips before attempting to route to the Chat Scope.
-*   **Unified Entry Point:** Features previously split across different entry menus (like custom agents vs. project scoping) are now integrated into one conversational funnel, simplifying routing but requiring more robust backend parsing to interpret user intent.
+*   **Conversational Core with Explicit Tools:** While project scoping and general tasks are driven through the central conversational funnel, essential B2B admin tools (like Custom Agents, Analytics, and Marketplace) are explicitly accessible via the "Workspace Tools" in the Hybrid Sidebar, eliminating the friction of conversational routing for complex state management.
 
 ## 6. Operational Procedures & Handoffs
 To comply with global `.clinerules` and ensure a smooth transition from design to development, the following operational procedures are mandated for this phase.

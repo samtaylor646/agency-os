@@ -50,10 +50,29 @@ This document outlines the primary user journeys focusing on the new conversatio
 
 **Persona:** Agency Owner needing a niche expert not available in the default roster.
 
-1. **Entry:** User navigates to the Agent Registry and clicks "Create Custom Agent". This launches the Multi-Step Wizard.
+1. **Entry:** User navigates to the "Agents" tab in the Hybrid Sidebar's Workspace Tools section and clicks "Create Custom Agent". This launches the Multi-Step Wizard.
 2. **Step 1 - Identity:** User enters Name ("HubSpot CRM Expert"), Role, and Version.
 3. **Step 2 - Rules & Constraints:** User defines the system rules path and specific behavioral constraints.
 4. **Step 3 - Capabilities:** User defines a markdown list of what the agent is capable of doing.
 5. **Step 4 - System Prompt:** User provides the detailed operational prompt and reviews the overall configuration before submitting.
 6. **Export/Save:** The backend parses this into the standard `agency-agents` schema (YAML frontmatter + markdown) and saves it.
 7. **Utilization:** The user creates a new task "Configure HubSpot pipelines" and the Orchestrator successfully assigns it to the newly created custom agent.
+
+## Journey 6: The Client Approval Workflow
+
+**Persona:** Client Approver (Decision Maker for an Agency Client)
+
+1. **Entry:** Client Approver logs into the portal and lands on the `Client Dashboard`, bypassing the empty-state prompt. The dashboard displays "Pending Approvals" and "Active Pipelines."
+2. **Review:** The user clicks on a pending item (e.g., "Review Marketing Copy"). This opens the `ChatScopeInterface` restricted view.
+3. **Contextual Evaluation:** The right-hand drawer displays the generated copy or PRD. The main chat shows the history of how the agent arrived at this draft.
+4. **Intervention / Feedback:** The Client Approver types into the bottom chat box: "This is good, but make the tone slightly more professional." The Orchestrator receives this, refines the copy, and presents version 2.
+5. **Approval:** The user clicks the "Approve" button. The Orchestrator logs the explicit sign-off in the Audit Log and unpauses the pipeline to proceed to the next step.
+
+## Journey 7: Read-Only Project Monitoring
+
+**Persona:** Client Viewer (External Stakeholder)
+
+1. **Entry:** User logs in and views the `Client Dashboard`. 
+2. **Visibility:** They can see metrics, download performance reports (e.g., Q2 Summary.pdf), and view the progress bars of Active Pipelines.
+3. **Exploration:** They click into a specific project to view the `ChatScopeInterface`.
+4. **Restriction:** The chat input box is completely hidden. All "Execute" or "Approve" buttons are disabled. They can read the extracted PRDs and view the agent chat history to understand project status, ensuring complete transparency without the risk of accidental intervention.

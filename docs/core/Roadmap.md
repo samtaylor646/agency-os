@@ -46,5 +46,6 @@ This roadmap outlines the strategic plan to build out the Conversational Project
 **Goal:** Polish the experience and add power-user capabilities.
 
 - **Template Library:** Start projects based on pre-defined templates (e.g., "SaaS Starter", "Internal Dashboard").
+- **Robust API Selector / Credentials Vault:** Upgrade model selection to include dynamic reasoning effort, model routing, and robust tracking similar to Roo Code.
 - **External Tooling Integrations:** Agents automatically provision resources (GitHub repos, Vercel deployments, databases).
 - **Voice Interface:** Voice-to-text input for the initial "Napkin Pitch" project scoping phase.

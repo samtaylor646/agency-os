@@ -15,6 +15,8 @@ The `ChatScopeInterface` will be refactored to align with the new global design 
 
 ### Proposed Architecture
 *   **Main Chat Area:** Follows the LLM active state model. The chat history occupies the main scrollable area with a streamlined input area pinned to the bottom. Message bubbles will adopt the new enterprise aesthetic.
+    *   **RBAC Condition (Client Approver):** The chat input is restricted to feedback and approval confirmations.
+    *   **RBAC Condition (Client Viewer):** The chat input box is completely disabled/hidden to enforce read-only monitoring.
 *   **Contextual Details Panel (Right):** The extracted project details (Project Name, Description, Tech Stack, Draft PRD) will be moved to a collapsible right-hand drawer or sidebar. This allows users to focus purely on the chat when needed and pull up details on demand.
 *   **Responsive Behavior:** On smaller screens, both the left navigation and the right details panel will retreat behind hamburger menus or slide-over panels.
 
@@ -48,7 +50,7 @@ To ensure the vital success of this redesign, tasks are explicitly assigned to s
 The ChatScope Interface redesign consolidates the operational workflow into a focused, singular view:
 *   **Workspace Convergence:** By moving project details to a right-hand collapsible drawer, users no longer need to switch tabs or split their screen uncomfortably to reference contextual data (like PRDs) while actively engaging with the agent.
 *   **Seamless Transitions:** Following the Intro Page prompt, users fluidly land in this interface with their context already loaded. The journey shifts from "navigate to data view -> navigate to chat view" into a unified "chat with data on demand" paradigm.
-*   **Scalable Interaction Model:** This three-pane architecture (Left Nav, Main Chat, Right Details) sets a standard layout pattern that can be reused across other modules (e.g., custom agent creator, marketplace), standardizing the user journey globally.
+*   **Scalable Interaction Model:** This three-pane architecture (Hybrid Left Nav, Main Chat, Right Details) sets a standard layout pattern that can be reused across other modules (e.g., custom agent creator, marketplace), standardizing the user journey globally while still providing explicit Workspace Tool access in the left navigation.
 
 ## 6. Operational Procedures & Handoffs
 To comply with global `.clinerules` and ensure a smooth transition from design to development, the following operational procedures are mandated for this phase.
