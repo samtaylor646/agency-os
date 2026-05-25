@@ -141,10 +141,13 @@ const ChatScopeInterface = () => {
         </form>
       </div>
 
-      {/* Right Side: Extracted Details Preview */}
+      {/* Right Side: Extracted Details & Documents Preview */}
       <div className={`${mobileTab === 'preview' ? 'flex' : 'hidden'} md:flex w-full md:w-1/2 flex-col bg-gray-50 overflow-hidden`}>
-        <div className="hidden md:flex items-center px-4 py-3 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 font-medium text-sm shrink-0">
-          Project Details
+        <div className="hidden md:flex items-center px-4 py-3 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 font-medium text-sm shrink-0 gap-4">
+          <button className="font-bold border-b-2 border-blue-600 pb-1">Project Details</button>
+          <button className="text-gray-500 hover:text-gray-700 pb-1">Draft PRD</button>
+          <button className="text-gray-500 hover:text-gray-700 pb-1">Tech Spec</button>
+          <button className="text-gray-500 hover:text-gray-700 pb-1">Task List</button>
         </div>
         
         <div className="flex-1 overflow-y-auto p-4 md:p-6">
