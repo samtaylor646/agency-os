@@ -93,7 +93,7 @@ async def secure_tenant_and_headers_middleware(request: Request, call_next):
                     allowed_tenants = payload.get("tenant_ids", [])
                     role = payload.get("role")
                     # Verify requested tenant_id is in allowed_tenants
-                    if tenant_id and role != "super_admin":
+                    if tenant_id and role != models.RoleEnum.SUPER_ADMIN.value:
                         allowed_ints = [int(t) for t in allowed_tenants if str(t).isdigit()]
                         if int(tenant_id) not in allowed_ints and str(tenant_id) not in [str(t) for t in allowed_tenants]:
                             return JSONResponse(

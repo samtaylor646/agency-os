@@ -14,6 +14,10 @@
 - **Added**: Drafted GDPR-compliant Environment Data Segregation and Log Retention policies in `docs/operations/gdpr_compliance_policies.md`.
 - **Added**: Added strict tenant isolation tests and provided formal QA sign-off in `docs/qa/custom_agent_tenant_isolation_qa_signoff.md`.
 
+## [2026-05-26] - Hotfix: Custom Agent Wizard & Dev Environment (fix/custom-agent-403)
+- **Fixed**: Dev environment reactivity broken in Docker; updated `client/vite.config.js` to enable filesystem polling (`watch: { usePolling: true }`).
+- **Verified**: Human-in-the-loop manual verification successfully passed for Custom Agent creation via UI.
+
 ## [2026-05-26] - Epic: Phase 4 Sprint 4.1 - Message Broker & Semantic Storage
 - **Added**: Implemented `message_broker.py` for Redis Pub/Sub async agent communication (Epic-4.1.A).
 - **Added**: Added `pgvector` extension and `vector` column to `documents` table via Alembic for semantic memory (Epic-4.1.B).

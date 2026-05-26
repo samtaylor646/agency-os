@@ -10,6 +10,9 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true, // Need this for Docker
       port: 5173,
+      watch: {
+        usePolling: true,
+      },
       proxy: {
         '/api': {
           target: env.VITE_API_URL,

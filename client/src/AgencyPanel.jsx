@@ -646,6 +646,7 @@ export default function AgencyPanel() {
             </h1>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4 ml-2">
+            <ContextSwitcher />
             <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline">Logged in as <strong className="text-gray-700">{userRole}</strong></span>
             <div className="w-8 h-8 bg-gray-200 rounded-full border border-gray-300 flex-shrink-0"></div>
           </div>
