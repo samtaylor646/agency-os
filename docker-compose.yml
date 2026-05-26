@@ -19,8 +19,14 @@ services:
       - '8000:5000'
     volumes:
       - .:/workspace
+      - ./agents/custom:/workspace/agents/custom
     working_dir: /workspace
     environment:
       - PYTHONPATH=/workspace
       - SECRET_KEY=your_secret_key_here
       - API_KEY=your_api_key_here
+      - STORAGE_BACKEND=local # Change to 's3' for testing s3 fallback
+      # - S3_BUCKET_NAME=your_local_test_bucket
+      # - AWS_ACCESS_KEY_ID=test
+      # - AWS_SECRET_ACCESS_KEY=test
+      # - AWS_DEFAULT_REGION=us-east-1
