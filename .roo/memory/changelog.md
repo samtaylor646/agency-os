@@ -18,6 +18,12 @@
 - **Fixed**: Dev environment reactivity broken in Docker; updated `client/vite.config.js` to enable filesystem polling (`watch: { usePolling: true }`).
 - **Verified**: Human-in-the-loop manual verification successfully passed for Custom Agent creation via UI.
 
+## [2026-05-26] - Epic: Phase 4 Sprint 4.3 - Frontend Marketplace UI
+- **Added**: Implemented `PodChatContainer`, `AgentMessageBubble`, and real-time session streaming for the Pod View interface.
+- **Added**: Built `MemoryInspectorSidebar` and `ContextCard` components to visualize Semantic Memory and RAG data context.
+- **Added**: Created the `MarketplaceGrid`, `EntityCard`, `EntityDetailModal`, and `FilterSidebar` for the AgencyOS marketplace discovery flow.
+- **Verified**: Formal QA signoff documented in `docs/archive/qa_signoff_phase_4_sprint_4.3.md`.
+
 ## [2026-05-26] - Epic: Phase 4 Sprint 4.2 - Semantic Memory Layer
 - **Added**: Upgraded infrastructure to `pgvector` for semantic search (Docker, Kubernetes, CI).
 - **Added**: Implemented `OpenAIEmbeddingProvider` (`text-embedding-3-small`) and FastAPI embedding abstraction.
