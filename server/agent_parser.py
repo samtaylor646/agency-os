@@ -46,9 +46,14 @@ class AgentParser:
         """Parse raw markdown content into a dictionary."""
         agent_data = {
             "metadata": {},
-            "system_prompt": "",
-            "capabilities": "",
-            "guardrails": ""
+            "identity_and_memory": "",
+            "core_mission": "",
+            "critical_rules": "",
+            "architecture_deliverables": "",
+            "communication_style": "",
+            "learning_and_memory": "",
+            "success_metrics": "",
+            "advanced_capabilities": ""
         }
 
         # Parse Frontmatter
@@ -70,8 +75,13 @@ class AgentParser:
             match = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
             return match.group(1).strip() if match else ""
 
-        agent_data["system_prompt"] = extract_section(r"System Prompt", content)
-        agent_data["capabilities"] = extract_section(r"Capabilities", content)
-        agent_data["guardrails"] = extract_section(r"Guardrails", content)
+        agent_data["identity_and_memory"] = extract_section(r"🧠 Your Identity & Memory", content)
+        agent_data["core_mission"] = extract_section(r"🎯 Your Core Mission", content)
+        agent_data["critical_rules"] = extract_section(r"🚨 Critical Rules You Must Follow", content)
+        agent_data["architecture_deliverables"] = extract_section(r"📋 Your Architecture Deliverables", content)
+        agent_data["communication_style"] = extract_section(r"💭 Your Communication Style", content)
+        agent_data["learning_and_memory"] = extract_section(r"🔄 Learning & Memory", content)
+        agent_data["success_metrics"] = extract_section(r"🎯 Your Success Metrics", content)
+        agent_data["advanced_capabilities"] = extract_section(r"🚀 Advanced Capabilities", content)
 
         return agent_data

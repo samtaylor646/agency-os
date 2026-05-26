@@ -1,18 +1,26 @@
 # Operational Instructions
 
-## Protocol Rules
+## Project Structure
+* `/agents`: Domain-specific agent configurations.
+* `/config`: settings.md (Rules) and agent_base.yaml (Templates).
+* `/scripts`: central_runner.py (Orchestrator) and validation_layer.py (Guardrails).
 
-1. Tone & Register: Maintain a strictly professional, objective, and concise tone. Avoid conversational fillers, expressive adjectives, or anthropomorphic language.
-2. Boolean Protocol: All binary inquiries must be answered exclusively with "Yes" or "No." Any deviation is prohibited unless Rule 6 is triggered. Bifurcated responses (Boolean + Citation) are permitted per Rule 4.
-3. Confirmation Protocol: Any request for acknowledgment or confirmation of receipt must be answered solely with "Understood."
-4. Research & Verification: All substantive claims, technical assertions, or data-driven conclusions must be supported by verifiable sources. References must be provided via inline citations or hyperlinked documentation.
-5. Prohibition & Strategy Implementation: No unsolicited advice, suggestions, or auxiliary commentary is permitted. Prohibited: suggestions regarding methodology, design, or coding approaches not requested. Permitted: context required to maintain functional integrity or clarify ambiguity. Before providing strategic frameworks or actionable plans, permission must be explicitly requested.
-6. Constraint Fallback: If a prompt requires a response that contradicts Rules 2 or 3, or if a factual answer is impossible due to systemic limitations, the mandatory response is "cantalope."
-7. Hierarchy of Enforcement: Constraints are enforced in the following order of precedence: Rule 6 > Rule 2 > Rule 3 > Rule 5 > Rule 4 > Rule 1.
-8. Role & Agent Evaluation: Each task must be assigned to the appropriate specialized agent from the `/agents` directory. Before assigning tasks, you must check the `/agents` folder, and add any needed specialized agents to the `.roomodes` file to ensure the task is handled by the correct specialist.
-9. **Memory Update Mandate**: Context loss is strictly prohibited. Whenever a major milestone (Epic, Sprint, Phase Gate) is concluded, the agent currently active must proactively update the memory files located at `.roo/memory/changelog.md` and `.roo/memory/active_context.md` before finalizing their task.
-10. **Documentation Routing Rule**: All new documentation must be placed in the appropriate `docs/` subfolder (`docs/core/`, `docs/technical/`, `docs/operations/`, `docs/qa/`, `docs/archive/`). Creating new files in the root `docs/` folder is strictly prohibited.
-11. **Epic Workflow & Handoff Protocol**: When working on an Epic, you must create a new git branch to ensure work is not done directly on the main branch. Every Epic completion requires a formal handoff. You must update all relevant documentation to reflect the completed state, execute a `git commit` capturing all changes on the branch, and perform a `git push` (GitHub commit) to officially hand off the work before concluding.
-12. **STRICT QA GATE**: No feature branch or phase handoff can be merged into `main` without documented automated tests and a formal sign-off from the Evidence Collector (QA) agent. Code must be proven to work via tests before merging.
+## Operational Rules
 
-* NEVER install dependencies directly on the host Mac. Always rely on Docker containers and update the respective requirements/package files instead.
+1. **Validation**: All task executions must first invoke `validation_layer.py` to check against `settings.md`.
+2. **No Unsolicited Advice**: Maintain the strict "No Unsolicited Advice" protocol.
+3. **Docker Environment**: When modifying code, always consider the impact on the Docker container environment. NEVER install dependencies directly on the host Mac. Always rely on Docker containers and update the respective requirements/package files instead.
+4. **Routing First Mandate**: Before engaging with the user, answering questions, or processing a task, you MUST evaluate the intent and use the `switch_mode` tool to switch to the appropriate specialized agent. Do not attempt to resolve tasks outside your current domain.
+5. **Explicit Rule for Agent Roles**: Each task must be assigned to the appropriate specialized agent from the `/agents` directory. Before assigning tasks, you must check the `/agents` folder, and add any needed specialized agents to the `.roomodes` file to ensure the task is handled by the correct specialist.
+6. **Documentation Routing Rule**: All new documentation must be routed to the appropriate subfolder within `docs/`. NO new documents should be created in the root `docs/` folder.
+   - `docs/core/`: The absolute source of truth containing core product requirements, project roadmaps, and pivotal strategy documents.
+   - `docs/technical/`: Architecture documents, API specifications, and technical implementation details.
+   - `docs/operations/`: Operational procedures, deployment guides, git workflows, and system maintenance playbooks.
+   - `docs/qa/`: Test plans, QA findings, test scripts, and quality assurance evidence.
+   - `docs/archive/`: Deprecated or superseded documents.
+7. **Memory Maintenance Mandate**: Upon the completion of any Epic, Sprint, or Phase Gate, you MUST update `.roo/memory/changelog.md` and `.roo/memory/active_context.md`. Context loss is strictly prohibited.
+8. **Epic Workflow and Handoff Mandate**: When starting work on an Epic, you MUST create a new git branch to ensure we are not building directly in the main branch. Upon the completion of any Epic, a formal handoff process is required. This process must include:
+   1. Full documentation updates reflecting the completed epic.
+   2. A formal `git commit` encapsulating all changes for the epic on the epic's branch.
+   3. Pushing the commit to the remote repository (GitHub commit) via `git push` to ensure the handoff is officially recorded and synchronized.
+9. **Strict QA Gate**: No feature branch or phase handoff can be merged into `main` without documented automated tests and a formal sign-off from the Evidence Collector (QA) agent. Code must be proven to work via tests before merging.

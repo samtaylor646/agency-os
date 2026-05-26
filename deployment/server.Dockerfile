@@ -12,7 +12,7 @@ COPY server/ ./server/
 COPY config/ ./config/
 COPY agents/ ./agents/
 COPY scripts/ ./scripts/
-COPY seed_db.py ./
+# COPY seed_db.py ./
 
 # Explicitly set PYTHONPATH so that imports work
 ENV PYTHONPATH=/app

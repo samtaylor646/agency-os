@@ -61,3 +61,13 @@ Thumbs.db
 
 # Project specific
 .roo/memory/server/data/*.db
+
+# Root level temporary files
+/*.db
+/*.txt
+/test_*.py
+/patch*.py
+/fix_*.py
+/update_*.py
+/generate_*.py
+/add_*.py

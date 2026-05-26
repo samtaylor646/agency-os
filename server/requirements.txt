@@ -1,5 +1,3 @@
-flask
-flask-cors
 fastapi
 uvicorn
 pydantic
@@ -13,4 +11,3 @@ python-multipart
 email-validator
 PyPDF2
 python-docx
-python-multipart

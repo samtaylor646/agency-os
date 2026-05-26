@@ -22,14 +22,14 @@ def dummy_agent_dir(tmp_path):
 name: Valid Agent
 role: Tester
 ---
-## System Prompt
+## 🎯 Your Core Mission
 You are a test agent.
 
-## Capabilities
+## 🚀 Advanced Capabilities
 - Testing
 - More testing
 
-## Guardrails
+## 🚨 Critical Rules You Must Follow
 No failing tests.
 """)
 
@@ -39,7 +39,7 @@ No failing tests.
 name: [Invalid
 role: Tester
 ---
-## System Prompt
+## 🎯 Your Core Mission
 System prompt here
 """)
 
@@ -60,9 +60,9 @@ def test_agent_parser_valid(dummy_agent_dir):
     
     assert agent is not None
     assert agent["metadata"].get("name") == "Valid Agent"
-    assert "You are a test agent." in agent["system_prompt"]
-    assert "Testing" in agent["capabilities"]
-    assert "No failing tests." in agent["guardrails"]
+    assert "You are a test agent." in agent["core_mission"]
+    assert "Testing" in agent["advanced_capabilities"]
+    assert "No failing tests." in agent["critical_rules"]
 
 def test_agent_parser_missing(dummy_agent_dir):
     parser = AgentParser(agents_dir=dummy_agent_dir)
@@ -76,7 +76,7 @@ def test_agent_parser_invalid_yaml(dummy_agent_dir):
     assert agent is not None
     # YAML parse fails, so metadata might be empty or fallback
     assert agent.get("metadata") == {}
-    assert "System prompt here" in agent["system_prompt"]
+    assert "System prompt here" in agent["core_mission"]
 
 def test_agent_parser_caching(dummy_agent_dir):
     parser = AgentParser(agents_dir=dummy_agent_dir)

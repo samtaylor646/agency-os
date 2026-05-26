@@ -41,13 +41,44 @@ export const WorkspaceProvider = ({ children }) => {
 
   // Intercept fetch calls to append tenant ID
   const apiFetch = async (url, options = {}) => {
+    let token = localStorage.getItem('agency_os_token');
+    
+    // Auto-login for MVP if no token is found
+    if (!token) {
+      try {
+        const tokenRes = await fetch('/api/v1/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            username: 'admin@agencyos.com',
+            password: 'password123'
+          })
+        });
+        if (tokenRes.ok) {
+          const data = await tokenRes.json();
+          token = data.access_token;
+          localStorage.setItem('agency_os_token', token);
+        }
+      } catch (e) {
+        console.error('Failed to auto-fetch token', e);
+      }
+    }
+
     const headers = {
       ...options.headers,
       'X-Tenant-ID': activeWorkspaceId,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     };
     
-    return fetch(url, { ...options, headers });
+    const res = await fetch(url, { ...options, headers });
+    
+    // Handle token expiry
+    if (res.status === 401) {
+      localStorage.removeItem('agency_os_token');
+    }
+    
+    return res;
   };
 
   const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);

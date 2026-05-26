@@ -26,18 +26,36 @@ def generate_agent_markdown(agent_data: schemas.CustomAgentCreate) -> str:
     vibe = agent_data.vibe or agent_data.identity.vibe
     intro_paragraph = getattr(agent_data, "intro_paragraph", "") or getattr(agent_data.identity, "intro_paragraph", "")
     
-    personality = agent_data.personality or agent_data.system_rules.personality
-    experience = agent_data.experience or agent_data.system_rules.experience
-    memory = agent_data.memory or agent_data.system_rules.memory
+    personality = getattr(agent_data, "personality", "") or getattr(agent_data.system_rules, "personality", "")
+    experience = getattr(agent_data, "experience", "") or getattr(agent_data.system_rules, "experience", "")
+    memory = getattr(agent_data, "memory", "") or getattr(agent_data.system_rules, "memory", "")
     
-    mission = agent_data.mission or agent_data.system_rules.mission or ""
-    rules = agent_data.rules or agent_data.system_rules.rules or ""
-    deliverables = agent_data.deliverables or agent_data.system_rules.deliverables
-    communication = agent_data.communication or agent_data.system_rules.communication
-    learning = agent_data.learning or agent_data.system_rules.learning
-    success_metrics = agent_data.success_metrics or agent_data.system_rules.success_metrics
-    advanced_capabilities = agent_data.advanced_capabilities or agent_data.system_rules.advanced_capabilities
+    mission = getattr(agent_data, "mission", "") or getattr(agent_data.system_rules, "mission", "")
+    rules = getattr(agent_data, "rules", "") or getattr(agent_data.system_rules, "rules", "")
+    deliverables = getattr(agent_data, "deliverables", "") or getattr(agent_data.system_rules, "deliverables", "")
+    communication = getattr(agent_data, "communication", "") or getattr(agent_data.system_rules, "communication", "")
+    learning = getattr(agent_data, "learning", "") or getattr(agent_data.system_rules, "learning", "")
+    success_metrics = getattr(agent_data, "success_metrics", "") or getattr(agent_data.system_rules, "success_metrics", "")
+    
+    # Handle capabilities list if provided, otherwise fallback to advanced_capabilities string
+    if getattr(agent_data, "capabilities", None):
+        advanced_capabilities = "\n".join([f"- {cap}" for cap in agent_data.capabilities])
+    else:
+        advanced_capabilities = getattr(agent_data, "advanced_capabilities", "") or getattr(agent_data.system_rules, "advanced_capabilities", "")
+        
+    if getattr(agent_data, "constraints", None):
+        rules = "\n".join([f"- {c}" for c in agent_data.constraints])
+    else:
+        rules = getattr(agent_data, "rules", "") or getattr(agent_data.system_rules, "rules", "")
+        
+    system_prompt = agent_data.system_prompt or ""
+        
     instructions_reference = getattr(agent_data, "instructions_reference", "") or getattr(agent_data.system_rules, "instructions_reference", "")
+
+    if system_prompt:
+        system_prompt_section = f"## 🤖 System Prompt\n{system_prompt}\n"
+    else:
+        system_prompt_section = ""
 
     content = f"""---
 name: {name}
@@ -78,6 +96,7 @@ vibe: {vibe}
 ## 🚀 Advanced Capabilities
 {advanced_capabilities}
 
+{system_prompt_section}
 {f"---" if instructions_reference else ""}
 
 {f"**Instructions Reference**: {instructions_reference}" if instructions_reference else ""}
@@ -90,37 +109,44 @@ def create_agent(
     db: Session = Depends(get_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
-    os.makedirs(AGENTS_DIR, exist_ok=True)
-    
-    name = agent_data.name or agent_data.identity.name
-    role = agent_data.role or agent_data.identity.role
-    
-    # Generate a unique ID and filename
-    agent_id = str(uuid.uuid4())
-    filename = f"{name.lower().replace(' ', '-')}-{agent_id[:8]}.md"
-    filepath = os.path.join(AGENTS_DIR, filename)
-    
-    # Write the markdown file
     try:
-        content = generate_agent_markdown(agent_data)
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(content)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create agent file: {str(e)}")
+        os.makedirs(AGENTS_DIR, exist_ok=True)
         
-    # Save to database
-    db_agent = models.CustomAgent(
-        id=agent_id,
-        name=name,
-        role=role,
-        filepath=filepath,
-        tenant_id=tenant_id
-    )
-    db.add(db_agent)
-    db.commit()
-    db.refresh(db_agent)
-    
-    return db_agent
+        name = agent_data.name or agent_data.identity.name
+        role = agent_data.role or agent_data.identity.role
+        
+        # Generate a unique ID and filename
+        agent_id = str(uuid.uuid4())
+        filename = f"{name.lower().replace(' ', '-')}-{agent_id[:8]}.md"
+        filepath = os.path.join(AGENTS_DIR, filename)
+        
+        # Write the markdown file
+        try:
+            content = generate_agent_markdown(agent_data)
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(content)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=f"Failed to create agent file: {str(e)}")
+            
+        # Save to database
+        db_agent = models.CustomAgent(
+            id=agent_id,
+            name=name,
+            role=role,
+            filepath=filepath,
+            tenant_id=tenant_id
+        )
+        db.add(db_agent)
+        db.commit()
+        db.refresh(db_agent)
+        
+        return db_agent
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("", response_model=List[schemas.CustomAgentOut])
 def list_agents(

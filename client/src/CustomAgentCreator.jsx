@@ -3,7 +3,7 @@ import { Plus, Check, Loader2, Bot, AlertCircle, ArrowRight, ArrowLeft } from 'l
 import { useWorkspace } from './WorkspaceContext';
 
 export default function CustomAgentCreator() {
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, apiFetch } = useWorkspace();
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,20 +34,23 @@ export default function CustomAgentCreator() {
   });
 
   const fetchAgents = async () => {
+    if (!activeWorkspace || !activeWorkspace.id) {
+      console.log('⏳ Workspace not loaded yet, skipping agent fetch');
+      return;
+    }
+    
     try {
-      const token = localStorage.getItem('agency_os_token') || 'dev_token';
-      const res = await fetch('/api/v1/custom_agents', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'X-Tenant-ID': activeWorkspace?.id?.toString() || ''
-        }
-      });
+      const res = await apiFetch('/api/v1/custom_agents');
+      
       if (res.ok) {
         const data = await res.json();
         setAgents(data);
+        console.log('✅ Fetched agents:', data.length);
+      } else {
+        console.error('❌ Failed to fetch agents:', res.status, await res.text());
       }
     } catch (err) {
-      console.error('Failed to fetch agents', err);
+      console.error('❌ Error fetching agents:', err);
     }
   };
 
@@ -97,53 +100,77 @@ export default function CustomAgentCreator() {
     setError('');
     setSuccess('');
 
-    // Nesting the payload to match CustomAgentCreate Pydantic schema perfectly
+    // CRITICAL FIX 1: Check if workspace is loaded before proceeding
+    if (!activeWorkspace || !activeWorkspace.id) {
+      setError('Workspace not loaded. Please wait and try again.');
+      setLoading(false);
+      return;
+    }
+
+    // CRITICAL FIX 2: Clean payload with proper defaults to match Pydantic schema
     const payload = {
       identity: {
         name: formData.name,
         role: formData.role,
-        domain: formData.domain,
-        base_model: formData.base_model,
-        description: formData.description,
-        color: formData.color,
-        emoji: formData.emoji,
-        vibe: formData.vibe,
-        intro_paragraph: formData.intro_paragraph
+        domain: formData.domain || 'specialized',
+        base_model: formData.base_model || 'gpt-4o',
+        description: formData.description || '',
+        color: formData.color || 'blue',
+        emoji: formData.emoji || '🤖',
+        vibe: formData.vibe || '',
+        intro_paragraph: formData.intro_paragraph || ''
       },
       system_rules: {
-        mission: formData.mission,
-        rules: formData.rules,
-        personality: formData.personality,
-        memory: formData.memory,
-        experience: formData.experience,
-        deliverables: formData.deliverables,
-        communication: formData.communication,
-        learning: formData.learning,
-        success_metrics: formData.success_metrics,
-        advanced_capabilities: formData.advanced_capabilities,
-        instructions_reference: formData.instructions_reference
+        mission: formData.mission || '',
+        rules: formData.rules || '',
+        personality: formData.personality || '',
+        memory: formData.memory || '',
+        experience: formData.experience || '',
+        deliverables: formData.deliverables || '',
+        communication: formData.communication || '',
+        learning: formData.learning || '',
+        success_metrics: formData.success_metrics || '',
+        advanced_capabilities: formData.advanced_capabilities || '',
+        instructions_reference: formData.instructions_reference || ''
       },
-      // Keep flattened root fields too just in case routing expects them there
-      ...formData,
       capabilities: [],
       constraints: [],
-      system_prompt: formData.mission
+      system_prompt: formData.mission || ''
     };
 
     try {
-      const token = localStorage.getItem('agency_os_token') || 'dev_token';
-      const res = await fetch('/api/v1/custom_agents', {
+      console.log('Creating agent with payload:', JSON.stringify(payload, null, 2));
+      console.log('Using workspace ID:', activeWorkspace.id);
+
+      const res = await apiFetch('/api/v1/custom_agents', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'X-Tenant-ID': activeWorkspace?.id?.toString() || ''
-        },
         body: JSON.stringify(payload)
       });
 
+      // CRITICAL FIX 4: Log the full error response for debugging
       if (!res.ok) {
-        throw new Error('Failed to create custom agent');
+        const errorText = await res.text();
+        console.error('❌ Server response status:', res.status);
+        console.error('❌ Server response body:', errorText);
+        
+        let errorMessage = 'Failed to create custom agent';
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.detail) {
+            if (Array.isArray(errorJson.detail)) {
+              // Pydantic validation errors
+              errorMessage = `Validation Error: ${JSON.stringify(errorJson.detail, null, 2)}`;
+            } else {
+              errorMessage = errorJson.detail;
+            }
+          }
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        
+        setError(errorMessage);
+        setLoading(false);
+        return;
       }
 
       setSuccess('Custom agent created successfully!');
@@ -153,7 +180,7 @@ export default function CustomAgentCreator() {
         color: 'blue',
         emoji: '🤖',
         vibe: '',
-    intro_paragraph: '',
+        intro_paragraph: '',
         role: '',
         personality: '',
         memory: '',
@@ -165,14 +192,15 @@ export default function CustomAgentCreator() {
         learning: '',
         success_metrics: '',
         advanced_capabilities: '',
-    instructions_reference: '',
+        instructions_reference: '',
         domain: 'specialized',
         base_model: 'gpt-4o'
       });
       setCurrentStep(1);
       fetchAgents();
     } catch (err) {
-      setError(err.message);
+      console.error('❌ Caught error during agent creation:', err);
+      setError(err.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }

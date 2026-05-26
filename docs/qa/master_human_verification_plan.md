@@ -158,3 +158,50 @@ This document serves as the definitive master end-to-end human test script for A
 **Expected Outcomes:**
 - [ ] Audit log accurately reflects cross-role activities with precise timestamps.
 - [ ] Export triggers a properly formatted file download.
+
+---
+
+## 7. Supplemental Role-Based & Security Test Scripts
+*(Consolidated from Fix & Wire Verification)*
+
+### 7.1 Inviting a New User to a Workspace
+**Scenario A: Agency Admin Invites a Client**
+- **Role:** Agency Admin
+- **Steps:**
+  1. Navigate to **Workspace Settings** > **Members**.
+  2. Click **Invite User**, enter email, select **Client Approver**.
+  3. Click **Send Invitation**.
+- **Expected Outcome:** Success notification; user appears as "Pending".
+
+**Scenario B: Client Attempts to Invite a User (Negative Test)**
+- **Role:** Client
+- **Expected Outcome:** The **Invite User** button should be disabled or hidden.
+
+### 7.2 Editing a User's Role
+**Scenario:** Agency Admin Changes User Role
+- **Steps:**
+  1. Navigate to **Workspace Settings** > **Members**.
+  2. Click **Edit Role** for an existing user.
+  3. Change role to **Client Approver** and Save.
+- **Expected Outcome:** Member list updates immediately. Log in as that user to verify UI restricts admin-only features.
+
+### 7.3 Managing API Keys (Generating and Revoking)
+**Scenario A: Agency Admin Generates Key**
+- **Steps:**
+  1. Navigate to **Settings** > **API Keys**.
+  2. Click **Generate New Key**, name it, click **Create**.
+- **Expected Outcome:** Key generated and displayed once. Appears partially obscured in active list.
+
+**Scenario B: Agency Admin Revokes Key**
+- **Steps:**
+  1. In **API Keys**, click **Revoke** on an existing key.
+- **Expected Outcome:** Key removed from list; subsequent API calls with it return 401.
+
+### 7.4 Exporting Data (CSV/Downloads)
+**Scenario A: Audit Logs**
+- **Steps:** Go to **Audit Logs**, apply filters, click **Export to CSV**.
+- **Expected Outcome:** CSV downloads with accurate, filtered data (timestamps, users, actions, IPs).
+
+**Scenario B: Analytics Data**
+- **Steps:** Go to **Analytics Dashboard**, click **Export** on a chart/table.
+- **Expected Outcome:** Downloaded file accurately reflects current dashboard data.

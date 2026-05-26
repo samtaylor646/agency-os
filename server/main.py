@@ -3,12 +3,17 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from .middleware_audit import AuditMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import timedelta
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from . import models, schemas, auth, dependencies
 from .database import engine, get_db
@@ -20,6 +25,16 @@ from scripts.central_runner import DAGOrchestrator
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AgencyOS API")
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    body = await request.body()
+    logger.error(f"Validation Error: {exc.errors()}")
+    logger.error(f"Body: {body.decode('utf-8')}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors(), "body": body.decode("utf-8")},
+    )
 
 # Add CORS Middleware
 app.add_middleware(AuditMiddleware)
@@ -42,12 +57,15 @@ async def secure_tenant_and_headers_middleware(request: Request, call_next):
                 payload = auth.decode_access_token(token)
                 if payload:
                     allowed_tenants = payload.get("tenant_ids", [])
+                    role = payload.get("role")
                     # Verify requested tenant_id is in allowed_tenants
-                    if int(tenant_id) not in allowed_tenants:
-                        return JSONResponse(
-                            status_code=status.HTTP_403_FORBIDDEN,
-                            content={"detail": "Forbidden: Tenant access denied"}
-                        )
+                    if tenant_id and role != "super_admin":
+                        allowed_ints = [int(t) for t in allowed_tenants if str(t).isdigit()]
+                        if int(tenant_id) not in allowed_ints and str(tenant_id) not in [str(t) for t in allowed_tenants]:
+                            return JSONResponse(
+                                status_code=status.HTTP_403_FORBIDDEN,
+                                content={"detail": f"Forbidden: Tenant access denied. requested: {tenant_id}, allowed: {allowed_tenants}"}
+                            )
             except Exception:
                 # If token is invalid or parsing fails, let the normal auth flow handle it or reject
                 pass

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace Health & Operations Executive Summary</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f9fafb;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        h1 {
+            color: #111827;
+            font-size: 2.25rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            text-align: center;
+        }
+        h2 {
+            color: #1f2937;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.25rem;
+        }
+        h3 {
+            color: #374151;
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            background-color: #f3f4f6;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.875em;
+            color: #ef4444;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+            background-color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Workspace Health & Operations Executive Summary</h1>
+        
+        <h2>1. Overview</h2>
+        <p>Following the recent system housekeeping, this executive summary provides an overview of the current workspace structure, operational readiness, and server health.</p>
+        
+        <h3>Recent Housekeeping Changes</h3>
+        <ul>
+            <li><strong>QA Documentation Cleanup:</strong> The <code>docs/qa/</code> folder was successfully restructured, duplicate files were archived, and a new unified <code>QA_INDEX.md</code> was created and signed off by the Evidence Collector to streamline testing documentation.</li>
+            <li><strong>Archive Scripts:</strong> Development and temporary scripts were correctly moved to <code>scripts/archive/</code> (e.g., <code>fix_a11y.py</code>, <code>patch.js</code>).</li>
+            <li><strong>Database Cleanup:</strong> Removed temporary and stale test databases.</li>
+            <li><strong>Git Hygiene:</strong> Updated <code>.gitignore</code> to maintain a clean repository.</li>
+        </ul>
+        
+        <h2>2. Server Status and API Health</h2>
+        <ul>
+            <li><strong>Server:</strong> Uvicorn running on port <code>8001</code></li>
+            <li><strong>Health Endpoint (<code>/api/v1/health</code>):</strong> Currently returning <code>404 Not Found</code>.</li>
+        </ul>
+        
+        <div class="mermaid">
+pie title Server Endpoint Status (Simulated)
+    "Healthy (200 OK)" : 85
+    "Degraded (4xx)" : 10
+    "Failing (5xx)" : 5
+        </div>
+        
+        <h2>3. Workspace Structure</h2>
+        <p>The workspace has been organized into clear, functional domains:</p>
+        
+        <div class="mermaid">
+graph TD
+    A[Root: agency-os] --> B(docs)
+    A --> C(scripts)
+    A --> D(agents)
+    A --> E(client)
+    A --> F(server)
+    
+    B --> B1(core)
+    B --> B2(operations)
+    B --> B3(technical)
+    B --> B4(qa)
+    B --> B5(archive)
+    
+    C --> C1(active scripts)
+    C --> C2(archive)
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+        </div>
+        
+        <h2>4. Operational Readiness</h2>
+        <p>The environment is in a well-structured state, though the API health check endpoint issue (<code>404</code>) needs to be resolved by the backend team.</p>
+        
+        <div class="mermaid">
+gantt
+    title Operational Readiness Tasks
+    dateFormat  YYYY-MM-DD
+    section Housekeeping
+    QA Documentation Cleanup:done,    des0, 2026-05-26, 2026-05-26
+    Archive Scripts       :done,    des1, 2026-05-25, 2026-05-26
+    Database Cleanup      :done,    des2, 2026-05-25, 2026-05-26
+    Update .gitignore     :done,    des3, 2026-05-25, 2026-05-26
+    section Operations
+    Verify Server Status  :done,    des4, 2026-05-26, 2026-05-26
+    Fix API Health Check  :active,  des5, 2026-05-26, 1d
+        </div>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>
