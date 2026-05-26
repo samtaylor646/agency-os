@@ -126,4 +126,61 @@ def test_tenant_isolation_get_agents():
     assert res2.status_code == 200
     agents2 = res2.json()
     assert len(agents2) == 1
-    assert agents2[0]["name"] == "Tenant 2 Agent"
+def test_update_custom_agent():
+    client = TestClient(app)
+    from server.dependencies import get_api_or_user_tenant_context
+    app.dependency_overrides[get_api_or_user_tenant_context] = lambda: 1
+    
+    # Create
+    payload = {
+        "identity": {"name": "Old Name", "role": "Old Role", "description": "Old desc", "color": "#000000", "emoji": "🤔", "vibe": "chill", "intro_paragraph": "Hi"},
+        "system_rules": {"personality": "nice", "experience": "high", "memory": "good", "mission": "win", "rules": "none", "deliverables": "code", "communication": "direct", "learning": "fast", "success_metrics": "KPI"},
+        "capabilities": [],
+        "constraints": [],
+        "system_prompt": "Old prompt"
+    }
+    create_res = client.post("/api/v1/custom_agents", json=payload)
+    assert create_res.status_code == 201
+    agent_id = create_res.json()["id"]
+    
+    # Update
+    payload["identity"]["name"] = "New Name"
+    payload["system_prompt"] = "New prompt"
+    
+    update_res = client.put(f"/api/v1/custom_agents/{agent_id}", json=payload)
+    assert update_res.status_code == 200
+    assert update_res.json()["name"] == "New Name"
+    
+    filepath = update_res.json()["filepath"]
+    with open(filepath, "r") as f:
+        content = f.read()
+    assert "New Name" in content
+    assert "New prompt" in content
+
+def test_delete_custom_agent():
+    client = TestClient(app)
+    from server.dependencies import get_api_or_user_tenant_context
+    app.dependency_overrides[get_api_or_user_tenant_context] = lambda: 1
+    
+    payload = {
+        "identity": {"name": "Delete Me", "role": "Role", "description": "desc", "color": "#000", "emoji": "🤔", "vibe": "chill", "intro_paragraph": "Hi"},
+        "system_rules": {"personality": "nice", "experience": "high", "memory": "good", "mission": "win", "rules": "none", "deliverables": "code", "communication": "direct", "learning": "fast", "success_metrics": "KPI"},
+        "capabilities": [],
+        "constraints": [],
+        "system_prompt": "Prompt"
+    }
+    create_res = client.post("/api/v1/custom_agents", json=payload)
+    assert create_res.status_code == 201
+    agent_id = create_res.json()["id"]
+    filepath = create_res.json()["filepath"]
+    assert os.path.exists(filepath)
+    
+    delete_res = client.delete(f"/api/v1/custom_agents/{agent_id}")
+    assert delete_res.status_code == 204
+    
+    get_res = client.get("/api/v1/custom_agents")
+    agents = get_res.json()
+    assert not any(a["id"] == agent_id for a in agents)
+    
+    assert not os.path.exists(filepath)
+

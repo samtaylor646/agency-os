@@ -96,6 +96,17 @@ class WorkflowRunRequest(BaseModel):
     nodes: List[WorkflowNode]
     edges: List[WorkflowEdge]
 
+class DAGNodeInput(BaseModel):
+    task: str
+    context_data: Dict[str, Any] = {}
+    tenant_id: str
+
+class DAGNodeOutput(BaseModel):
+    node_id: str
+    status: str
+    result: Optional[Any] = None
+    error: Optional[str] = None
+
 class WebhookPayload(BaseModel):
     event_type: str
     data: Dict[str, Any]

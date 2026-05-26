@@ -12,28 +12,26 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
-    from server.validation_layer import TaskValidator
-    from server.context import set_tenant_context
-    from server.database import SessionLocal
-    from server.models import AgentExecutionMetric, WorkflowExecution
+    from scripts.validation_layer import TaskValidator
 except ImportError:
     TaskValidator = None
+
+try:
+    from server.context import set_tenant_id as set_tenant_context
+    from server.database import SessionLocal
+    from server.models import AgentExecutionMetric, WorkflowExecution
+    from server.schemas import DAGNodeInput, DAGNodeOutput
+except ImportError as e:
+    print(f"Warning: Could not import server dependencies: {e}")
     set_tenant_context = None
     SessionLocal = None
     AgentExecutionMetric = None
     WorkflowExecution = None
+    DAGNodeInput = None
+    DAGNodeOutput = None
 
 # A4-1: Implement standard Pydantic models for DAG node inputs and outputs
-class NodeInput(BaseModel):
-    task: str = Field(..., description="The task description or prompt for the node")
-    context_data: dict = Field(default_factory=dict, description="Data provided by parent nodes")
-    tenant_id: str = Field(..., description="Tenant ID for logical isolation")
-
-class NodeOutput(BaseModel):
-    node_id: str
-    status: str
-    result: typing.Optional[typing.Any] = None
-    error: typing.Optional[str] = None
+# Models imported from server.schemas: DAGNodeInput, DAGNodeOutput
 
 class TransientNodeError(Exception):
     """Exception raised for errors that can be retried."""
@@ -50,10 +48,10 @@ class TerminalNodeError(Exception):
     retry=retry_if_exception_type(TransientNodeError),
     reraise=True
 )
-async def execute_node_with_retry(node_id: str, agent_name: str, task: str, context_data: dict, tenant_id: str) -> NodeOutput:
+async def execute_node_with_retry(node_id: str, agent_name: str, task: str, context_data: dict, tenant_id: str) -> DAGNodeOutput:
     # A4-2: Enforce strict schema validation
     try:
-        validated_input = NodeInput(task=task, context_data=context_data, tenant_id=tenant_id)
+        validated_input = DAGNodeInput(task=task, context_data=context_data, tenant_id=tenant_id)
     except ValidationError as e:
         raise TerminalNodeError(f"Validation error for node {node_id}: {e}")
 
@@ -77,10 +75,13 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
         full_prompt = f"Task: {validated_input.task}\nContext:\n{context_str}"
         
         # Dispatch to LLM runner
-        response = await llm_runner.generate_response(
-            prompt=full_prompt, 
-            system_prompt=f"You are acting as the specialized agent: {agent_name}."
-        )
+        try:
+            response = await llm_runner.generate_response(
+                prompt=full_prompt, 
+                system_prompt=f"You are acting as the specialized agent: {agent_name}."
+            )
+        except (TimeoutError, ConnectionError) as net_err:
+            raise TransientNodeError(f"Network error during LLM generation: {net_err}")
         
         result = {"output": response, "context_keys": list(validated_input.context_data.keys())}
     except TransientNodeError as e:
@@ -110,7 +111,7 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
         finally:
             db.close()
             
-    return NodeOutput(node_id=node_id, status=status, result=result, error=error_msg)
+    return DAGNodeOutput(node_id=node_id, status=status, result=result, error=error_msg)
 
 class DAGOrchestrator:
     def __init__(self, workflow_name: str = "default_workflow"):
@@ -120,7 +121,7 @@ class DAGOrchestrator:
         self.edges = defaultdict(list)  # node_id -> list of dependent node_ids
         self.incoming_edges = defaultdict(list)  # node_id -> list of parent node_ids
         self.in_degree = defaultdict(int)
-        self.state = {} # node_id -> NodeOutput dict
+        self.state = {} # node_id -> DAGNodeOutput dict
     
     def add_node(self, node_id: str, agent_name: str, task: str, required_inputs: typing.List[str] = None):
         self.nodes[node_id] = {"agent_name": agent_name, "task": task, "required_inputs": required_inputs or []}
@@ -217,12 +218,12 @@ class DAGOrchestrator:
                 # Check dependencies state
                 skip_node = False
                 for parent in self.incoming_edges.get(node_id, []):
-                    if parent in results and results[parent].get("status") == "failed":
+                    if parent in results and results[parent].get("status") in ["failed", "skipped"]:
                         skip_node = True
                         break
                         
                 if skip_node:
-                    results[node_id] = {"status": "skipped", "error": "Parent node failed"}
+                    results[node_id] = {"status": "skipped", "error": "Parent node failed or skipped"}
                     self.state[node_id] = results[node_id]
                     continue
                     
@@ -240,8 +241,16 @@ class DAGOrchestrator:
                         for parent_res in context_data.values():
                             if isinstance(parent_res, dict) and req in parent_res:
                                 filtered_context[req] = parent_res[req]
-                    if filtered_context:
-                        context_data = filtered_context
+                    
+                    # A4-2: Enforce strict schema validation between nodes in the DAG context
+                    missing_inputs = [req for req in required_inputs if req not in filtered_context]
+                    if missing_inputs:
+                        results[node_id] = {"status": "failed", "error": f"Schema validation failed. Missing required inputs: {missing_inputs}"}
+                        self.state[node_id] = results[node_id]
+                        has_failure = True
+                        continue
+                        
+                    context_data = filtered_context
 
                 tasks.append(
                     execute_node_with_retry(
@@ -262,7 +271,7 @@ class DAGOrchestrator:
                 if isinstance(result, Exception):
                     results[node_id] = {"status": "failed", "error": str(result)}
                     has_failure = True
-                elif isinstance(result, NodeOutput):
+                elif isinstance(result, DAGNodeOutput):
                     results[node_id] = result.dict()
                     if result.status == "failed":
                         has_failure = True
