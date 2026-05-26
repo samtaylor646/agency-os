@@ -1,5 +1,9 @@
 # Changelog
 
+## [2026-05-26] - Phase 4 Handoff
+- **Completed**: Phase 4 officially completed.
+- **Added**: Consolidated Phase 4 handoff summary generated at `docs/archive/phase_4_handoff_summary.md`.
+
 ## [2026-05-25] - Epic: Fix Custom Agent Wizard Error
 - **Fixed**: Custom Agent Creator UI failed to send `Authorization` and `X-Tenant-ID` headers to the backend, causing 401 Unauthorized errors.
 - **Changed**: `client/src/CustomAgentCreator.jsx` to dynamically fetch the token from `localStorage` and `activeWorkspace` from `WorkspaceContext`.
