@@ -14,4 +14,10 @@
 - **Added**: Drafted GDPR-compliant Environment Data Segregation and Log Retention policies in `docs/operations/gdpr_compliance_policies.md`.
 - **Added**: Added strict tenant isolation tests and provided formal QA sign-off in `docs/qa/custom_agent_tenant_isolation_qa_signoff.md`.
 
+## [2026-05-26] - Epic: Phase 4 Sprint 4.1 - Message Broker & Semantic Storage
+- **Added**: Implemented `message_broker.py` for Redis Pub/Sub async agent communication (Epic-4.1.A).
+- **Added**: Added `pgvector` extension and `vector` column to `documents` table via Alembic for semantic memory (Epic-4.1.B).
+- **Added**: Wrote unit tests for `message_broker.py` to satisfy QA gates.
+- **Fixed**: Updated `test_chat.py` payloads to include the required `doc_type` to resolve 422 errors.
+
 - Phase 3 Rebuild Sprint: Completed Epic B (Custom Agent Storage & Lifecycle Management) and DevOps & Infrastructure configuration.

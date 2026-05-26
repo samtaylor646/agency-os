@@ -47,7 +47,7 @@ def test_generate_document_success(mock_generate_doc):
 
     response = client.post(
         "/api/v1/chat/1/generate/prd",
-        json={"context": {"name": "Test", "description": "Test doc", "tech_stack": ["React"]}}
+        json={"context": {"name": "Test", "description": "Test doc", "tech_stack": ["React"]}, "doc_type": "prd"}
     )
     
     assert response.status_code == 200
@@ -61,7 +61,7 @@ def test_generate_document_error(mock_generate_doc):
 
     response = client.post(
         "/api/v1/chat/1/generate/prd",
-        json={"context": {"name": "Test"}}
+        json={"context": {"name": "Test"}, "doc_type": "prd"}
     )
     
     assert response.status_code == 500

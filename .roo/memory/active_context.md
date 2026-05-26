@@ -1,4 +1,4 @@
 # Active Context
 
-- **Current Epic Status**: Executing "Phase 3 Rebuild Epic A: Orchestration Hardening".
-- **Last Action**: Evidence Collector verified Tasks A1-2 and A2-1 via DAG execution testing. QA log documented in `docs/qa/qa_log_epic_a.md`.
+- **Current Epic Status**: Executing "Phase 4 Sprint 4.1 - Message Broker & Semantic Storage Foundation".
+- **Last Action**: Backend Architect scaffolded Redis Message Broker, pgvector schemas, and wrote unit tests. Ready for Evidence Collector QA Gate sign-off before proceeding to Sprint 4.2.
