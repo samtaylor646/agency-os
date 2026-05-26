@@ -184,33 +184,9 @@ class CustomAgentCreate(BaseModel):
     capabilities: List[str] = []
     constraints: List[str] = []
     system_prompt: Optional[str] = ""
-    
-    # Flattened payload support for simpler UI integration temporarily
-    name: Optional[str] = None
-    role: Optional[str] = None
-    domain: Optional[str] = None
-    base_model: Optional[str] = None
-    description: Optional[str] = ""
-    color: Optional[str] = "blue"
-    emoji: Optional[str] = "🤖"
-    vibe: Optional[str] = ""
-    intro_paragraph: Optional[str] = ""
-    mission: Optional[str] = ""
-    rules: Optional[str] = ""
-    personality: Optional[str] = ""
-    memory: Optional[str] = ""
-    experience: Optional[str] = ""
-    deliverables: Optional[str] = ""
-    communication: Optional[str] = ""
-    learning: Optional[str] = ""
-    success_metrics: Optional[str] = ""
-    advanced_capabilities: Optional[str] = ""
-    instructions_reference: Optional[str] = ""
-    
-    # legacy UI fields
-    backstory: Optional[str] = ""
-    tools: List[str] = []
-    instructions: Optional[str] = ""
+
+    class Config:
+        extra = "forbid"
 
 
 class CustomAgentOut(BaseModel):

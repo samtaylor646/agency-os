@@ -121,8 +121,8 @@ export default function CustomAgentCreator() {
         intro_paragraph: formData.intro_paragraph || ''
       },
       system_rules: {
-        mission: formData.mission || '',
-        rules: formData.rules || '',
+        mission: formData.mission || formData.goal || '',
+        rules: formData.rules || formData.guardrails || '',
         personality: formData.personality || '',
         memory: formData.memory || '',
         experience: formData.experience || '',

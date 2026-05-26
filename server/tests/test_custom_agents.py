@@ -86,3 +86,44 @@ def test_create_custom_agent():
     assert "cap1" in content
     assert "const1" in content
     assert "You are a wizard." in content
+def test_tenant_isolation_get_agents():
+    client = TestClient(app)
+    
+    # Create agents for Tenant 1 and Tenant 2
+    from server.dependencies import get_api_or_user_tenant_context
+    
+    # Tenant 1 Context
+    app.dependency_overrides[get_api_or_user_tenant_context] = lambda: 1
+    client.post("/api/v1/custom_agents", json={
+        "identity": {"name": "Tenant 1 Agent", "role": "Role 1", "version": "1.0.0"},
+        "system_rules": {"path": "config/settings.md", "enforcement_level": "Strict"},
+        "capabilities": [], "constraints": [], "system_prompt": "Prompt 1"
+    })
+    
+    # Tenant 2 Context
+    app.dependency_overrides[get_api_or_user_tenant_context] = lambda: 2
+    client.post("/api/v1/custom_agents", json={
+        "identity": {"name": "Tenant 2 Agent", "role": "Role 2", "version": "1.0.0"},
+        "system_rules": {"path": "config/settings.md", "enforcement_level": "Strict"},
+        "capabilities": [], "constraints": [], "system_prompt": "Prompt 2"
+    })
+    
+    # Test Isolation
+    
+    # Request as Tenant 1
+    app.dependency_overrides[get_api_or_user_tenant_context] = lambda: 1
+    res1 = client.get("/api/v1/custom_agents")
+    assert res1.status_code == 200
+    agents1 = res1.json()
+    assert len(agents1) == 2 # 1 previous wizard agent + 1 this one
+    names1 = [a["name"] for a in agents1]
+    assert "Tenant 1 Agent" in names1
+    assert "Tenant 2 Agent" not in names1
+    
+    # Request as Tenant 2
+    app.dependency_overrides[get_api_or_user_tenant_context] = lambda: 2
+    res2 = client.get("/api/v1/custom_agents")
+    assert res2.status_code == 200
+    agents2 = res2.json()
+    assert len(agents2) == 1
+    assert agents2[0]["name"] == "Tenant 2 Agent"

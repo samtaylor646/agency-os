@@ -26,14 +26,48 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AgencyOS API")
 
+import re
+
+DEBUG_VALIDATION = os.getenv("DEBUG_VALIDATION", "false").lower() == "true"
+
+def redact_pii(text: str) -> str:
+    if not isinstance(text, str):
+        return text
+    # Redact Emails
+    text = re.sub(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+', '[REDACTED_EMAIL]', text)
+    # Redact Phone Numbers
+    text = re.sub(r'\+?\d{1,3}[-.\s]?\(?\d{1,3}\)?[-.\s]?\d{3}[-.\s]?\d{4}', '[REDACTED_PHONE]', text)
+    # Redact SSN (US)
+    text = re.sub(r'\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b', '[REDACTED_SSN]', text)
+    # Redact Credit Cards (basic)
+    text = re.sub(r'\b(?:\d[ -]*?){13,16}\b', '[REDACTED_CC]', text)
+    # Password / Secrets in JSON
+    text = re.sub(r'(?i)("password"|"secret"|"key"|"token"|"api_key")\s*:\s*"[^"]+"', r'\1: "[REDACTED]"', text)
+    # Redact Bearer Tokens
+    text = re.sub(r'Bearer\s+[A-Za-z0-9\-\._~+/]+=*', 'Bearer [REDACTED_TOKEN]', text)
+    # Redact OpenAI / standard sk- keys
+    text = re.sub(r'\bsk-[a-zA-Z0-9_-]{20,}\b', '[REDACTED_API_KEY]', text)
+    return text
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    body = await request.body()
-    logger.error(f"Validation Error: {exc.errors()}")
-    logger.error(f"Body: {body.decode('utf-8')}")
+    errors_str = redact_pii(str(exc.errors()))
+    
+    if DEBUG_VALIDATION:
+        try:
+            body = await request.body()
+            body_str = body.decode('utf-8')
+            redacted_body = redact_pii(body_str)
+            logger.error(f"Validation Error: {errors_str}")
+            logger.error(f"Redacted Body: {redacted_body}")
+        except Exception:
+            logger.error(f"Validation Error: {errors_str}")
+    else:
+        logger.error(f"Validation Error: {errors_str}")
+        
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": exc.errors(), "body": body.decode("utf-8")},
+        content={"detail": "Validation error"},
     )
 
 # Add CORS Middleware

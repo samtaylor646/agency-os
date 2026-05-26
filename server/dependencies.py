@@ -52,14 +52,10 @@ async def get_tenant_context(
 ):
     user, token_data = user_data
     
-    # Super Admin bypasses tenant isolation checks if needed, but normally still uses X-Tenant-ID context
-    if token_data.role == RoleEnum.SUPER_ADMIN.value:
-        return x_tenant_id or 1
-        
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-ID header is missing")
         
-    if x_tenant_id not in token_data.tenant_ids:
+    if token_data.role != RoleEnum.SUPER_ADMIN.value and x_tenant_id not in token_data.tenant_ids:
         raise HTTPException(status_code=403, detail="You do not have access to this workspace")
         
     # Store tenant_id in request state for downstream use
@@ -116,15 +112,13 @@ async def get_api_or_user_tenant_context(
     if token:
         user, token_data = await get_current_user(token=token, db=db)
         
-        if token_data.role == RoleEnum.SUPER_ADMIN.value:
-            return x_tenant_id or 1
-            
         if not x_tenant_id:
             raise HTTPException(status_code=400, detail="X-Tenant-ID header is missing")
             
-        allowed_ints = [int(t) for t in token_data.tenant_ids if str(t).isdigit()]
-        if int(x_tenant_id) not in allowed_ints and str(x_tenant_id) not in [str(t) for t in token_data.tenant_ids]:
-            raise HTTPException(status_code=403, detail="You do not have access to this workspace")
+        if token_data.role != RoleEnum.SUPER_ADMIN.value:
+            allowed_ints = [int(t) for t in token_data.tenant_ids if str(t).isdigit()]
+            if int(x_tenant_id) not in allowed_ints and str(x_tenant_id) not in [str(t) for t in token_data.tenant_ids]:
+                raise HTTPException(status_code=403, detail="You do not have access to this workspace")
             
         request.state.tenant_id = x_tenant_id
         return x_tenant_id
