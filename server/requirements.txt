@@ -11,3 +11,4 @@ python-multipart
 email-validator
 PyPDF2
 python-docx
+tenacity

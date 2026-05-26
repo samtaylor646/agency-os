@@ -214,6 +214,17 @@ class PipelineRun(Base):
     state = Column(JSON, default={})
     error_message = Column(String(255), nullable=True)
 
+class WorkflowExecution(Base):
+    __tablename__ = "workflow_executions"
+
+    id = Column(String(255), primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    workflow_name = Column(String(255), nullable=False)
+    status = Column(String(50), nullable=False, default="PENDING") # PENDING, RUNNING, PAUSED, COMPLETED, FAILED, PARTIAL_FAILURE
+    state_data = Column(JSON, default={})
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
 class PipelineMessage(Base):
     __tablename__ = "pipeline_messages"
     id = Column(Integer, primary_key=True, index=True)

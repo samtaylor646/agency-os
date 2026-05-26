@@ -3,102 +3,16 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-import yaml
 
 from .. import models, schemas, dependencies
 from ..database import get_db
+from ..services.agent_config_service import get_storage_backend, AgentConfigService
 
 router = APIRouter(
     prefix="/api/v1/custom_agents",
     tags=["Agents"],
     responses={401: {"description": "Unauthorized"}}
 )
-
-AGENTS_DIR = "agents/custom"
-
-def generate_agent_markdown(agent_data: schemas.CustomAgentCreate) -> str:
-    # Map from the strict nested structure
-    name = agent_data.identity.name
-    role = agent_data.identity.role
-    description = agent_data.identity.description
-    color = agent_data.identity.color
-    emoji = agent_data.identity.emoji
-    vibe = agent_data.identity.vibe
-    intro_paragraph = agent_data.identity.intro_paragraph
-    
-    personality = agent_data.system_rules.personality
-    experience = agent_data.system_rules.experience
-    memory = agent_data.system_rules.memory
-    
-    mission = agent_data.system_rules.mission
-    rules = agent_data.system_rules.rules
-    deliverables = agent_data.system_rules.deliverables
-    communication = agent_data.system_rules.communication
-    learning = agent_data.system_rules.learning
-    success_metrics = agent_data.system_rules.success_metrics
-    
-    if agent_data.capabilities:
-        advanced_capabilities = "\n".join([f"- {cap}" for cap in agent_data.capabilities])
-    else:
-        advanced_capabilities = agent_data.system_rules.advanced_capabilities
-        
-    if agent_data.constraints:
-        rules = "\n".join([f"- {c}" for c in agent_data.constraints])
-        
-    system_prompt = agent_data.system_prompt or ""
-        
-    instructions_reference = agent_data.system_rules.instructions_reference
-
-    if system_prompt:
-        system_prompt_section = f"## 🤖 System Prompt\n{system_prompt}\n"
-    else:
-        system_prompt_section = ""
-
-    content = f"""---
-name: {name}
-description: {description}
-color: {color}
-emoji: {emoji}
-vibe: {vibe}
----
-
-# {name} Agent Personality
-
-{intro_paragraph}
-
-## 🧠 Your Identity & Memory
-- **Role**: {role}
-- **Personality**: {personality}
-- **Memory**: {memory}
-- **Experience**: {experience}
-
-## 🎯 Your Core Mission
-{mission}
-
-## 🚨 Critical Rules You Must Follow
-{rules}
-
-## 📋 Your Architecture Deliverables
-{deliverables}
-
-## 💭 Your Communication Style
-{communication}
-
-## 🔄 Learning & Memory
-{learning}
-
-## 🎯 Your Success Metrics
-{success_metrics}
-
-## 🚀 Advanced Capabilities
-{advanced_capabilities}
-
-{system_prompt_section}
-{f"---" if instructions_reference else ""}
-
-{f"**Instructions Reference**: {instructions_reference}" if instructions_reference else ""}
-"""
-    return content
 
 @router.post("", response_model=schemas.CustomAgentOut, status_code=status.HTTP_201_CREATED)
 def create_agent(
@@ -107,18 +21,17 @@ def create_agent(
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
     filepath = None
+    config_service = AgentConfigService(get_storage_backend())
     try:
-        os.makedirs(AGENTS_DIR, exist_ok=True)
-        
         name = agent_data.identity.name
         role = agent_data.identity.role
         
-        # Generate a unique ID and filename
         agent_id = str(uuid.uuid4())
-        filename = f"{name.lower().replace(' ', '-')}-{agent_id[:8]}.md"
-        filepath = os.path.join(AGENTS_DIR, filename)
         
-        # 1. DB Flush first to ensure we can insert (transaction safety)
+        # Write to storage
+        filepath = config_service.save_agent_config(tenant_id, agent_id, agent_data)
+        
+        # B3-1: Transactional integrity
         db_agent = models.CustomAgent(
             id=agent_id,
             name=name,
@@ -127,29 +40,18 @@ def create_agent(
             tenant_id=tenant_id
         )
         db.add(db_agent)
-        db.flush() # Will raise if DB error occurs
-        
-        # 2. Write the markdown file
-        content = generate_agent_markdown(agent_data)
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(content)
-            
-        # 3. DB Commit
         db.commit()
         db.refresh(db_agent)
         
         return db_agent
     except Exception as e:
         db.rollback()
-        # Clean up file if DB commit failed after file was written
-        if filepath and os.path.exists(filepath):
+        # Rollback storage if DB fails
+        if filepath:
             try:
-                os.remove(filepath)
-            except OSError:
-                pass
-        
-        import traceback
-        traceback.print_exc()
+                config_service.delete_agent_config(filepath)
+            except Exception as cleanup_error:
+                print(f"Failed to cleanup storage after DB rollback: {cleanup_error}")
         raise HTTPException(status_code=500, detail=f"Failed to create agent: {str(e)}")
 
 @router.get("", response_model=List[schemas.CustomAgentOut])
@@ -159,3 +61,72 @@ def list_agents(
 ):
     agents = db.query(models.CustomAgent).filter(models.CustomAgent.tenant_id == tenant_id).all()
     return agents
+
+# B2-1: Implement PUT /api/custom-agents/{agent_id} endpoint
+@router.put("/{agent_id}", response_model=schemas.CustomAgentOut)
+def update_agent(
+    agent_id: str,
+    agent_data: schemas.CustomAgentCreate,
+    db: Session = Depends(get_db),
+    tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
+):
+    db_agent = db.query(models.CustomAgent).filter(
+        models.CustomAgent.id == agent_id,
+        models.CustomAgent.tenant_id == tenant_id
+    ).first()
+    
+    if not db_agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+        
+    config_service = AgentConfigService(get_storage_backend())
+    old_filepath = db_agent.filepath
+    new_filepath = None
+    try:
+        # Generate new markdown and overwrite file (or create new if path changes)
+        # Using the same agent_id will overwrite the file in storage layer
+        new_filepath = config_service.save_agent_config(tenant_id, agent_id, agent_data)
+        
+        db_agent.name = agent_data.identity.name
+        db_agent.role = agent_data.identity.role
+        db_agent.filepath = new_filepath
+        
+        db.commit()
+        db.refresh(db_agent)
+        return db_agent
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to update agent: {str(e)}")
+
+# B2-2: Implement DELETE /api/custom-agents/{agent_id} endpoint
+@router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_agent(
+    agent_id: str,
+    db: Session = Depends(get_db),
+    tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
+):
+    db_agent = db.query(models.CustomAgent).filter(
+        models.CustomAgent.id == agent_id,
+        models.CustomAgent.tenant_id == tenant_id
+    ).first()
+    
+    if not db_agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+        
+    config_service = AgentConfigService(get_storage_backend())
+    filepath = db_agent.filepath
+    
+    try:
+        # B3-1: Transactional integrity: delete from DB first, if succeeds delete from storage
+        db.delete(db_agent)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete agent from database: {str(e)}")
+        
+    try:
+        config_service.delete_agent_config(filepath)
+    except Exception as e:
+        print(f"Warning: Failed to delete agent file {filepath}: {e}")
+        # Not raising 500 here since DB deletion was successful, avoiding zombie DB records
+    
+    return None
