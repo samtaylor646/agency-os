@@ -1,4 +1,4 @@
 # Active Context
 
-- **Current Epic Status**: Completed "Technical Debt & Security Remediation (Custom Agent Creation)".
-- **Last Action**: Implemented multi-tenant strict isolation, decoupled environment variables for frontend/backend docker compose network, added GDPR-compliant data segregation and log retention policies, and successfully executed the Strict QA Gate.
+- **Current Epic Status**: Executing "Phase 3 Rebuild Epic A: Orchestration Hardening".
+- **Last Action**: Completed Task A2-1: Replaced mock `execute_node` in `central_runner.py` with actual LLM/agent dispatch logic using `llm_runner`. Committed to branch `epic-a-orchestration-resilience`.

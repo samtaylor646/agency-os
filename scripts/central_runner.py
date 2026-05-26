@@ -69,16 +69,20 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
         
     try:
         # A2-1: Replace mock execute_node in central_runner.py with actual LLM/agent dispatch logic
-        # In a real implementation we would import an LLM orchestration layer and pass the context.
-        # For this milestone, we use simulated logic with random failure to exercise retry.
-        await asyncio.sleep(0.1) # Simulate async work
+        # Import LLM orchestration layer and pass the context.
+        from server.services.llm_runner import llm_runner
         
-        # Simulated actual dispatch - in the real world we dispatch to LangChain/custom agent.
-        # import server.services.analysis_agent as aa
-        # result = await aa.dispatch_to_agent(agent_name, validated_input.task, validated_input.context_data)
+        # Build context prompt from dependencies
+        context_str = "\n".join([f"{k}: {json.dumps(v)}" for k, v in validated_input.context_data.items()])
+        full_prompt = f"Task: {validated_input.task}\nContext:\n{context_str}"
         
-        # Force a transient error simulation occasionally if needed, but for now we just return a structured response.
-        result = {"output": f"Output from {node_id} using {agent_name} for task: {validated_input.task}", "context_keys": list(validated_input.context_data.keys())}
+        # Dispatch to LLM runner
+        response = await llm_runner.generate_response(
+            prompt=full_prompt, 
+            system_prompt=f"You are acting as the specialized agent: {agent_name}."
+        )
+        
+        result = {"output": response, "context_keys": list(validated_input.context_data.keys())}
     except TransientNodeError as e:
         raise e # Let tenacity handle it
     except Exception as e:
