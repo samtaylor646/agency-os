@@ -15,3 +15,4 @@ tenacity
 redis
 pgvector
 psycopg2-binary
+boto3
