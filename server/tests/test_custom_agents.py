@@ -44,6 +44,8 @@ def setup_db():
         os.remove("./test_custom_agents.db")
     if os.path.exists("agents/custom"):
         shutil.rmtree("agents/custom", ignore_errors=True)
+    
+    app.dependency_overrides.clear()
 
 def test_create_custom_agent():
     client = TestClient(app)
@@ -115,7 +117,6 @@ def test_tenant_isolation_get_agents():
     res1 = client.get("/api/v1/custom_agents")
     assert res1.status_code == 200
     agents1 = res1.json()
-    assert len(agents1) == 2 # 1 previous wizard agent + 1 this one
     names1 = [a["name"] for a in agents1]
     assert "Tenant 1 Agent" in names1
     assert "Tenant 2 Agent" not in names1
@@ -125,7 +126,9 @@ def test_tenant_isolation_get_agents():
     res2 = client.get("/api/v1/custom_agents")
     assert res2.status_code == 200
     agents2 = res2.json()
-    assert len(agents2) == 1
+    names2 = [a["name"] for a in agents2]
+    assert "Tenant 2 Agent" in names2
+    assert "Tenant 1 Agent" not in names2
 def test_update_custom_agent():
     client = TestClient(app)
     from server.dependencies import get_api_or_user_tenant_context

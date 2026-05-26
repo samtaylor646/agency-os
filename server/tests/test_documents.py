@@ -30,8 +30,12 @@ def override_get_db():
 def override_get_tenant_context():
     return 1 # return a mock workspace id
 
-app.dependency_overrides[get_db] = override_get_db
-app.dependency_overrides[get_api_or_user_tenant_context] = override_get_tenant_context
+@pytest.fixture(autouse=True)
+def setup_overrides():
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_api_or_user_tenant_context] = override_get_tenant_context
+    yield
+    app.dependency_overrides.clear()
 
 client = TestClient(app)
 

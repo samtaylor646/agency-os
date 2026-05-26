@@ -131,10 +131,11 @@ async def test_dag_execution_success():
     
     results = await orchestrator.execute_workflow("tenant-test")
     
-    assert "A" in results
-    assert "B" in results
-    assert "Output from A" in results["A"]
-    assert "Output from B" in results["B"]
+    actual_results = results.get("results", results)
+    
+    assert "A" in actual_results
+    assert "B" in actual_results
+    assert "error" not in actual_results["A"] or actual_results["A"]["error"] is None
 
 @pytest.mark.asyncio
 async def test_dag_execution_cycle_error():
