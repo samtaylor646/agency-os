@@ -165,19 +165,32 @@ class DAGOrchestrator:
             
         db = SessionLocal()
         try:
+            completed_nodes = []
+            failed_nodes = []
+            for node_id, data in self.state.items():
+                if data.get("status") == "success":
+                    completed_nodes.append(node_id)
+                elif data.get("status") in ["failed", "skipped"]:
+                    failed_nodes.append(node_id)
+
             exec_record = db.query(WorkflowExecution).filter(WorkflowExecution.id == self.workflow_id).first()
             if not exec_record:
                 exec_record = WorkflowExecution(
                     id=self.workflow_id,
                     tenant_id=int(tenant_id),
-                    workflow_name=self.workflow_name,
+                    pipeline_id=self.workflow_name,
                     status=status,
-                    state_data=self.state
+                    completed_nodes=completed_nodes,
+                    failed_nodes=failed_nodes,
+                    execution_context=self.state,
+                    retry_counts={}
                 )
                 db.add(exec_record)
             else:
                 exec_record.status = status
-                exec_record.state_data = self.state
+                exec_record.completed_nodes = completed_nodes
+                exec_record.failed_nodes = failed_nodes
+                exec_record.execution_context = self.state
             db.commit()
         except Exception as e:
             print(f"Failed to save workflow state: {e}")

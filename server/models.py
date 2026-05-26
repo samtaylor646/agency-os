@@ -214,14 +214,25 @@ class PipelineRun(Base):
     state = Column(JSON, default={})
     error_message = Column(String(255), nullable=True)
 
+class WorkflowExecutionStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    PAUSED = "PAUSED"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    PARTIAL_FAILURE = "PARTIAL_FAILURE"
+
 class WorkflowExecution(Base):
     __tablename__ = "workflow_executions"
 
-    id = Column(String(255), primary_key=True, index=True)
+    id = Column(String(255), primary_key=True, index=True) # UUID
     tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
-    workflow_name = Column(String(255), nullable=False)
-    status = Column(String(50), nullable=False, default="PENDING") # PENDING, RUNNING, PAUSED, COMPLETED, FAILED, PARTIAL_FAILURE
-    state_data = Column(JSON, default={})
+    pipeline_id = Column(String(255), nullable=True) # UUID string or use Integer depending on design
+    status = Column(String(50), default=WorkflowExecutionStatus.PENDING.value)
+    completed_nodes = Column(JSON, default=list)
+    failed_nodes = Column(JSON, default=list)
+    execution_context = Column(JSON, default=dict)
+    retry_counts = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
