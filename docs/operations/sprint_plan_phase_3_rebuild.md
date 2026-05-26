@@ -26,22 +26,22 @@ This sprint plan executes the Phase 3 Rebuild of AgencyOS, addressing critical t
 
 | Task ID | Description | Assigned Agent | Status |
 |---|---|---|---|
-| B4-1 | Refactor markdown generation into a dedicated `server/services/agent_config_service.py` module. | Backend Architect | To Do |
-| B1-1 | Implement Storage Abstraction Layer supporting both S3 and Local Filesystem fallback. | Backend Architect | To Do |
-| B1-2 | Ensure strict tenant isolation in storage paths (`tenants/{tenant_id}/custom_agents/{agent_id}.md`). | Backend Architect | To Do |
-| B2-1 | Implement `PUT /api/custom-agents/{agent_id}` endpoint with DB update and markdown regeneration. | Backend Architect | To Do |
-| B2-2 | Implement `DELETE /api/custom-agents/{agent_id}` endpoint. | Backend Architect | To Do |
-| B3-1 | Implement transactional integrity: rollback DB changes if storage write/delete operations fail. | Backend Architect | To Do |
-| QA-B | Execute S3 Mocking, Storage Rollback & Transactional Integrity, and Tenant Data Isolation test scenarios. | Evidence Collector | To Do |
+| B4-1 | Refactor markdown generation into a dedicated `server/services/agent_config_service.py` module. | Backend Architect | Done |
+| B1-1 | Implement Storage Abstraction Layer supporting both S3 and Local Filesystem fallback. | Backend Architect | Done |
+| B1-2 | Ensure strict tenant isolation in storage paths (`tenants/{tenant_id}/custom_agents/{agent_id}.md`). | Backend Architect | Done |
+| B2-1 | Implement `PUT /api/custom-agents/{agent_id}` endpoint with DB update and markdown regeneration. | Backend Architect | Done |
+| B2-2 | Implement `DELETE /api/custom-agents/{agent_id}` endpoint. | Backend Architect | Done |
+| B3-1 | Implement transactional integrity: rollback DB changes if storage write/delete operations fail. | Backend Architect | Done |
+| QA-B | Execute S3 Mocking, Storage Rollback & Transactional Integrity, and Tenant Data Isolation test scenarios. | Evidence Collector | Done |
 
 ## 5. DevOps & Infrastructure
 
 | Task ID | Description | Assigned Agent | Status |
 |---|---|---|---|
-| D1-1 | Provision S3 bucket (`agency-os-agent-storage-prod`) and configure IAM Roles/Policies. | DevOps Engineer | To Do |
-| D1-2 | Update Kubernetes configs (ConfigMaps/Secrets) with new environment variables (`STORAGE_BACKEND`, `S3_BUCKET_NAME`, etc.). | DevOps Engineer | To Do |
-| D1-3 | Update `docker-compose.yml` for local testing with fallback mount and environment variables. | DevOps Engineer | To Do |
-| D1-4 | Configure CI/CD pipeline to run integration tests against both `local` and `s3` storage implementations. | DevOps Engineer | To Do |
+| D1-1 | Provision S3 bucket (`agency-os-agent-storage-prod`) and configure IAM Roles/Policies. | DevOps Engineer | Done |
+| D1-2 | Update Kubernetes configs (ConfigMaps/Secrets) with new environment variables (`STORAGE_BACKEND`, `S3_BUCKET_NAME`, etc.). | DevOps Engineer | Done |
+| D1-3 | Update `docker-compose.yml` for local testing with fallback mount and environment variables. | DevOps Engineer | Done |
+| D1-4 | Configure CI/CD pipeline to run integration tests against both `local` and `s3` storage implementations. | DevOps Engineer | Done |
 
 ## 6. Dev ↔ QA Loop Execution
 
