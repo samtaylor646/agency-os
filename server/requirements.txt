@@ -12,3 +12,6 @@ email-validator
 PyPDF2
 python-docx
 tenacity
+redis
+pgvector
+psycopg2-binary

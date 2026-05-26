@@ -24,3 +24,5 @@
    2. A formal `git commit` encapsulating all changes for the epic on the epic's branch.
    3. Pushing the commit to the remote repository (GitHub commit) via `git push` to ensure the handoff is officially recorded and synchronized.
 9. **Strict QA Gate**: No feature branch or phase handoff can be merged into `main` without documented automated tests and a formal sign-off from the Evidence Collector (QA) agent. Code must be proven to work via tests before merging.
+10. **Human-in-the-Loop Mandate**: A human must be explicitly involved in all phases of the project lifecycle (Phase 0 through Phase 6) going forward. This includes manual review of specifications, environment scaffolding validation, continuous UI/UX spot-checks during build cycles, and formal User Acceptance Testing (UAT). You must prompt for human verification before finalizing any phase gate.
+11. **Explicit Consent Mandate**: Do not execute tool operations (such as file modifications, command executions, etc.) when the user is simply asking a clarifying question. You must wait for explicit consent from the user before making changes or executing actions based on an inquiry.

@@ -7,12 +7,13 @@ services:
       dockerfile: deployment/server.Dockerfile
     ports:
       - "5001:5000"
-    volumes:
-      # Persist the sqlite db
-      - agency_os_data:/app/server/data
+    depends_on:
+      - db
+      - redis
     environment:
       - PYTHONPATH=/app
-      - DATABASE_URL=sqlite:////app/server/data/agency_os.db
+      - DATABASE_URL=postgresql://agency_os:staging_password@db:5432/agency_os
+      - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=staging
       - SECRET_KEY=staging_secret_key_12345
 
@@ -25,5 +26,20 @@ services:
     ports:
       - "3000:80"
 
+  db:
+    image: ankane/pgvector:latest
+    environment:
+      POSTGRES_DB: agency_os
+      POSTGRES_USER: agency_os
+      POSTGRES_PASSWORD: staging_password
+    volumes:
+      - agency_os_pgdata_staging:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - agency_os_redis_staging:/data
+
 volumes:
-  agency_os_data:
+  agency_os_pgdata_staging:
+  agency_os_redis_staging:

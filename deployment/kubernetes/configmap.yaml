@@ -8,6 +8,9 @@ data:
   S3_BUCKET_NAME: "agency-os-agent-storage-prod"
   LOG_LEVEL: "INFO"
   ENVIRONMENT: "production"
+  # Service URLs - Using internal Kubernetes DNS names
+  REDIS_URL: "redis://redis-service:6379/0"
+  DATABASE_URL: "postgresql://agency_os@postgres-service:5432/agency_os"
 ---
 apiVersion: v1
 kind: Secret
@@ -21,3 +24,6 @@ stringData:
   # AWS_ACCESS_KEY_ID: "..."
   # AWS_SECRET_ACCESS_KEY: "..."
   SECRET_KEY: "replace-with-secure-secret"
+  # Database credentials
+  POSTGRES_USER: "agency_os"
+  POSTGRES_PASSWORD: "replace-with-secure-db-password"

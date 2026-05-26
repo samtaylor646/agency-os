@@ -1,8 +1,15 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from pgvector.sqlalchemy import Vector
+from sqlalchemy.ext.compiler import compiles
 import enum
 from .database import Base
+
+@compiles(Vector, "sqlite")
+def compile_vector_sqlite(type_, compiler, **kw):
+    return "TEXT"
+
 
 class RoleEnum(str, enum.Enum):
     SUPER_ADMIN = "Super Admin"
@@ -178,6 +185,7 @@ class Document(Base):
     title = Column(String(255), nullable=False)
     content = Column(String, nullable=False)
     type = Column(String(50), nullable=False)
+    embedding = Column(Vector(1536), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class CustomAgent(Base):

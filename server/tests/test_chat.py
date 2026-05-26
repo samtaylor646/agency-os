@@ -46,8 +46,8 @@ def test_generate_document_success(mock_generate_doc):
     mock_generate_doc.return_value = "# PRD\n\nContent here"
 
     response = client.post(
-        "/api/v1/chat/generate-document",
-        json={"doc_type": "prd", "context": {"name": "Test", "description": "Test doc", "tech_stack": ["React"]}}
+        "/api/v1/chat/1/generate/prd",
+        json={"context": {"name": "Test", "description": "Test doc", "tech_stack": ["React"]}}
     )
     
     assert response.status_code == 200
@@ -60,8 +60,8 @@ def test_generate_document_error(mock_generate_doc):
     mock_generate_doc.side_effect = Exception("Doc Error")
 
     response = client.post(
-        "/api/v1/chat/generate-document",
-        json={"doc_type": "prd", "context": {"name": "Test"}}
+        "/api/v1/chat/1/generate/prd",
+        json={"context": {"name": "Test"}}
     )
     
     assert response.status_code == 500
@@ -77,7 +77,7 @@ def test_ingest_document_success(mock_ingest):
     }
 
     files = {'file': ('test.txt', b'my text content')}
-    response = client.post("/api/v1/chat/ingest", files=files)
+    response = client.post("/api/v1/chat/1/documents/upload", files=files)
     
     assert response.status_code == 200
     data = response.json()
