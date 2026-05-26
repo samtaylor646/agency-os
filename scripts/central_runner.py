@@ -65,6 +65,29 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
         validator = TaskValidator()
         validator.pre_flight_check(validated_input.task)
         
+    # Semantic Context Injection (RAG)
+    try:
+        from server.services.semantic_search import search_documents
+        if SessionLocal:
+            db_session = SessionLocal()
+            try:
+                rag_results = await search_documents(
+                    db=db_session, 
+                    workspace_id=int(validated_input.tenant_id), 
+                    query=validated_input.task, 
+                    top_k=3
+                )
+                
+                if rag_results:
+                    rag_context = "\n\n---\n\n".join([r['text_content'] for r in rag_results])
+                    validated_input.context_data["Semantic_Knowledge"] = rag_context
+            except Exception as e:
+                print(f"RAG semantic search error: {e}")
+            finally:
+                db_session.close()
+    except ImportError:
+        pass
+
     try:
         # A2-1: Replace mock execute_node in central_runner.py with actual LLM/agent dispatch logic
         # Import LLM orchestration layer and pass the context.

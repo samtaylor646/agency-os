@@ -16,3 +16,4 @@ redis
 pgvector
 psycopg2-binary
 boto3
+openai>=1.0.0

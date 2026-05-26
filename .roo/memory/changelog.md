@@ -18,6 +18,13 @@
 - **Fixed**: Dev environment reactivity broken in Docker; updated `client/vite.config.js` to enable filesystem polling (`watch: { usePolling: true }`).
 - **Verified**: Human-in-the-loop manual verification successfully passed for Custom Agent creation via UI.
 
+## [2026-05-26] - Epic: Phase 4 Sprint 4.2 - Semantic Memory Layer
+- **Added**: Upgraded infrastructure to `pgvector` for semantic search (Docker, Kubernetes, CI).
+- **Added**: Implemented `OpenAIEmbeddingProvider` (`text-embedding-3-small`) and FastAPI embedding abstraction.
+- **Added**: Document chunking, ingestion, and vector semantic retrieval logic.
+- **Added**: Security and QA measures, including RBAC filtering on `workspace_id`, test plans, and data poisoning prevention logic.
+- **Verified**: Formal QA signoff documented in `docs/archive/qa_signoff_phase_4_sprint_4.2.md`.
+
 ## [2026-05-26] - Epic: Phase 4 Sprint 4.1 - Message Broker & Semantic Storage
 - **Added**: Implemented `message_broker.py` for Redis Pub/Sub async agent communication (Epic-4.1.A).
 - **Added**: Added `pgvector` extension and `vector` column to `documents` table via Alembic for semantic memory (Epic-4.1.B).

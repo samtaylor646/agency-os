@@ -37,7 +37,7 @@ services:
       # - AWS_DEFAULT_REGION=us-east-1
 
   db:
-    image: ankane/pgvector:latest
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_DB: agency_os
       POSTGRES_USER: agency_os

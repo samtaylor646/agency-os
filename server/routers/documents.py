@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, BackgroundTasks, status
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, BackgroundTasks, status, Request
 from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import models, schemas, dependencies
-from ..services import document_parser, analysis_agent
+from ..services import document_parser, analysis_agent, semantic_search
 import os
 import uuid
 import shutil
@@ -13,10 +13,12 @@ router = APIRouter(
 )
 
 UPLOAD_DIR = "uploads/"
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB Payload size limit
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 async def process_document_pipeline(doc_id: str, storage_path: str, file_type: str, workspace_id: int):
     from ..database import SessionLocal
+    from ..embeddings import get_embedding_provider
     db = SessionLocal()
     try:
         doc = db.query(models.IngestedDocument).filter(models.IngestedDocument.id == doc_id).first()
@@ -26,10 +28,46 @@ async def process_document_pipeline(doc_id: str, storage_path: str, file_type: s
         db.commit()
         
         extracted_text = document_parser.extract_text(storage_path, file_type)
-        pipeline_data = await analysis_agent.generate_pipeline(extracted_text, workspace_id)
         
-        # Save parsed pipeline to DB logic will go here
+        # Semantic Memory Spec Task 1 & 2: Chunking & Embeddings
+        chunks = document_parser.chunk_text(extracted_text, chunk_size=500, overlap=50)
         
+        provider = get_embedding_provider()
+        
+        # Create a parent Document record for RAG
+        rag_doc = models.Document(
+            title=doc.filename,
+            content=extracted_text,
+            type=file_type,
+            # chat_id or other fields could go here if needed
+        )
+        db.add(rag_doc)
+        db.commit()
+        db.refresh(rag_doc)
+
+        if chunks:
+            # Batch process embeddings for all chunks
+            embeddings = await provider.get_embeddings(chunks)
+            
+            # Save chunks to DB
+            for idx, (chunk_text, embedding) in enumerate(zip(chunks, embeddings)):
+                chunk_record = models.DocumentChunk(
+                    document_id=rag_doc.id,
+                    workspace_id=workspace_id,
+                    chunk_index=idx,
+                    text_content=chunk_text,
+                    embedding=embedding
+                )
+                db.add(chunk_record)
+            
+            db.commit()
+        
+        # The legacy pipeline generation if needed (leaving intact for now)
+        try:
+            pipeline_data = await analysis_agent.generate_pipeline(extracted_text, workspace_id)
+        except Exception as e:
+            print(f"Legacy analysis pipeline error: {e}")
+            
         doc.status = "completed"
         db.commit()
         
@@ -43,17 +81,21 @@ async def process_document_pipeline(doc_id: str, storage_path: str, file_type: s
         db.close()
 
 
-@router.post("/ingest", response_model=dict)
+@router.post("/ingest", response_model=dict, dependencies=[Depends(dependencies.rate_limit_ingestion)])
 async def ingest_document(
     workspace_id: int,
     background_tasks: BackgroundTasks,
+    request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
+    tenant_id: int = Depends(dependencies.verify_workspace_access)
 ):
-    if tenant_id != workspace_id:
-        raise HTTPException(status_code=403, detail="Forbidden: Workspace mismatch")
-        
+    # Enforce payload size limit
+    if request.headers.get('content-length'):
+        content_length = int(request.headers.get('content-length'))
+        if content_length > MAX_FILE_SIZE:
+            raise HTTPException(status_code=413, detail="Payload Too Large. Max file size is 5MB.")
+
     allowed_types = ["application/pdf", "text/markdown", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
     
     if file.content_type not in allowed_types and not file.filename.lower().endswith(('.pdf', '.md', '.txt', '.docx')):
@@ -90,16 +132,28 @@ async def ingest_document(
     return {"message": "Document ingested successfully", "job_id": doc.id, "status": "pending"}
 
 
+@router.get("/search")
+async def search_workspace_documents(
+    workspace_id: int,
+    query: str,
+    top_k: int = 5,
+    db: Session = Depends(get_db),
+    tenant_id: int = Depends(dependencies.verify_workspace_access)
+):
+    """
+    Retrieves semantically similar document chunks for a given query.
+    Enforces RBAC explicit read/write access to the workspace.
+    """
+    results = await semantic_search.search_documents(db, workspace_id, query, top_k)
+    return {"results": results}
+
 @router.get("/ingest/status/{job_id}")
 def get_ingest_status(
     workspace_id: int,
     job_id: str,
     db: Session = Depends(get_db),
-    tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
+    tenant_id: int = Depends(dependencies.verify_workspace_access)
 ):
-    if tenant_id != workspace_id:
-        raise HTTPException(status_code=403, detail="Forbidden: Workspace mismatch")
-        
     doc = db.query(models.IngestedDocument).filter(
         models.IngestedDocument.id == job_id,
         models.IngestedDocument.workspace_id == workspace_id

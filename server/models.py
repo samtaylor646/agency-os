@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Enum
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from pgvector.sqlalchemy import Vector
@@ -167,6 +168,34 @@ class Template(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+
+class DocumentChunk(Base):
+    __tablename__ = 'document_chunks'
+    
+    id = Column(postgresql.UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    document_id = Column(Integer, ForeignKey('documents.id', ondelete='CASCADE'), nullable=False)
+    workspace_id = Column(Integer, index=True, nullable=False)
+    chunk_index = Column(Integer, nullable=False)
+    text_content = Column(String, nullable=False)
+    embedding = Column(Vector(1536), nullable=True)
+
+class AgentSession(Base):
+    __tablename__ = 'agent_sessions'
+    
+    id = Column(postgresql.UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    workspace_id = Column(Integer, index=True, nullable=False)
+    agent_id = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+class SessionMessage(Base):
+    __tablename__ = 'session_messages'
+    
+    id = Column(postgresql.UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    session_id = Column(postgresql.UUID(as_uuid=True), ForeignKey('agent_sessions.id', ondelete='CASCADE'), nullable=False)
+    role = Column(String(50), nullable=False)
+    content = Column(String, nullable=False)
+    embedding = Column(Vector(1536), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 class IngestedDocument(Base):
     __tablename__ = "ingested_documents"
