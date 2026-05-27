@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026-05-27] - Epic 4.4.A: LLM Kill Switch Architecture
+- **Added**: Implemented `KillSwitch` service backed by Redis in `server/services/kill_switch.py`.
+- **Added**: REST API endpoints for kill switch management (`/kill-switch/activate`, `/kill-switch/deactivate`, `/kill-switch/status`) in `server/api_server.py`.
+- **Changed**: Modified `DAGOrchestrator.execute_workflow` in `scripts/central_runner.py` to poll kill switch state and halt N:N Pod executions if activated.
+- **Added**: Technical documentation in `docs/technical/llm_kill_switch_architecture.md`.
+- **Added**: Runbook for containing blast radiuses in `agents/strategy/runbooks/scenario-autonomous-blast-radius.md`.
+
+## [2026-05-26] - Phase 5 Kickoff
+- **Status**: Transitioned Phase 5 from Pending to In Progress.
+- **Added**: Linked Phase 5 Master Plan in `AgencyOS_Phases_Master_Plan.md`.
+
 ## [2026-05-26] - Phase 4 Handoff
 - **Completed**: Phase 4 officially completed.
 - **Added**: Consolidated Phase 4 handoff summary generated at `docs/archive/phase_4_handoff_summary.md`.

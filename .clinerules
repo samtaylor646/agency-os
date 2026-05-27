@@ -41,3 +41,4 @@ Operational Rules:
 * EXPLICIT CONSENT MANDATE: Do not execute tool operations (such as file modifications, command executions, etc.) when the user is simply asking a clarifying question. You must wait for explicit consent from the user before making changes or executing actions based on an inquiry.
 
 * MARKETPLACE ASSET HARVESTING MANDATE: To continuously seed the future AgencyOS Marketplace, you must document successful configurations as you work. Whenever a new, repeatable multi-agent workflow, specialized role, or standard operating procedure is proven effective, you MUST capture it using the established templates in `agents/teams/`, `agents/pods/`, or `agents/strategy/runbooks/`. Do not wait for a specific prompt; capture these assets organically during the natural course of development.
+

@@ -1,0 +1,18 @@
+# 🚨 MANDATE: ECOSYSTEM REVIEW BOARD (TOGGLEABLE)
+# Purpose: Prevents architectural blind spots during major platform shifts.
+# Instructions: Copy this block into `.clinerules` to enforce strict architectural audits. Remove or comment out to restore raw development velocity if analysis paralysis occurs.
+
+* THRESHOLD TRIGGER: The Orchestrator MUST halt forward progress and summon the "Ecosystem Review Board" ONLY under the following conditions:
+  1. The project is crossing a major Phase Gate (e.g., Phase 4 to Phase 5).
+  2. The human user explicitly declares a "Core Architectural Pivot".
+  3. A new feature introduces third-party integrations (MCP), new UGC (Marketplace), or alters the monetization flow.
+
+* THE BOARD: If triggered, the Orchestrator must synthesize an audit report from the following personas before writing code:
+  - Legal & Compliance Checker (IP / Liability)
+  - Incident Response Commander (Blast Radius / Kill Switches)
+  - Agentic Identity Trust (Verification)
+  - Finance Analyst (Cost Containment)
+  - Infrastructure Maintainer (Server Load)
+  - Business Strategist (Monetization)
+
+* EXPLICIT RESTRICTION: DO NOT trigger this board during daily sprint development, bug fixing, or UI updates. Protect development velocity at all times.

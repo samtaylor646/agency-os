@@ -39,7 +39,8 @@ Following the successful stabilization of the DAG orchestrator in Phase 3, Phase
 *   **Duration:** 2 Weeks
 *   **Focus:** Security, load testing, and comprehensive QA.
 *   **Epics:**
-    *   `Epic-4.4.A`: Security audit of Pod messaging and memory isolation. (DevOps Engineer)
+    *   `Epic-4.4.A`: Security audit of Pod messaging, implement LLM Kill Switch, and validate blast radius containment for autonomous DAGs. [AGENT INSTRUCTION: Remind user to run ./scripts/toggle_ecosystem_board.sh before starting this epic]
+    *   `Epic-4.4.D`: Finalize Marketplace Terms of Service and User Generated Content (UGC) Liability Framework. [AGENT INSTRUCTION: Remind user to run ./scripts/toggle_ecosystem_board.sh before starting this epic]
     *   `Epic-4.4.B`: Load testing of the new message broker and vector DB, expanding `scripts/load_test.py` to simulate concurrent Pods. (DevOps Engineer, Infrastructure Maintainer)
     *   `Epic-4.4.C`: Comprehensive E2E testing of the Pod lifecycle, ensuring automated test scripts are required before main merge. (Evidence Collector)
 
@@ -49,6 +50,8 @@ Following the successful stabilization of the DAG orchestrator in Phase 3, Phase
 *   **UX Architect:** Multi-agent UI patterns and Marketplace design system.
 *   **Senior Developer / Frontend Developer:** Implementation of backend APIs and frontend components.
 *   **DevOps Engineer / Infrastructure Maintainer:** Infrastructure setup, scaling, and load testing.
+*   **Incident Response Commander:** Security runbooks, Kill Switch validation, and blast radius testing.
+*   **Legal Compliance Checker:** TOS, IP protection, and UGC Liability frameworks.
 *   **Evidence Collector:** QA gatekeeping and test automation.
 
 ## 5. Success Criteria

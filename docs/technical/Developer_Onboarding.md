@@ -116,3 +116,14 @@ Configure your webhook endpoints via the API or the Workspace Settings UI.
 3.  **Build Your First Agent:** Use the No-Code Wizard in the UI to understand the agent capabilities, then transition to programmatic deployment using the `agency-agents` standard.
 
 For support, reach out to our Developer Success team or consult the architecture blueprints in `docs/technical/`.
+## Architectural Governance & Velocity Toggles
+
+AgencyOS uses dynamic rules to balance fast-paced feature development with rigorous architectural security. By default, development velocity is prioritized. However, before crossing major Phase Gates or introducing massive architectural pivots (like new third-party integrations or billing changes), developers **must** enable the Ecosystem Review Board.
+
+**To toggle the strict governance rules ON or OFF:**
+Run the following script in your terminal:
+```bash
+./scripts/toggle_ecosystem_board.sh
+```
+*   **When toggled ON:** The orchestrator will automatically summon Legal, Security, and Finance agents to audit any proposed changes before code is written.
+*   **When toggled OFF:** Maximum development velocity is restored for daily sprint tasks and bug fixing.

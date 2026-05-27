@@ -31,3 +31,13 @@ When building new features for AgencyOS, adhere to the standard NEXUS Dev/QA loo
 3. **Build:** Senior Developer implements the code based on the design.
 4. **Verify:** Evidence Collector runs the tests (e.g., `npm run build` in `/client`).
 5. **Harden:** If verification fails, the task returns to the Developer. If it passes, the Orchestrator marks the phase complete.
+## Managing AI Governance & Velocity
+To ensure AgencyOS does not suffer from architectural blind spots when transitioning between phases, we have implemented a "Toggleable Ecosystem Review Board". 
+
+If you are continuing to build/tool the app for daily sprint tasks, leave the board OFF.
+If you are initiating a major architectural pivot (Marketplace, MCP integrations, Monetization), toggle the board ON to force the AI to audit the blast radius, legal liabilities, and financial risks before proceeding.
+
+**Command to toggle the governance gate:**
+```bash
+./scripts/toggle_ecosystem_board.sh
+```

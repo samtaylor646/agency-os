@@ -234,8 +234,19 @@ class DAGOrchestrator:
         self._save_state(tenant_id, "RUNNING")
         results = {}
         has_failure = False
+        
+        # Epic 4.4.A: Initialize Kill Switch
+        try:
+            from server.services.kill_switch import kill_switch
+        except ImportError:
+            kill_switch = None
 
         for level in levels:
+            if kill_switch and kill_switch.is_active(tenant_id):
+                final_status = "KILLED_BY_SWITCH"
+                self._save_state(tenant_id, final_status)
+                return {"status": final_status, "results": results, "error": "Workflow execution halted by LLM Kill Switch."}
+
             tasks = []
             for node_id in level:
                 # Check dependencies state
