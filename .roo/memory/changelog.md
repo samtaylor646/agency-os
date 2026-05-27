@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026-05-27] - Epic: Custom Agent Remediation (Phase 2 Handoff)
+- **Verified**: Human-in-the-loop manual verification successfully passed for Custom Agent Remediation Phase 2.
+- **Fixed**: Corrected `VITE_API_URL` proxy target fallback in `client/vite.config.js` to fix 401 Unauthorized errors during auto-login.
+- **Verified**: Proved that backend rejects legacy flat payloads with a 422 error.
+- **Verified**: Proved atomic transactions correctly roll back database insertions if file saving fails.
+- **Status**: Formally closed out Phase 2 (Data Integrity & Schema Mapping). Next step is Phase 3 (Maintainability & Policy).
+
 ## [2026-05-27] - Epic: Project Scope UI Remediation
 - **Added**: Implemented file upload component in `client/src/ChatScopeInterface.jsx` supporting `.txt`, `.md`, and `.pdf` files.
 - **Changed**: Modified `WorkspaceContext.jsx` API interceptor to support native `FormData` uploads by omitting default JSON headers.

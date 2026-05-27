@@ -21,7 +21,13 @@ from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytic
 from .context import set_tenant_id, get_tenant_id
 from scripts.central_runner import DAGOrchestrator
 
+from sqlalchemy import text
+
 # For development MVP, create tables automatically
+with engine.connect() as conn:
+    conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+    conn.commit()
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AgencyOS API")

@@ -122,7 +122,7 @@ export default function CustomAgentCreator() {
       },
       system_rules: {
         mission: formData.mission || formData.goal || '',
-        rules: formData.rules || formData.guardrails || '',
+        rules: (formData.rules || formData.guardrails || '').split('\n').map(r => r.trim()).filter(r => r.length > 0),
         personality: formData.personality || '',
         memory: formData.memory || '',
         experience: formData.experience || '',

@@ -222,6 +222,7 @@ class AgentSystemRules(BaseModel):
 
 
 class Identity(BaseModel):
+    model_config = {"extra": "forbid"}
     name: str
     role: str
     domain: str = "specialized"
@@ -233,8 +234,9 @@ class Identity(BaseModel):
     intro_paragraph: Optional[str] = ""
 
 class SystemRules(BaseModel):
+    model_config = {"extra": "forbid"}
     mission: Optional[str] = ""
-    rules: Optional[str] = ""
+    rules: Optional[List[str]] = []
     personality: Optional[str] = ""
     memory: Optional[str] = ""
     experience: Optional[str] = ""
@@ -246,14 +248,12 @@ class SystemRules(BaseModel):
     instructions_reference: Optional[str] = ""
 
 class CustomAgentCreate(BaseModel):
+    model_config = {"extra": "forbid"}
     identity: Identity
     system_rules: SystemRules
     capabilities: List[str] = []
     constraints: List[str] = []
     system_prompt: Optional[str] = ""
-
-    class Config:
-        extra = "forbid"
 
 
 class CustomAgentOut(BaseModel):

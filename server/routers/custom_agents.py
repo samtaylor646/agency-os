@@ -31,13 +31,12 @@ def create_agent(
         # Write to storage
         filepath = config_service.save_agent_config(tenant_id, agent_id, agent_data)
         
-        # B3-1: Transactional integrity
         db_agent = models.CustomAgent(
             id=agent_id,
             name=name,
             role=role,
-            filepath=filepath,
-            tenant_id=tenant_id
+            tenant_id=tenant_id,
+            filepath=filepath
         )
         db.add(db_agent)
         db.commit()
@@ -46,12 +45,6 @@ def create_agent(
         return db_agent
     except Exception as e:
         db.rollback()
-        # Rollback storage if DB fails
-        if filepath:
-            try:
-                config_service.delete_agent_config(filepath)
-            except Exception as cleanup_error:
-                print(f"Failed to cleanup storage after DB rollback: {cleanup_error}")
         raise HTTPException(status_code=500, detail=f"Failed to create agent: {str(e)}")
 
 @router.get("", response_model=List[schemas.CustomAgentOut])
@@ -82,12 +75,14 @@ def update_agent(
     old_filepath = db_agent.filepath
     new_filepath = None
     try:
+        db_agent.name = agent_data.identity.name
+        db_agent.role = agent_data.identity.role
+        db.flush()
+        
         # Generate new markdown and overwrite file (or create new if path changes)
         # Using the same agent_id will overwrite the file in storage layer
         new_filepath = config_service.save_agent_config(tenant_id, agent_id, agent_data)
         
-        db_agent.name = agent_data.identity.name
-        db_agent.role = agent_data.identity.role
         db_agent.filepath = new_filepath
         
         db.commit()
