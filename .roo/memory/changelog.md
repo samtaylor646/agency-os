@@ -142,3 +142,4 @@
 - Generated `docs/qa/qa_docs_git_analysis.md` summarizing file dates, recent commits, and cross-referencing with project timeline.
 - Identified older sprints and point-in-time test plans as candidates for archival to streamline QA document tracking.
 Archived old QA documents
+- Created subdirectories `core`, `operations`, and `technical` in `docs/archive` to maintain category structure for archived documents.
