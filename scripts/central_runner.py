@@ -106,14 +106,35 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
         context_str = "\n".join([f"{k}: {json.dumps(v)}" for k, v in validated_input.context_data.items()])
         full_prompt = f"Task: {validated_input.task}\nContext:\n{context_str}"
         
-        # Dispatch to LLM runner
-        try:
-            response = await llm_runner.generate_response(
-                prompt=full_prompt, 
-                system_prompt=f"You are acting as the specialized agent: {agent_name}."
-            )
-        except (TimeoutError, ConnectionError) as net_err:
-            raise TransientNodeError(f"Network error during LLM generation: {net_err}")
+        if agent_name == "CodeSandbox":
+            # Offload untrusted code to the secure execution sandbox
+            try:
+                from server.services.sandbox import sandbox_env
+                code_to_run = validated_input.task # Assume task contains the code directly or as part of JSON
+                # Check if task is JSON that contains 'code'
+                try:
+                    task_data = json.loads(validated_input.task)
+                    if isinstance(task_data, dict) and 'code' in task_data:
+                        code_to_run = task_data['code']
+                except json.JSONDecodeError:
+                    pass
+                    
+                sandbox_result = sandbox_env.execute_script(code_to_run)
+                response = f"Sandbox Output:\nStdout: {sandbox_result['stdout']}\nStderr: {sandbox_result['stderr']}\nExit Code: {sandbox_result['exit_code']}"
+                if sandbox_result['exit_code'] != 0:
+                    status = "failed"
+                    error_msg = f"Sandbox execution failed with exit code {sandbox_result['exit_code']}"
+            except Exception as sb_err:
+                raise TerminalNodeError(f"Sandbox execution failed: {sb_err}")
+        else:
+            # Dispatch to LLM runner
+            try:
+                response = await llm_runner.generate_response(
+                    prompt=full_prompt, 
+                    system_prompt=f"You are acting as the specialized agent: {agent_name}."
+                )
+            except (TimeoutError, ConnectionError) as net_err:
+                raise TransientNodeError(f"Network error during LLM generation: {net_err}")
         
         result = {"output": response, "context_keys": list(validated_input.context_data.keys())}
     except TransientNodeError as e:
