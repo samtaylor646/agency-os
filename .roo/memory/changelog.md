@@ -1,5 +1,9 @@
 # Changelog
 
+## [2026-05-27] - End-to-Task Workflow Process Update
+- **Added**: Drafted Scope Document/PRD `docs/core/prd_workflow_process_update.md` based on `docs/operations/workflow_process_review.md`.
+- **Changed**: Formally defined the Five-Phase Workflow and the Phase 5 End of Task Mandate (Docs/Memory -> HITL -> Git Master).
+
 ## [2026-05-27] - Epic: Custom Agent Remediation (Phase 3 Handoff)
 - **Completed**: Phase 3 (Maintainability & Policy) is complete.
 - **Changed**: Decoupled hardcoded port configurations using `VITE_API_URL` environment variables in `client/vite.config.js` and `deployment/docker-compose.yml`.

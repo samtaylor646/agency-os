@@ -42,6 +42,13 @@ Operational Rules:
 
 * MARKETPLACE ASSET HARVESTING MANDATE: To continuously seed the future AgencyOS Marketplace, you must document successful configurations as you work. Whenever a new, repeatable multi-agent workflow, specialized role, or standard operating procedure is proven effective, you MUST capture it using the established templates in `agents/teams/`, `agents/pods/`, or `agents/strategy/runbooks/`. Do not wait for a specific prompt; capture these assets organically during the natural course of development.
 
+* END OF TASK / HANDOFF CHECKLIST MANDATE: Before concluding ANY task, epic, or phase, you MUST verify the following have been completed:
+  1. Memory updated (`.roo/memory/changelog.md` & `.roo/memory/active_context.md`).
+  2. All new documentation routed to the correct `docs/` subfolder.
+  3. Git commit created on the epic/feature branch and pushed to remote.
+  4. Human explicitly prompted for review/approval (HITL).
+  **CRITICAL**: You MUST enforce this checklist by explicitly using the `update_todo_list` tool to add these items as pending tasks before beginning your work, and you MUST not use `attempt_completion` until all these todo items are marked as completed `[x]`.
+
 
 
 

@@ -27,6 +27,13 @@
 10. **Human-in-the-Loop Mandate**: A human must be explicitly involved in all phases of the project lifecycle (Phase 0 through Phase 6) going forward. This includes manual review of specifications, environment scaffolding validation, continuous UI/UX spot-checks during build cycles, and formal User Acceptance Testing (UAT). You must prompt for human verification before finalizing any phase gate.
 11. **Explicit Consent Mandate**: Do not execute tool operations (such as file modifications, command executions, etc.) when the user is simply asking a clarifying question. You must wait for explicit consent from the user before making changes or executing actions based on an inquiry.
 
+12. **End of Task / Handoff Checklist Mandate**: Before concluding ANY task, epic, or phase, you MUST verify the following have been completed:
+    - [ ] Memory updated (`.roo/memory/changelog.md` & `.roo/memory/active_context.md`).
+    - [ ] All new documentation routed to the correct `docs/` subfolder.
+    - [ ] Git commit created on the epic/feature branch and pushed to remote.
+    - [ ] Human explicitly prompted for review/approval (HITL).
+    **CRITICAL**: You MUST enforce this checklist by explicitly using the `update_todo_list` tool to add these items as pending tasks before beginning your work, and you MUST not use `attempt_completion` until all these todo items are marked as completed `[x]`.
+
 ## Strict Task Template for Orchestrator
 When issued a complex prompt, the `agents-orchestrator` must immediately respond with a step-by-step delegation plan using the following format BEFORE taking any action:
 
