@@ -47,6 +47,7 @@ To establish real-time feedback loops and incident response triggers for the Pha
 *   **Metrics:** Prometheus natively scrapes node exporters, kube-state-metrics, and the AgencyOS application `/metrics` endpoints.
 *   **Distributed Tracing:** OpenTelemetry (OTel) SDKs are instrumented in the backend to pass trace IDs across microservices and agents, providing deep visibility into Nexus Pipeline latency.
 *   **Logs:** Promtail/Loki handles centralized log aggregation, perfectly correlating with Prometheus metric spikes.
+*   **Automated PII Scrubbing:** All OpenTelemetry (OTel) traces and Promtail logs MUST implement automated PII scrubbing (e.g., masking user IPs, emails, or sensitive query parameters) prior to log ingestion to ensure GDPR and CCPA compliance.
 
 ### 4.2 Key Alerting Thresholds (Alertmanager)
 Alerts are dynamically routed to PagerDuty and Slack channels for the Incident Response Commander.
@@ -64,9 +65,10 @@ Grafana serves as the single pane of glass, featuring three core launch dashboar
 2.  **Infrastructure Deep-Dive:** Pod/Node utilization (CPU/Mem/Disk I/O), Database metrics (Query wait times, connection pools).
 3.  **LLM Telemetry:** Monitoring token consumption (cost approximations), rate-limit events, and OpenAI/Anthropic API latency.
 
-## 5. Security & Human-in-the-Loop Validation
+## 5. Security, Compliance & Human-in-the-Loop Validation
 
 As outlined in the standard rules and protocols:
 *   No deployment to Green will happen without CI/CD test gates passing.
 *   No cutover to Green will occur without explicit, documented Human-in-the-Loop sign-off on visual and functional QA.
+*   **Consent Management Platform (CMP):** A strict cookie consent barrier must be implemented. GTM scripts and pixels (GA4, PostHog, Meta, Twitter) MUST be blocked by default and only activated upon explicit opt-in (GDPR) or provide clear opt-out mechanisms with respect to "Do Not Sell" signals (CCPA).
 *   GTM pixel integrations (GA4, PostHog, Meta, Twitter) are isolated from core backend processes to prevent UI tracking scripts from creating application-level memory leaks or latency.

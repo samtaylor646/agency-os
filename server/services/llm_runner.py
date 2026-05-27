@@ -1,98 +1,130 @@
 import asyncio
-from typing import Dict, Any, Optional
+import os
+import json
+from typing import Dict, Any, Optional, List
+from abc import ABC, abstractmethod
+
+class BaseLLMProvider(ABC):
+    @abstractmethod
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        pass
+
+class OpenAIProvider(BaseLLMProvider):
+    def __init__(self, api_key: str):
+        import openai
+        self.client = openai.AsyncClient(api_key=api_key)
+        self.model = os.getenv("OPENAI_MODEL", "gpt-4o")
+
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+        
+        response = await self.client.chat.completions.create(
+            model=self.model,
+            messages=messages
+        )
+        return response.choices[0].message.content
+
+class AnthropicProvider(BaseLLMProvider):
+    def __init__(self, api_key: str):
+        import anthropic
+        self.client = anthropic.AsyncAnthropic(api_key=api_key)
+        self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
+
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        kwargs = {
+            "model": self.model,
+            "max_tokens": 4096,
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        if system_prompt:
+            kwargs["system"] = system_prompt
+            
+        response = await self.client.messages.create(**kwargs)
+        return response.content[0].text
+
+class MockProvider(BaseLLMProvider):
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        await asyncio.sleep(0.5)
+        return f"Mock response. Prompt: {prompt[:50]}..."
 
 class LLMRunner:
     """
-    Mock LLM Runner service for Phase 1 of the Core Pivot Roadmap.
-    This simulates interactions with external LLM providers (e.g., OpenAI, Anthropic).
+    LLM Runner service integrating real provider classes.
     """
     def __init__(self, provider: str = "mock"):
-        self.provider = provider
+        self.provider_name = provider
+        self.provider = self._init_provider(provider)
+
+    def _init_provider(self, provider_name: str) -> BaseLLMProvider:
+        if provider_name == "openai":
+            api_key = os.getenv("OPENAI_API_KEY")
+            if api_key:
+                return OpenAIProvider(api_key=api_key)
+        elif provider_name == "anthropic":
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+            if api_key:
+                return AnthropicProvider(api_key=api_key)
+        return MockProvider()
 
     async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
-        """
-        Simulates generating a text response from an LLM.
-        """
-        await asyncio.sleep(0.5) # Simulate network delay
-        
-        scoping_prompt = system_prompt or "You are an expert AI orchestrator. Your goal is to help scope a software project by asking clarifying questions about the goal, target audience, and key features. Be concise and focus on actionable insights."
-        
-        return f"Mock response (Guided by prompt: {scoping_prompt[:40]}...) to: {prompt[:50]}..."
+        try:
+            return await self.provider.generate_response(prompt, system_prompt)
+        except Exception as e:
+            # Fallback to mock on error for robustness during testing
+            print(f"LLM Provider Error ({self.provider_name}): {e}. Falling back to mock.")
+            mock = MockProvider()
+            return await mock.generate_response(prompt, system_prompt)
 
     async def generate_document(self, doc_type: str, context: Dict[str, Any]) -> str:
-        """
-        Simulates generating a specific project document based on context.
-        """
-        await asyncio.sleep(1.0) # Simulate generation delay
-        
-        name = context.get("name", "Unknown Project")
-        desc = context.get("description", "No description provided.")
-        stack = ", ".join(context.get("tech_stack", ["Unknown"]))
-        
-        if doc_type == "prd":
-            return f"# PRD: {name}\n\n## Overview\n{desc}\n\n## Goals\n- Build an MVP\n- Validate market"
-        elif doc_type == "architecture":
-            return f"# Architecture Spec: {name}\n\n## Stack\n{stack}\n\n## Components\n- Frontend UI\n- Backend API"
-        elif doc_type == "tasks":
-            return f"# Task List: {name}\n\n- [ ] Scaffold project\n- [ ] Implement {stack} components\n- [ ] Write tests"
-        
-        return f"# {doc_type.upper()}: {name}\nGenerated content based on {desc}"
+        prompt = f"Generate a {doc_type} based on this context: {json.dumps(context)}"
+        system_prompt = "You are an expert software architect and technical writer."
+        return await self.generate_response(prompt, system_prompt)
 
     async def parse_intent(self, message: str) -> Dict[str, Any]:
-        """
-        Simulates parsing a user message to extract core project details.
-        In a real implementation, this would use a structured output call (e.g. OpenAI function calling).
-        """
-        await asyncio.sleep(0.5) # Simulate network delay
-        
-        # Simple heuristic mocking for demonstration
-        name = "Unknown Project"
-        if "project" in message.lower() or "app" in message.lower():
-            words = message.split()
-            for i, word in enumerate(words):
-                if word.lower() in ["project", "app"] and i > 0:
-                    name = f"{words[i-1].capitalize()} {word.capitalize()}"
-                    break
-
-        return {
-            "name": name,
-            "description": message,
-            "tech_stack": ["React", "FastAPI", "Python"] if "web" in message.lower() else ["Unknown"],
-            "raw_message": message
-        }
+        prompt = f"Extract project intent from: {message}. Return JSON with name, description, tech_stack."
+        system_prompt = "You are an intent parser. Always output raw valid JSON without markdown wrapping."
+        response_text = await self.generate_response(prompt, system_prompt)
+        try:
+            return json.loads(response_text)
+        except:
+            # Fallback mock heuristic
+            return {
+                "name": "Parsed Project",
+                "description": message,
+                "tech_stack": ["Unknown"],
+                "raw_message": message
+            }
 
     async def refine_document(self, doc_type: str, current_content: str, feedback: str) -> Dict[str, str]:
-        """
-        Simulates refining an existing document based on natural language feedback.
-        """
-        await asyncio.sleep(1.0)
-        
-        # Mock refinement: append the feedback as an "Update" section
-        refined_content = f"{current_content}\n\n## Updates based on feedback\n- {feedback}"
+        prompt = f"Refine this {doc_type} based on feedback: {feedback}\n\nCurrent Content:\n{current_content}"
+        system_prompt = "You refine technical documents based on feedback. Return the refined document."
+        refined_content = await self.generate_response(prompt, system_prompt)
         chat_response = f"I've updated the {doc_type} based on your feedback: '{feedback}'."
-        
         return {
             "content": refined_content,
             "chat_response": chat_response
         }
 
     async def ingest_document(self, file_content: bytes, filename: str) -> Dict[str, Any]:
-        """
-        Simulates parsing an uploaded document to extract project context.
-        """
-        await asyncio.sleep(0.5)
         text = file_content.decode('utf-8', errors='ignore')
-        
-        name = "Ingested Project"
-        if filename:
-            name = filename.split('.')[0].replace('_', ' ').title()
-            
-        return {
-            "name": name,
-            "description": f"Extracted from {filename}. Preview: {text[:100]}...",
-            "tech_stack": ["Unknown", "Auto-detected"],
-            "raw_message": f"Ingested from file: {filename}"
-        }
+        prompt = f"Extract key information from this document: {text[:2000]}... Return JSON with name, description, tech_stack."
+        system_prompt = "You are an intent parser. Always output raw valid JSON without markdown wrapping."
+        response_text = await self.generate_response(prompt, system_prompt)
+        try:
+            parsed = json.loads(response_text)
+            parsed["raw_message"] = f"Ingested from file: {filename}"
+            return parsed
+        except:
+            return {
+                "name": filename.split('.')[0].replace('_', ' ').title(),
+                "description": f"Extracted from {filename}. Preview: {text[:100]}...",
+                "tech_stack": ["Unknown", "Auto-detected"],
+                "raw_message": f"Ingested from file: {filename}"
+            }
 
 # Singleton instance for easy import
-llm_runner = LLMRunner()
+provider_type = os.getenv("LLM_PROVIDER_TYPE", "mock").lower()
+llm_runner = LLMRunner(provider=provider_type)
