@@ -43,5 +43,17 @@ To fulfill the `.clinerules` mandate, the `agents-orchestrator` MUST use the `sw
 * **CRITICAL:** The `agents-orchestrator` lists the exact agent slugs assigned to the *implementation* phase, **reading these directly and exclusively from the Master Plan.**
 * Prompts the human user for explicit consent to begin the implementation phase.
 
-## 4. Ecosystem Review Board & Rule Toggling Policy
+## 4. End of Task Mandate (Closing Sequence)
+Before any Epic or Phase can be considered complete, the following mandatory closing sequence MUST be executed in exact order:
+
+1. **Docs/Memory Finalization:** 
+   * Update `.roo/memory/changelog.md` and `.roo/memory/active_context.md`.
+   * Ensure all new documentation is routed to the correct `docs/` subfolder.
+2. **HITL Approval:**
+   * A human must be explicitly prompted for User Acceptance Testing (UAT) and formal review/approval.
+3. **Git Workflow Master Handoff:**
+   * Hand off to the `engineering-git-workflow-master` to ensure a formal `git commit` encapsulates all changes on the epic's branch.
+   * Push the commit to the remote repository (`git push`) to finalize synchronization and officially record the handoff.
+
+## 5. Ecosystem Review Board & Rule Toggling Policy
 If toggled ON during Step 2, the `agents-orchestrator` MUST halt forward progress and summon the cross-functional audit (Legal, Finance, Infrastructure, etc.) before writing code. This protects against architectural blind spots during major platform shifts. It should be toggled OFF for standard daily sprints.

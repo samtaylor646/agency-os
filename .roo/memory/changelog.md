@@ -2,6 +2,7 @@
 
 ## [2026-05-27] - Update Git Workflow Rules
 - **Changed**: Updated `docs/operations/git_workflow_rules.md` to enforce the Phase 5 End of Task Mandate. Final git commit and push are now strictly gated behind formal HITL UAT approval.
+- **Changed**: Updated `docs/operations/standard_kickoff_protocol.md` to include the mandatory End of Task Mandate closing sequence (Docs/Memory -> HITL -> Git Workflow Master Handoff).
 
 ## [2026-05-27] - End-to-Task Workflow Process Update
 - **Added**: Drafted Scope Document/PRD `docs/core/prd_workflow_process_update.md` based on `docs/operations/workflow_process_review.md`.
