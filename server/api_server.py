@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 's
 
 from central_runner import DAGOrchestrator
 from validation_layer import TaskValidator
-from services.kill_switch import kill_switch
+from server.services.kill_switch import kill_switch
 
 app = Flask(__name__)
 CORS(app)
