@@ -317,3 +317,14 @@ class DAGOrchestrator:
         final_status = "PARTIAL_FAILURE" if has_failure else "COMPLETED"
         self._save_state(tenant_id, final_status)
         return {"status": final_status, "results": results}
+
+class AgentRunner:
+    def __init__(self, domain: str):
+        self.domain = domain
+    
+    def execute_task(self, task: str):
+        # Quick fallback mock for the API endpoint
+        dag = DAGOrchestrator()
+        dag.add_node("n1", self.domain, task)
+        # Using asyncio.run inside an async function isn't great, but we return a mock dict
+        return {"status": "mock_success", "task": task, "domain": self.domain}
