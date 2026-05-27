@@ -1,32 +1,42 @@
-# Human-in-the-Loop (HITL) Review Instructions: Epic 4.4.C
+# HITL Instructions: Epic 4.4.C - E2E Pod Testing
 
-## Overview
-This document provides instructions to manually verify Epic 4.4.C (Comprehensive E2E testing of the Pod lifecycle).
+## 1. Objective
+A human-in-the-loop (HITL) review is required to verify the new automated E2E Pod lifecycle test suite. This verification ensures that the test suite runs successfully, isolates itself from the main application, and adequately covers multi-agent scenarios.
 
-## Step 1: Check out the Epic Branch
+## 2. Prerequisites
+- Docker should be running (for local ephemeral postgres/redis if used, or to spin up the AgencyOS stack).
+- Python environment properly configured.
+
+## 3. Verification Steps
+
+### Step 1: Execute the Test Suite
+Run the full `pytest` suite for E2E Pod Lifecycle tests.
 ```bash
-git checkout epic/4.4.C-e2e-testing
+# Ensure you are in the workspace root
+cd /Users/samtaylor/Dev/projects/Agency/agency-os
+
+# Run the test suite specifically targeting E2E Pod lifecycle tests
+pytest server/tests/test_e2e_pod_lifecycle.py -v
 ```
 
-## Step 2: Review E2E Test Scripts
-You need to open the test file to verify its contents. You can open it directly in VSCode by running this command in your terminal:
+**Expected Result:** All tests (Pod Initialization, Messaging, Semantic Memory, Kill Switch) should pass with `PASSED` status.
+
+### Step 2: Validate Environment Isolation
+Verify that running the tests did not leak data into the default local database or Redis instance.
 ```bash
-code server/tests/test_e2e_pod_lifecycle.py
+# Check standard APP_ENV setting logic in conftest
+cat server/tests/conftest.py | grep APP_ENV
 ```
-Or, if you just want to print the file contents to your terminal to read it, use:
+
+**Expected Result:** You should see safeguards asserting that `APP_ENV != "production"`. 
+
+### Step 3: Review Test Fixture Isolation
+Review the test suite structure manually to ensure mocking and DB rolling back are in place.
 ```bash
 cat server/tests/test_e2e_pod_lifecycle.py
 ```
-Verify it contains tests for hitting the `/execute` DAG Orchestrator endpoint.
 
-## Step 3: Run the tests (Optional)
-```bash
-python3 -m pytest server/tests/test_e2e_pod_lifecycle.py
-```
+**Expected Result:** Look for database transaction rollbacks, or isolated namespace usages in Redis, and `unittest.mock` usage for LLMs.
 
-## Step 4: Approve and Merge
-```bash
-git checkout main
-git merge epic/4.4.C-e2e-testing
-git push origin main
-```
+## 4. Sign-Off
+Once the test output is verified to be 100% passing and the test isolation mechanism is visually confirmed, the Evidence Collector can formally sign off on this Epic and allow the feature branch to be merged into `main`.
