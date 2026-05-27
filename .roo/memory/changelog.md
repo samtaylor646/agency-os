@@ -155,3 +155,7 @@ Archived old QA documents
 - **Changed**: Moved old operations logs, sprint plans, and Phase assessments to `/docs/archive/operations/`.
 - **Changed**: Consolidated all recent archive moves (technical, qa, operations) into the `epic/archive-docs` branch.
 - **Verified**: Confirmed documentation routing rules (no files at the root of `docs/`).
+
+## [2026-05-27] - Archive Root Consolidation
+- **Changed**: Categorized and moved all loose files in `/docs/archive/` root into their respective subdirectories (`core`, `technical`, `operations`, `qa`).
+- **Verified**: Confirmed no loose files remain in the root of `/docs/archive/`.
