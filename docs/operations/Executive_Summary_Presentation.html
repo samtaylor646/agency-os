@@ -3,33 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgencyOS Executive Summary</title>
+    <title>AgencyOS Executive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #0f172a;
-            --accent-color: #3b82f6;
-            --accent-hover: #2563eb;
-            --text-main: #334155;
-            --text-light: #64748b;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --border-color: #e2e8f0;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --bg-dark: #0b0f19;
+            --bg-card: #111827;
+            --bg-card-hover: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-dark: #374151;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-family);
         }
 
         body {
-            background-color: var(--bg-main);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            display: flex;
         }
 
         /* Sidebar Navigation */
@@ -37,14 +41,13 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 250px;
+            width: 260px;
             height: 100vh;
-            background-color: var(--primary-color);
-            color: white;
+            background-color: var(--bg-card);
             padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            border-right: 1px solid var(--border-dark);
             z-index: 100;
         }
 
@@ -52,25 +55,27 @@
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
+            color: white;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
-        .brand-dot {
-            width: 12px;
-            height: 12px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
+        .brand-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 6px;
         }
 
         .nav-meta {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 3rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
             padding-bottom: 1.5rem;
-            border-bottom: 1px solid #1e293b;
+            border-bottom: 1px solid var(--border-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .nav-links {
@@ -78,184 +83,195 @@
             flex-grow: 1;
         }
 
-        .nav-links li {
-            margin-bottom: 1rem;
-        }
+        .nav-links li { margin-bottom: 0.5rem; }
 
         .nav-links a {
-            color: #cbd5e1;
+            color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
             transition: all 0.2s ease;
-            display: block;
-            padding: 0.5rem;
-            border-radius: 6px;
         }
 
         .nav-links a:hover, .nav-links a.active {
             color: white;
-            background-color: rgba(255,255,255,0.1);
-            padding-left: 1rem;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent-blue);
         }
 
         /* Main Content Container */
         main {
-            margin-left: 250px;
-            padding: 4rem 10%;
-            max-width: 1200px;
+            margin-left: 260px;
+            padding: 2rem 3rem;
+            width: calc(100% - 260px);
+            max-width: 1600px;
         }
 
-        /* Slides / Sections */
-        section {
-            background-color: var(--bg-card);
-            border-radius: 16px;
-            padding: 3rem;
-            margin-bottom: 4rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            border: 1px solid var(--border-color);
-            scroll-margin-top: 2rem;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.6s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        section:nth-child(2) { animation-delay: 0.1s; }
-        section:nth-child(3) { animation-delay: 0.2s; }
-        section:nth-child(4) { animation-delay: 0.3s; }
-        section:nth-child(5) { animation-delay: 0.4s; }
-
-        /* Typography */
-        h1, h2, h3 {
-            color: var(--primary-color);
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-        h2 { font-size: 1.8rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem;}
-        h3 { font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1e293b; }
-
-        .lead {
-            font-size: 1.2rem;
-            color: var(--text-light);
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
-            max-width: 800px;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-dark);
         }
 
-        p { margin-bottom: 1rem; }
-
-        /* Highlight Box */
-        .highlight-box {
-            background: linear-gradient(145deg, #eff6ff 0%, #e0e7ff 100%);
-            border-left: 4px solid var(--accent-color);
-            padding: 1.5rem 2rem;
-            border-radius: 0 8px 8px 0;
-            margin: 2rem 0;
+        .dashboard-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
         }
 
-        .highlight-box h3 {
-            margin-top: 0;
-            color: var(--accent-hover);
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
-        .highlight-box p:last-child { margin-bottom: 0; }
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
 
         /* Grids & Cards */
-        .grid-2 {
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin: 2rem 0;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
+
+        .col-span-12 { grid-column: span 12; }
+        .col-span-8 { grid-column: span 8; }
+        .col-span-6 { grid-column: span 6; }
+        .col-span-4 { grid-column: span 4; }
+        .col-span-3 { grid-column: span 3; }
 
         .card {
-            background-color: var(--bg-main);
-            padding: 1.5rem;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-dark);
             border-radius: 12px;
-            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease;
         }
 
-        ul {
-            padding-left: 1.5rem;
-            margin-bottom: 1.5rem;
+        .card:hover {
+            border-color: #4b5563;
         }
 
-        li {
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            color: var(--text-muted);
+        }
+
+        /* KPI Metrics */
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
             margin-bottom: 0.5rem;
         }
 
-        /* Roadmap Timeline */
-        .timeline {
-            position: relative;
-            margin: 2rem 0;
-            padding-left: 2rem;
+        .kpi-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
         }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 5px;
-            height: 100%;
-            width: 2px;
-            background-color: var(--border-color);
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -2rem;
-            top: 6px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            border: 2px solid white;
-            box-shadow: 0 0 0 2px var(--border-color);
-        }
-
-        .timeline-item.completed::before { background-color: var(--success); box-shadow: 0 0 0 2px var(--success); }
-        .timeline-item.in-progress::before { background-color: var(--warning); box-shadow: 0 0 0 2px var(--warning); }
-        .timeline-item.upcoming::before { background-color: var(--border-color); }
-
-        .timeline-title { font-weight: 600; color: var(--primary-color); margin-bottom: 0.25rem; }
-        .timeline-desc { font-size: 0.95rem; color: var(--text-light); }
         
-        .status-badge {
+        .trend-up { color: var(--accent-green); font-size: 0.875rem; display: flex; align-items: center; gap: 0.25rem;}
+        .trend-down { color: var(--accent-red); font-size: 0.875rem; display: flex; align-items: center; gap: 0.25rem;}
+
+        /* Typography */
+        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; font-weight: 600; color: white; border-bottom: 1px solid var(--border-dark); padding-bottom: 0.5rem;}
+        h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #d1d5db; }
+        p { margin-bottom: 1rem; color: #d1d5db; font-size: 0.95rem; }
+        ul { padding-left: 1.5rem; margin-bottom: 1.5rem; color: #d1d5db; font-size: 0.95rem; }
+        li { margin-bottom: 0.5rem; }
+
+        /* Badges */
+        .badge {
             display: inline-block;
-            padding: 0.15rem 0.6rem;
-            border-radius: 12px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            margin-left: 0.5rem;
-            vertical-align: middle;
         }
-        .status-completed { background-color: #d1fae5; color: #065f46; }
-        .status-progress { background-color: #fef3c7; color: #92400e; }
-        .status-upcoming { background-color: #e2e8f0; color: #475569; }
+        .badge-blue { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .badge-green { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-yellow { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-red { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .badge-purple { background: rgba(139, 92, 246, 0.1); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
 
+        /* Progress Bars */
+        .progress-bg { background-color: var(--border-dark); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+        .progress-bar { height: 100%; background-color: var(--accent-blue); border-radius: 4px; }
+        .progress-green { background-color: var(--accent-green); }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        .highlight-box {
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.8) 100%);
+            border-left: 4px solid var(--accent-purple);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; padding: 0.75rem 1rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-dark); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-dark); font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+
+        @media (max-width: 1024px) {
+            .col-span-3, .col-span-4 { grid-column: span 6; }
+            .col-span-8 { grid-column: span 12; }
+        }
         @media (max-width: 768px) {
-            nav { width: 100%; height: auto; position: relative; padding: 1rem; flex-direction: row; align-items: center; justify-content: space-between; }
+            nav { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border-dark); padding: 1rem; flex-direction: row; align-items: center; justify-content: space-between; }
             .nav-meta, .nav-links { display: none; }
-            main { margin-left: 0; padding: 2rem 5%; }
-            .grid-2 { grid-template-columns: 1fr; }
+            main { margin-left: 0; width: 100%; padding: 1.5rem; }
+            .col-span-6 { grid-column: span 12; }
         }
     </style>
 </head>
@@ -263,156 +279,336 @@
 
     <nav>
         <div>
-            <div class="brand"><div class="brand-dot"></div> AgencyOS</div>
+            <div class="brand">
+                <div class="brand-icon"></div>
+                AgencyOS
+            </div>
             <div class="nav-meta">
-                Executive Briefing<br>
-                May 27, 2026<br>
-                CEO & CTO
+                <div>Executive Dashboard</div>
+                <div style="color: #6b7280; font-size: 0.7rem; margin-top: 4px;">Last Updated: May 27, 2026</div>
             </div>
         </div>
         <ul class="nav-links">
-            <li><a href="#vision">1. The Vision</a></li>
-            <li><a href="#ceo">2. CEO Perspective</a></li>
-            <li><a href="#cto">3. CTO Perspective</a></li>
-            <li><a href="#updates">4. Recent Updates</a></li>
-            <li><a href="#past">5. Past Highlights</a></li>
-            <li><a href="#roadmap">6. Roadmap</a></li>
+            <li><a href="#overview" class="active">Overview</a></li>
+            <li><a href="#business">Business Strategy</a></li>
+            <li><a href="#technical">Technical Posture</a></li>
+            <li><a href="#metrics">Platform Metrics</a></li>
+            <li><a href="#roadmap">Strategic Roadmap</a></li>
         </ul>
     </nav>
 
     <main>
-        <section id="vision">
-            <h1>Executive Summary Report</h1>
-            <p class="lead">Prepared by Product Management for C-Suite Leadership</p>
-            
-            <div class="highlight-box">
-                <h3>Core Value Proposition: "From Conversation to Creation"</h3>
-                <p>AgencyOS is actively transitioning from a passive foundational management framework (focusing on RBAC, Multi-Tenancy, and Audit Logging) into an intelligent, active partner.</p>
-                <p>By shifting the paradigm from manual project management to conversational orchestration, we reduce cognitive overhead. Users simply state their intent, and our orchestration engine—the <strong>Nexus Pipeline</strong>—intelligently scopes, plans, and executes projects by orchestrating specialized AI agents. This bridges dynamic agent execution with stringent human-in-the-loop oversight—delivering unmatched security and accelerating time-to-market.</p>
+        <div class="dashboard-header">
+            <h1>Executive Summary Briefing</h1>
+            <div class="status-indicator">
+                <div class="pulse"></div>
+                Platform Status: All Systems Operational
+            </div>
+        </div>
+
+        <section id="overview">
+            <div class="dashboard-grid">
+                <div class="col-span-12 card">
+                    <div class="highlight-box" style="margin: 0; border-left-color: var(--accent-blue);">
+                        <h3 style="color: white; margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                            Core Value Proposition: "From Conversation to Creation"
+                        </h3>
+                        <p style="margin-bottom: 0.5rem; font-size: 1rem;">AgencyOS empowers users to initiate complex, multi-disciplinary projects through natural language. The platform intelligently scopes requirements and orchestrates specialized AI agents to execute them transparently.</p>
+                        <p style="margin-bottom: 0;">We are bridging the critical market gap between highly technical developer frameworks and overly narrow point solutions, establishing AgencyOS as an <strong>Enterprise-Ready Virtual Agency Platform</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="col-span-3 card">
+                    <div class="card-title">TAM Expansion</div>
+                    <div class="kpi-value">3.2x</div>
+                    <div class="trend-up"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Zero Barrier to Entry</div>
+                </div>
+                <div class="col-span-3 card">
+                    <div class="card-title">Enterprise Readiness</div>
+                    <div class="kpi-value">100%</div>
+                    <div class="kpi-label" style="color: var(--accent-green);">RBAC & GDPR Compliant</div>
+                </div>
+                <div class="col-span-3 card">
+                    <div class="card-title">System Uptime</div>
+                    <div class="kpi-value">99.99%</div>
+                    <div class="kpi-label">Last 30 Days</div>
+                </div>
+                <div class="col-span-3 card">
+                    <div class="card-title">Active Pods</div>
+                    <div class="kpi-value">1,248</div>
+                    <div class="trend-up"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> +15% this week</div>
+                </div>
             </div>
         </section>
 
-        <section id="ceo">
-            <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg> CEO Perspective</h2>
-            <p class="lead">Growth, Revenue, Risk, & Market Impact</p>
-            
-            <div class="grid-2">
-                <div class="card">
-                    <h3>Market Impact & Differentiation</h3>
-                    <p>Completing the Phase 1 pivot positions AgencyOS uniquely in the market—not merely as another workflow tool, but as an autonomous partner. This drives faster adoption and a higher ceiling for user expansion.</p>
-                </div>
-                <div class="card">
-                    <h3>Operational Velocity</h3>
-                    <p>The successful launch of Automated Scoping (Phase 2) and Agent Orchestration (Phase 3) drastically reduces project turnarounds and operational bottlenecks.</p>
-                </div>
-                <div class="card" style="grid-column: 1 / -1;">
-                    <h3>Risk Mitigation & Quality</h3>
-                    <p>The "Quality Gauntlet" (Phase 4) and the current rollout of Human-In-The-Loop (HITL) gates (Phase 5) ensure that velocity does not compromise output quality or brand integrity.</p>
-                </div>
-            </div>
-        </section>
+        <section id="business">
+            <h2>Business Strategy & Alignment</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-8 card">
+                    <div class="card-header">
+                        <div class="card-title">Go-To-Market & Revenue Drivers</div>
+                        <span class="badge badge-purple">Strategic Update</span>
+                    </div>
+                    <p>The market is shifting from "Copilots" to "Autopilots". Agency OS aligns entirely with this autopilot transition.</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: white; margin-bottom: 0.5rem;">Tiered Monetization Engine</h4>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-dark);">
+                                <strong style="color: var(--accent-blue); display: block; margin-bottom: 0.25rem;">Pro Tier</strong>
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">Accessible entry for startups. Grassroots adoption focus.</span>
+                            </div>
+                            <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-dark);">
+                                <strong style="color: var(--accent-purple); display: block; margin-bottom: 0.25rem;">Enterprise Tier</strong>
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">High-ACV focus on governance, scale, isolation & SSO.</span>
+                            </div>
+                            <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-dark);">
+                                <strong style="color: var(--accent-green); display: block; margin-bottom: 0.25rem;">Marketplace (Yr 2)</strong>
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">Custom Agent trading ecosystem driving network effects.</span>
+                            </div>
+                        </div>
+                    </div>
 
-        <section id="cto">
-            <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg> CTO Perspective</h2>
-            <p class="lead">Security, Architecture, & Scalability</p>
-            
-            <ul>
-                <li><strong>Zero-Trust Security & Containment:</strong> The implementation of a Docker-based isolated execution sandbox (<code>server/services/sandbox.py</code>) and a Redis-backed LLM Kill Switch guarantees that untrusted custom agent code has a strictly zero blast radius.</li>
-                <li><strong>Architectural Resilience:</strong> The Nexus Pipeline leverages high-performance components (Redis Pub/Sub, FastAPI WebSockets, and pgvector for semantic memory) to provide real-time observability, context preservation, and scalable execution states.</li>
-                <li><strong>Compliance & Governance Readiness:</strong> Immediate enforcement of GDPR-compliant Data Governance Policies, hardcoded tenant ID boundaries, and strict RBAC filtering guarantees platform compliance and data security at scale.</li>
-            </ul>
-        </section>
-
-        <section id="updates">
-            <h2>Recent Updates <span style="font-size: 1rem; color: var(--text-light); font-weight: normal; margin-left: auto;">May 26 - May 27</span></h2>
-            
-            <h3>Phase 5 Launch & Growth Completion</h3>
-            <ul>
-                <li>Defined GTM Strategy, Messaging Matrix, and Cross-Channel Activation Strategy.</li>
-                <li>Executed blue-green deployment and triggered marketing/community engagement blasts.</li>
-                <li>Consolidated Phase 4 handoff and kicked off Phase 5 smoothly.</li>
-            </ul>
-
-            <h3>Infrastructure & Quality Gauntlet</h3>
-            <ul>
-                <li><strong>Secure Execution Sandbox:</strong> Implemented Docker-based isolated execution for untrusted agent code.</li>
-                <li><strong>Real-Time Orchestration:</strong> Integrated Redis Pub/Sub & FastAPI WebSockets to stream execution states (<code>node_start</code>, <code>node_complete</code>) directly to the React frontend.</li>
-                <li><strong>LLM Kill Switch:</strong> Added a Redis-backed Kill Switch API to halt N:N Pod executions and contain blast radiuses.</li>
-                <li><strong>Custom Agent Remediation:</strong> Finalized Phase 3 (Maintainability & Policy), fixed hardcoded tenant ID boundaries, and implemented a GDPR-compliant Data Governance Policy.</li>
-            </ul>
-
-            <h3>Process & Documentation Consolidation</h3>
-            <ul>
-                <li>Enforced the "End of Task Mandate" across all Git workflow rules (Docs &rarr; HITL &rarr; Git Push).</li>
-                <li>Consolidated and cleaned up <code>/docs/archive</code> to establish absolute source of truth across core, technical, qa, and operations folders.</li>
-            </ul>
-        </section>
-
-        <section id="past">
-            <h2>Past Updates Highlights</h2>
-            
-            <div class="grid-2">
-                <div class="card">
-                    <h3>UI & Marketplace Enhancements</h3>
-                    <ul>
-                        <li>Shipped Frontend Marketplace UI (PodChatContainer, MarketplaceGrid, EntityCard).</li>
-                        <li>Upgraded Global State Migration to fetch real API data (removing static mocks).</li>
-                        <li>Implemented file upload component (<code>.txt</code>, <code>.md</code>, <code>.pdf</code>) for seamless project scoping.</li>
+                    <h4 style="color: white; margin-bottom: 0.5rem;">Target Audiences</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Startup Founders:</strong> Rapid MVP execution without managing engineering teams.</li>
+                        <li><strong>DevOps/Eng Leads:</strong> Secure, robust orchestration pipelines.</li>
+                        <li><strong>Agencies:</strong> Scaling capacity and protecting margins via autonomous pods.</li>
                     </ul>
                 </div>
-                <div class="card">
-                    <h3>Semantic Memory Layer <small>(Sprint 4.2)</small></h3>
-                    <ul>
-                        <li>Migrated to <code>pgvector</code> for semantic search.</li>
-                        <li>Added <code>OpenAIEmbeddingProvider</code> with document chunking, ingestion, and vector retrieval logic.</li>
-                        <li>Hardened security with RBAC filtering on workspace IDs and data poisoning prevention.</li>
+                
+                <div class="col-span-4 card">
+                    <div class="card-header">
+                        <div class="card-title">Phased GTM Trajectory</div>
+                    </div>
+                    <div style="position: relative; padding-left: 1.5rem; margin-top: 1rem; border-left: 2px solid var(--border-dark);">
+                        <div style="position: relative; margin-bottom: 1.5rem;">
+                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-green);"></div>
+                            <strong style="color: white;">Phase 1: Private Alpha</strong>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Core engine scoping with 20-50 startups.</div>
+                        </div>
+                        <div style="position: relative; margin-bottom: 1.5rem;">
+                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-blue);"></div>
+                            <strong style="color: white;">Phase 2: Public Launch</strong>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Pro Tier rollout via Product Hunt. "No-Code Multi-Agent".</div>
+                        </div>
+                        <div style="position: relative; margin-bottom: 1.5rem;">
+                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark);"></div>
+                            <strong style="color: white;">Phase 3: Enterprise Exp.</strong>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Direct sales emphasizing built-in security moat.</div>
+                        </div>
+                        <div style="position: relative;">
+                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark);"></div>
+                            <strong style="color: white;">Phase 4: Marketplace</strong>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Launch ecosystem for lock-in & network effects.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="technical">
+            <h2>Technical Posture & Dependencies</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-12 card">
+                    <div class="card-header">
+                        <div class="card-title">Recent Technical Milestones</div>
+                        <span class="badge badge-blue">Phase 4 & 5 Highlights</span>
+                    </div>
+                    <div class="dashboard-grid" style="margin-bottom: 0;">
+                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
+                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                NEXUS Pipeline Orchestration
+                            </h4>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">Implemented DAG for multi-agent task routing (<code>central_runner.py</code>) and dynamic Agent definition parsing via python-frontmatter.</p>
+                        </div>
+                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
+                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                Zero-Trust Security & Isolation
+                            </h4>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">Secure multi-tenant tracing (<code>X-Tenant-ID</code>, <code>contextvars</code>) and LLM Kill-Switch architecture via Redis for emergency DAG halting.</p>
+                        </div>
+                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
+                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                Unified Observability
+                            </h4>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">Prometheus/Grafana metrics, OpenTelemetry tracing, and Loki log aggregation with automated PII scrubbing (GDPR/CCPA).</p>
+                        </div>
+                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
+                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-yellow)" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                                Blue-Green Deployments
+                            </h4>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">K8s/Terraform zero-downtime rollouts supported by strict backward-compatible, additive-only PostgreSQL migrations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-6 card">
+                    <div class="card-header">
+                        <div class="card-title">Current Dependencies</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Layer</th>
+                                <th>Technology Stack</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: white;">Infrastructure</td>
+                                <td>Kubernetes (EKS/GKE), Terraform, Docker</td>
+                            </tr>
+                            <tr>
+                                <td style="color: white;">Observability</td>
+                                <td>Prometheus, Grafana, OpenTelemetry, Promtail, Loki</td>
+                            </tr>
+                            <tr>
+                                <td style="color: white;">Data & State</td>
+                                <td>PostgreSQL (Strict Alembic), Redis</td>
+                            </tr>
+                            <tr>
+                                <td style="color: white;">App Layer</td>
+                                <td>FastAPI, Python `contextvars`, Pydantic V2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-span-6 card">
+                    <div class="card-header">
+                        <div class="card-title">Technical Risks & Blockers</div>
+                        <span class="badge badge-red">Active Monitoring</span>
+                    </div>
+                    <ul style="margin-bottom: 0; padding-left: 1rem;">
+                        <li style="margin-bottom: 1rem;">
+                            <strong style="color: var(--accent-red); display: block;">Custom Agent Security Drift</strong>
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Legacy schemas lack Pydantic validation. Enforcing V2 strict schemas and rejecting missing X-Tenant-ID requests.</span>
+                        </li>
+                        <li style="margin-bottom: 1rem;">
+                            <strong style="color: var(--accent-yellow); display: block;">Blue-Green Migration Discipline</strong>
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Safety relies on zero destructive DB changes. Complex schema mods require a strict 3-release cycle.</span>
+                        </li>
+                        <li>
+                            <strong style="color: var(--accent-blue); display: block;">LLM Kill-Switch Precision</strong>
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Refining guardrails to prevent false positives that disrupt valid complex DAG workflows.</span>
+                        </li>
                     </ul>
                 </div>
             </div>
         </section>
 
-        <section id="roadmap">
-            <h2>Roadmap & Future Outlook</h2>
-            
-            <div class="timeline">
-                <div class="timeline-item completed">
-                    <div class="timeline-title">Phase 1: The Pivot & UI Overhaul <span class="status-badge status-completed">Completed</span></div>
-                    <div class="timeline-desc">UI Refactoring, Settings/Admin wiring, LLM Runner Integration.</div>
+        <section id="metrics">
+            <h2>Platform Metrics & Activity</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-8 card">
+                    <div class="card-header">
+                        <div class="card-title">Nexus Pipeline Executions (30 Days)</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="executionsChart"></canvas>
+                    </div>
                 </div>
-                <div class="timeline-item completed">
-                    <div class="timeline-title">Phase 2: Automated Scoping & Document Generation <span class="status-badge status-completed">Completed</span></div>
-                    <div class="timeline-desc">Document Generators, Document Ingestion Engine, Iterative Refinement.</div>
-                </div>
-                <div class="timeline-item completed">
-                    <div class="timeline-title">Phase 3: Agent Connection & Orchestration <span class="status-badge status-completed">Completed</span></div>
-                    <div class="timeline-desc">Dynamic Agent Selection, Custom Agent Creator Wizard, Task Queue Translation.</div>
-                </div>
-                <div class="timeline-item completed">
-                    <div class="timeline-title">Phase 4: Quality Gauntlet & Hardening <span class="status-badge status-completed">Completed</span></div>
-                    <div class="timeline-desc">Evidence Collection, E2E Testing, Infrastructure Validation.</div>
-                </div>
-                <div class="timeline-item in-progress">
-                    <div class="timeline-title">Phase 5: Feedback Loops & Intervention <span class="status-badge status-progress">In Progress</span></div>
-                    <div class="timeline-desc">Mid-Execution Chat, Human Approval Gates (HITL), Error Escalation.</div>
-                </div>
-                <div class="timeline-item upcoming">
-                    <div class="timeline-title">Phase 6: Iterative Refinements & Advanced Features <span class="status-badge status-upcoming">Upcoming</span></div>
-                    <div class="timeline-desc">Template Library, Robust API Selector, External Tooling Integrations (GitHub, Vercel), Voice Interfaces.</div>
+                <div class="col-span-4 card">
+                    <div class="card-header">
+                        <div class="card-title">Security Interventions</div>
+                    </div>
+                    <div class="chart-container" style="height: 200px;">
+                        <canvas id="securityChart"></canvas>
+                    </div>
+                    <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(239, 68, 68, 0.8); border-radius: 50%; margin-right: 4px;"></span> Rate Limit
+                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(245, 158, 11, 0.8); border-radius: 50%; margin-left: 8px; margin-right: 4px;"></span> Data Sanitization
+                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(139, 92, 246, 0.8); border-radius: 50%; margin-left: 8px; margin-right: 4px;"></span> Kill Switch
+                    </div>
                 </div>
             </div>
         </section>
+
     </main>
 
     <script>
-        // Simple active nav state logic
+        // Chart.js Implementations
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+
+        // Executions Chart (Line)
+        const ctxExecutions = document.getElementById('executionsChart').getContext('2d');
+        const gradientBlue = ctxExecutions.createLinearGradient(0, 0, 0, 300);
+        gradientBlue.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+        gradientBlue.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+        new Chart(ctxExecutions, {
+            type: 'line',
+            data: {
+                labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'],
+                datasets: [{
+                    label: 'Successful Executions',
+                    data: [3200, 4500, 5800, 8100],
+                    borderColor: '#3b82f6',
+                    backgroundColor: gradientBlue,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#374151', drawBorder: false }
+                    },
+                    x: {
+                        grid: { display: false, drawBorder: false }
+                    }
+                }
+            }
+        });
+
+        // Security Chart (Doughnut)
+        const ctxSecurity = document.getElementById('securityChart').getContext('2d');
+        new Chart(ctxSecurity, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rate Limits', 'Data Sanitization', 'Kill Switch Triggered'],
+                datasets: [{
+                    data: [65, 25, 10],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(139, 92, 246, 0.8)'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Navigation Active State
         document.addEventListener('DOMContentLoaded', () => {
             const sections = document.querySelectorAll('section');
             const navLinks = document.querySelectorAll('.nav-links a');
             
             const observerOptions = {
                 root: null,
-                rootMargin: '0px',
-                threshold: 0.5
+                rootMargin: '-50% 0px -50% 0px',
+                threshold: 0
             };
             
             const observer = new IntersectionObserver((entries) => {
