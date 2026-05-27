@@ -4,467 +4,434 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgencyOS Executive Summary</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+        :root {
+            --primary-color: #0f172a;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            overflow-x: hidden;
-            scroll-snap-type: y mandatory;
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-behavior: smooth;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .slide {
-            height: 100vh;
-            width: 100vw;
-            scroll-snap-align: start;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 4rem;
-            position: relative;
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .accent-gradient {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-dots {
-            position: fixed;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            z-index: 50;
-        }
-
-        .nav-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .nav-dot.active {
-            background-color: #3b82f6;
-            transform: scale(1.3);
-        }
-
-        /* Subtle animated background */
-        .bg-blobs {
+        /* Sidebar Navigation */
+        nav {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
+            width: 250px;
             height: 100vh;
-            z-index: -1;
-            overflow: hidden;
-        }
-        
-        .blob {
-            position: absolute;
-            filter: blur(80px);
-            opacity: 0.4;
-            border-radius: 50%;
-            animation: float 20s infinite ease-in-out alternate;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
-        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #1e3a8a; }
-        .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #4c1d95; animation-delay: -5s; }
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .nav-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-links li {
+            margin-bottom: 1rem;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+            background-color: rgba(255,255,255,0.1);
+            padding-left: 1rem;
+        }
+
+        /* Main Content Container */
+        main {
+            margin-left: 250px;
+            padding: 4rem 10%;
+            max-width: 1200px;
+        }
+
+        /* Slides / Sections */
+        section {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-color);
+            scroll-margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section:nth-child(2) { animation-delay: 0.1s; }
+        section:nth-child(3) { animation-delay: 0.2s; }
+        section:nth-child(4) { animation-delay: 0.3s; }
+        section:nth-child(5) { animation-delay: 0.4s; }
+
+        /* Typography */
+        h1, h2, h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        h2 { font-size: 1.8rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem;}
+        h3 { font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1e293b; }
+
+        .lead {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+
+        p { margin-bottom: 1rem; }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(145deg, #eff6ff 0%, #e0e7ff 100%);
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem 2rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            color: var(--accent-hover);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .highlight-box p:last-child { margin-bottom: 0; }
+
+        /* Grids & Cards */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background-color: var(--bg-main);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Roadmap Timeline */
+        .timeline {
+            position: relative;
+            margin: 2rem 0;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 5px;
+            height: 100%;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--border-color);
+        }
+
+        .timeline-item.completed::before { background-color: var(--success); box-shadow: 0 0 0 2px var(--success); }
+        .timeline-item.in-progress::before { background-color: var(--warning); box-shadow: 0 0 0 2px var(--warning); }
+        .timeline-item.upcoming::before { background-color: var(--border-color); }
+
+        .timeline-title { font-weight: 600; color: var(--primary-color); margin-bottom: 0.25rem; }
+        .timeline-desc { font-size: 0.95rem; color: var(--text-light); }
         
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(5%, 10%) scale(1.1); }
+        .status-badge {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-progress { background-color: #fef3c7; color: #92400e; }
+        .status-upcoming { background-color: #e2e8f0; color: #475569; }
+
+        @media (max-width: 768px) {
+            nav { width: 100%; height: auto; position: relative; padding: 1rem; flex-direction: row; align-items: center; justify-content: space-between; }
+            .nav-meta, .nav-links { display: none; }
+            main { margin-left: 0; padding: 2rem 5%; }
+            .grid-2 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
-
-    <div class="nav-dots" id="navDots">
-        <!-- Dots injected by JS -->
-    </div>
-
-    <!-- Slide 1: Title Slide -->
-    <section class="slide" id="slide-1">
-        <div class="text-center">
-            <h2 class="text-2xl text-blue-400 font-semibold tracking-widest uppercase mb-4">Executive Summary</h2>
-            <h1 class="text-6xl md:text-8xl font-bold mb-6 accent-gradient">AgencyOS</h1>
-            <p class="text-xl md:text-2xl text-slate-300 mb-12">Strategic Review & Roadmap</p>
-            
-            <div class="flex justify-center gap-8 text-sm text-slate-400">
-                <div class="flex items-center gap-2">
-                    <i class="far fa-calendar-alt"></i> May 27, 2026
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-code-branch"></i> Version 1.0
-                </div>
-            </div>
-            
-            <a href="#slide-2" class="inline-block mt-16 animate-bounce text-slate-400 hover:text-white transition-colors">
-                <i class="fas fa-chevron-down text-3xl"></i>
-            </a>
-        </div>
-    </section>
-
-    <!-- Slide 2: The Vision -->
-    <section class="slide" id="slide-2">
-        <div class="max-w-6xl w-full glass-panel p-10 md:p-16">
-            <h2 class="text-4xl font-bold mb-10 accent-gradient text-center">The Vision & Value Proposition</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="text-center p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-                    <div class="text-5xl text-blue-400 mb-6"><i class="fas fa-eye"></i></div>
-                    <h3 class="text-xl font-bold mb-4">The Vision</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        Transitioning from a foundational management framework (RBAC, Multi-Tenancy) into an active, intelligent partner.
-                    </p>
-                </div>
-                
-                <div class="text-center p-6 bg-slate-800/50 rounded-xl border border-slate-700 transform md:-translate-y-4 shadow-xl shadow-blue-900/20">
-                    <div class="text-5xl text-purple-400 mb-6 flex justify-center items-center gap-4">
-                        <i class="fas fa-comment-dots"></i> 
-                        <i class="fas fa-arrow-right text-2xl text-slate-500"></i> 
-                        <i class="fas fa-cogs"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Core Value</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        <strong>"From Conversation to Creation."</strong> Users simply talk to the system, and it intelligently scopes, plans, and executes projects.
-                    </p>
-                </div>
-                
-                <div class="text-center p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-                    <div class="text-5xl text-emerald-400 mb-6"><i class="fas fa-network-wired"></i></div>
-                    <h3 class="text-xl font-bold mb-4">The Differentiator</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        The <strong>Nexus Pipeline</strong> orchestrates dynamic agent selection, creation, and seamless execution with real-time feedback loops.
-                    </p>
-                </div>
+    <nav>
+        <div>
+            <div class="brand"><div class="brand-dot"></div> AgencyOS</div>
+            <div class="nav-meta">
+                Executive Briefing<br>
+                May 27, 2026<br>
+                CEO & CTO
             </div>
         </div>
-    </section>
+        <ul class="nav-links">
+            <li><a href="#vision">1. The Vision</a></li>
+            <li><a href="#ceo">2. CEO Perspective</a></li>
+            <li><a href="#cto">3. CTO Perspective</a></li>
+            <li><a href="#updates">4. Recent Updates</a></li>
+            <li><a href="#past">5. Past Highlights</a></li>
+            <li><a href="#roadmap">6. Roadmap</a></li>
+        </ul>
+    </nav>
 
-    <!-- Slide 3: Key Wins (Recent Updates) -->
-    <section class="slide" id="slide-3">
-        <div class="max-w-6xl w-full">
-            <h2 class="text-4xl font-bold mb-10 accent-gradient text-center">Recent Updates (May 26-27)</h2>
+    <main>
+        <section id="vision">
+            <h1>Executive Summary Report</h1>
+            <p class="lead">Prepared by Product Management for C-Suite Leadership</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass-panel p-8 hover:bg-slate-800/80 transition-colors">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="p-3 bg-blue-500/20 rounded-lg text-blue-400"><i class="fas fa-rocket text-xl"></i></div>
-                        <h3 class="text-xl font-bold">Phase 5 Launch</h3>
-                    </div>
-                    <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Defined GTM & Messaging Strategy</li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Executed blue-green deployment</li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Consolidated Phase 4 handoff</li>
+            <div class="highlight-box">
+                <h3>Core Value Proposition: "From Conversation to Creation"</h3>
+                <p>AgencyOS is actively transitioning from a passive foundational management framework (focusing on RBAC, Multi-Tenancy, and Audit Logging) into an intelligent, active partner.</p>
+                <p>By shifting the paradigm from manual project management to conversational orchestration, we reduce cognitive overhead. Users simply state their intent, and our orchestration engine—the <strong>Nexus Pipeline</strong>—intelligently scopes, plans, and executes projects by orchestrating specialized AI agents. This bridges dynamic agent execution with stringent human-in-the-loop oversight—delivering unmatched security and accelerating time-to-market.</p>
+            </div>
+        </section>
+
+        <section id="ceo">
+            <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg> CEO Perspective</h2>
+            <p class="lead">Growth, Revenue, Risk, & Market Impact</p>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Market Impact & Differentiation</h3>
+                    <p>Completing the Phase 1 pivot positions AgencyOS uniquely in the market—not merely as another workflow tool, but as an autonomous partner. This drives faster adoption and a higher ceiling for user expansion.</p>
+                </div>
+                <div class="card">
+                    <h3>Operational Velocity</h3>
+                    <p>The successful launch of Automated Scoping (Phase 2) and Agent Orchestration (Phase 3) drastically reduces project turnarounds and operational bottlenecks.</p>
+                </div>
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h3>Risk Mitigation & Quality</h3>
+                    <p>The "Quality Gauntlet" (Phase 4) and the current rollout of Human-In-The-Loop (HITL) gates (Phase 5) ensure that velocity does not compromise output quality or brand integrity.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="cto">
+            <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg> CTO Perspective</h2>
+            <p class="lead">Security, Architecture, & Scalability</p>
+            
+            <ul>
+                <li><strong>Zero-Trust Security & Containment:</strong> The implementation of a Docker-based isolated execution sandbox (<code>server/services/sandbox.py</code>) and a Redis-backed LLM Kill Switch guarantees that untrusted custom agent code has a strictly zero blast radius.</li>
+                <li><strong>Architectural Resilience:</strong> The Nexus Pipeline leverages high-performance components (Redis Pub/Sub, FastAPI WebSockets, and pgvector for semantic memory) to provide real-time observability, context preservation, and scalable execution states.</li>
+                <li><strong>Compliance & Governance Readiness:</strong> Immediate enforcement of GDPR-compliant Data Governance Policies, hardcoded tenant ID boundaries, and strict RBAC filtering guarantees platform compliance and data security at scale.</li>
+            </ul>
+        </section>
+
+        <section id="updates">
+            <h2>Recent Updates <span style="font-size: 1rem; color: var(--text-light); font-weight: normal; margin-left: auto;">May 26 - May 27</span></h2>
+            
+            <h3>Phase 5 Launch & Growth Completion</h3>
+            <ul>
+                <li>Defined GTM Strategy, Messaging Matrix, and Cross-Channel Activation Strategy.</li>
+                <li>Executed blue-green deployment and triggered marketing/community engagement blasts.</li>
+                <li>Consolidated Phase 4 handoff and kicked off Phase 5 smoothly.</li>
+            </ul>
+
+            <h3>Infrastructure & Quality Gauntlet</h3>
+            <ul>
+                <li><strong>Secure Execution Sandbox:</strong> Implemented Docker-based isolated execution for untrusted agent code.</li>
+                <li><strong>Real-Time Orchestration:</strong> Integrated Redis Pub/Sub & FastAPI WebSockets to stream execution states (<code>node_start</code>, <code>node_complete</code>) directly to the React frontend.</li>
+                <li><strong>LLM Kill Switch:</strong> Added a Redis-backed Kill Switch API to halt N:N Pod executions and contain blast radiuses.</li>
+                <li><strong>Custom Agent Remediation:</strong> Finalized Phase 3 (Maintainability & Policy), fixed hardcoded tenant ID boundaries, and implemented a GDPR-compliant Data Governance Policy.</li>
+            </ul>
+
+            <h3>Process & Documentation Consolidation</h3>
+            <ul>
+                <li>Enforced the "End of Task Mandate" across all Git workflow rules (Docs &rarr; HITL &rarr; Git Push).</li>
+                <li>Consolidated and cleaned up <code>/docs/archive</code> to establish absolute source of truth across core, technical, qa, and operations folders.</li>
+            </ul>
+        </section>
+
+        <section id="past">
+            <h2>Past Updates Highlights</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <h3>UI & Marketplace Enhancements</h3>
+                    <ul>
+                        <li>Shipped Frontend Marketplace UI (PodChatContainer, MarketplaceGrid, EntityCard).</li>
+                        <li>Upgraded Global State Migration to fetch real API data (removing static mocks).</li>
+                        <li>Implemented file upload component (<code>.txt</code>, <code>.md</code>, <code>.pdf</code>) for seamless project scoping.</li>
                     </ul>
                 </div>
-
-                <div class="glass-panel p-8 hover:bg-slate-800/80 transition-colors">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="p-3 bg-purple-500/20 rounded-lg text-purple-400"><i class="fas fa-shield-alt text-xl"></i></div>
-                        <h3 class="text-xl font-bold">Quality Gauntlet</h3>
-                    </div>
-                    <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Docker-based isolated execution sandbox</li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Redis Pub/Sub & WebSockets integration</li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> LLM Kill Switch API implemented</li>
-                    </ul>
-                </div>
-
-                <div class="glass-panel p-8 hover:bg-slate-800/80 transition-colors">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="p-3 bg-emerald-500/20 rounded-lg text-emerald-400"><i class="fas fa-book text-xl"></i></div>
-                        <h3 class="text-xl font-bold">Process & Docs</h3>
-                    </div>
-                    <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Enforced "End of Task Mandate"</li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Consolidated `/docs/archive`</li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-1"></i> Established absolute source of truth</li>
+                <div class="card">
+                    <h3>Semantic Memory Layer <small>(Sprint 4.2)</small></h3>
+                    <ul>
+                        <li>Migrated to <code>pgvector</code> for semantic search.</li>
+                        <li>Added <code>OpenAIEmbeddingProvider</code> with document chunking, ingestion, and vector retrieval logic.</li>
+                        <li>Hardened security with RBAC filtering on workspace IDs and data poisoning prevention.</li>
                     </ul>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Slide 4: Hardening & Milestones -->
-    <section class="slide" id="slide-4">
-        <div class="max-w-6xl w-full glass-panel p-10">
-            <h2 class="text-4xl font-bold mb-10 accent-gradient text-center">Past Updates & Resolved Debt</h2>
+        <section id="roadmap">
+            <h2>Roadmap & Future Outlook</h2>
             
-            <div class="flex flex-col md:flex-row gap-10">
-                <div class="flex-1">
-                    <h3 class="text-2xl font-semibold mb-6 flex items-center gap-3">
-                        <i class="fas fa-laptop-code text-blue-400"></i> UI & Marketplace
-                    </h3>
-                    <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-600 before:to-transparent">
-                        
-                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-500 bg-slate-800 text-slate-300 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow">
-                                <i class="fas fa-store"></i>
-                            </div>
-                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-700 bg-slate-800/50 ml-4 md:ml-0">
-                                <h4 class="font-bold text-blue-300">Marketplace UI</h4>
-                                <p class="text-sm text-slate-400 mt-1">Shipped PodChatContainer, MarketplaceGrid & EntityCard</p>
-                            </div>
-                        </div>
-                        
-                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-500 bg-slate-800 text-slate-300 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow">
-                                <i class="fas fa-database"></i>
-                            </div>
-                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-700 bg-slate-800/50 ml-4 md:ml-0">
-                                <h4 class="font-bold text-blue-300">Data Integration</h4>
-                                <p class="text-sm text-slate-400 mt-1">Upgraded Global State Migration to fetch real API data</p>
-                            </div>
-                        </div>
-                        
-                    </div>
+            <div class="timeline">
+                <div class="timeline-item completed">
+                    <div class="timeline-title">Phase 1: The Pivot & UI Overhaul <span class="status-badge status-completed">Completed</span></div>
+                    <div class="timeline-desc">UI Refactoring, Settings/Admin wiring, LLM Runner Integration.</div>
                 </div>
-
-                <div class="flex-1">
-                    <h3 class="text-2xl font-semibold mb-6 flex items-center gap-3">
-                        <i class="fas fa-brain text-purple-400"></i> Semantic Memory (Sprint 4.2)
-                    </h3>
-                    
-                    <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 h-full">
-                        <canvas id="memoryChart" height="200"></canvas>
-                        <div class="mt-6 space-y-3 text-sm text-slate-300">
-                            <div class="flex items-start gap-3">
-                                <div class="mt-1 w-2 h-2 rounded-full bg-purple-400"></div>
-                                <p>Migrated to <strong>pgvector</strong> for semantic search.</p>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <div class="mt-1 w-2 h-2 rounded-full bg-blue-400"></div>
-                                <p>Added <strong>OpenAIEmbeddingProvider</strong> with robust chunking.</p>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <div class="mt-1 w-2 h-2 rounded-full bg-emerald-400"></div>
-                                <p>Hardened security with <strong>RBAC filtering</strong> on workspaces.</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="timeline-item completed">
+                    <div class="timeline-title">Phase 2: Automated Scoping & Document Generation <span class="status-badge status-completed">Completed</span></div>
+                    <div class="timeline-desc">Document Generators, Document Ingestion Engine, Iterative Refinement.</div>
+                </div>
+                <div class="timeline-item completed">
+                    <div class="timeline-title">Phase 3: Agent Connection & Orchestration <span class="status-badge status-completed">Completed</span></div>
+                    <div class="timeline-desc">Dynamic Agent Selection, Custom Agent Creator Wizard, Task Queue Translation.</div>
+                </div>
+                <div class="timeline-item completed">
+                    <div class="timeline-title">Phase 4: Quality Gauntlet & Hardening <span class="status-badge status-completed">Completed</span></div>
+                    <div class="timeline-desc">Evidence Collection, E2E Testing, Infrastructure Validation.</div>
+                </div>
+                <div class="timeline-item in-progress">
+                    <div class="timeline-title">Phase 5: Feedback Loops & Intervention <span class="status-badge status-progress">In Progress</span></div>
+                    <div class="timeline-desc">Mid-Execution Chat, Human Approval Gates (HITL), Error Escalation.</div>
+                </div>
+                <div class="timeline-item upcoming">
+                    <div class="timeline-title">Phase 6: Iterative Refinements & Advanced Features <span class="status-badge status-upcoming">Upcoming</span></div>
+                    <div class="timeline-desc">Template Library, Robust API Selector, External Tooling Integrations (GitHub, Vercel), Voice Interfaces.</div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Slide 5: The Roadmap -->
-    <section class="slide" id="slide-5">
-        <div class="max-w-6xl w-full glass-panel p-10">
-            <h2 class="text-4xl font-bold mb-2 accent-gradient text-center">Project Roadmap</h2>
-            <p class="text-center text-slate-400 mb-8">Long-term alignment: from pivot to autonomous orchestration</p>
-            
-            <div class="w-full bg-slate-900/50 rounded-xl p-6 border border-slate-700">
-                <canvas id="roadmapChart" height="120"></canvas>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-                <div class="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                    <h4 class="text-xs text-green-400 font-bold uppercase mb-1">Phase 1-4 (Completed)</h4>
-                    <p class="text-xs text-slate-300">UI Overhaul, Auto-scoping, Orchestration, Quality Gauntlet</p>
-                </div>
-                <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-                    <h4 class="text-xs text-blue-400 font-bold uppercase mb-1">Phase 5 (In Progress)</h4>
-                    <p class="text-xs text-slate-300">Feedback Loops, Mid-Execution Chat, HITL</p>
-                </div>
-                <div class="p-3 bg-slate-700/30 border border-slate-600 rounded-lg">
-                    <h4 class="text-xs text-slate-400 font-bold uppercase mb-1">Phase 6 (Upcoming)</h4>
-                    <p class="text-xs text-slate-300">Iterative Refinements, API Selector, Voice</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Slide 6: Next Steps -->
-    <section class="slide" id="slide-6">
-        <div class="max-w-3xl w-full text-center">
-            <h2 class="text-5xl font-bold mb-8 accent-gradient">Immediate Next Steps</h2>
-            
-            <div class="glass-panel p-10 mb-10 text-left">
-                <div class="flex items-center gap-6 mb-6">
-                    <div class="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-3xl text-blue-400 shrink-0">
-                        <i class="fas fa-flag-checkered"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-bold">Drive Phase 5 to Completion</h3>
-                        <p class="text-slate-400 mt-1">Focusing on Human-in-the-Loop integration.</p>
-                    </div>
-                </div>
-                
-                <ul class="space-y-4 ml-22 text-lg text-slate-300 border-l-2 border-blue-500/30 pl-6 ml-8">
-                    <li class="relative">
-                        <div class="absolute -left-[31px] top-2 w-3 h-3 bg-blue-500 rounded-full"></div>
-                        Fully implement Human Approval Gates (HITL)
-                    </li>
-                    <li class="relative">
-                        <div class="absolute -left-[31px] top-2 w-3 h-3 bg-blue-500 rounded-full"></div>
-                        Finalize mid-execution intervention flows
-                    </li>
-                    <li class="relative">
-                        <div class="absolute -left-[31px] top-2 w-3 h-3 bg-purple-500 rounded-full"></div>
-                        Prepare platform for Phase 6 advanced integrations
-                    </li>
-                </ul>
-            </div>
-            
-            <button class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-lg shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all transform hover:scale-105 flex items-center gap-3 mx-auto" onclick="window.scrollTo(0,0)">
-                <i class="fas fa-arrow-up"></i> Back to Top
-            </button>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <script>
-        // Setup Navigation Dots
-        const slides = document.querySelectorAll('.slide');
-        const navDotsContainer = document.getElementById('navDots');
-        
-        slides.forEach((slide, index) => {
-            const dot = document.createElement('div');
-            dot.classList.add('nav-dot');
-            if (index === 0) dot.classList.add('active');
+        // Simple active nav state logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-links a');
             
-            dot.addEventListener('click', () => {
-                slide.scrollIntoView({ behavior: 'smooth' });
-            });
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.5
+            };
             
-            navDotsContainer.appendChild(dot);
-        });
-
-        const dots = document.querySelectorAll('.nav-dot');
-        
-        // Update active dot on scroll
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.5
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const slideIndex = Array.from(slides).indexOf(entry.target);
-                    dots.forEach((dot, index) => {
-                        if (index === slideIndex) {
-                            dot.classList.add('active');
-                        } else {
-                            dot.classList.remove('active');
-                        }
-                    });
-                }
-            });
-        }, observerOptions);
-
-        slides.forEach(slide => observer.observe(slide));
-
-        // Chart.js Default styling
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.font.family = "'Inter', sans-serif";
-
-        // Memory Chart (Radar/Polar)
-        const ctxMemory = document.getElementById('memoryChart').getContext('2d');
-        new Chart(ctxMemory, {
-            type: 'doughnut',
-            data: {
-                labels: ['pgvector Migration', 'Embedding Logic', 'Security/RBAC'],
-                datasets: [{
-                    data: [35, 40, 25],
-                    backgroundColor: [
-                        'rgba(167, 139, 250, 0.8)', // purple
-                        'rgba(96, 165, 250, 0.8)',  // blue
-                        'rgba(52, 211, 153, 0.8)'   // emerald
-                    ],
-                    borderColor: 'rgba(30, 41, 59, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                cutout: '70%'
-            }
-        });
-
-        // Roadmap Chart (Horizontal Bar as Gantt-ish)
-        const ctxRoadmap = document.getElementById('roadmapChart').getContext('2d');
-        new Chart(ctxRoadmap, {
-            type: 'bar',
-            data: {
-                labels: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6'],
-                datasets: [{
-                    label: 'Status',
-                    data: [100, 100, 100, 100, 60, 0], // Percent complete
-                    backgroundColor: [
-                        'rgba(52, 211, 153, 0.8)', // green
-                        'rgba(52, 211, 153, 0.8)',
-                        'rgba(52, 211, 153, 0.8)',
-                        'rgba(52, 211, 153, 0.8)',
-                        'rgba(96, 165, 250, 0.8)', // blue (in progress)
-                        'rgba(71, 85, 105, 0.5)'   // slate (upcoming)
-                    ],
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { callback: function(value) { return value + '%' } }
-                    },
-                    y: {
-                        grid: { display: false }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (context.raw === 100) return 'Completed';
-                                if (context.raw === 0) return 'Upcoming';
-                                return 'In Progress (' + context.raw + '%)';
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
                             }
-                        }
+                        });
                     }
-                }
-            }
+                });
+            }, observerOptions);
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
         });
     </script>
 </body>
