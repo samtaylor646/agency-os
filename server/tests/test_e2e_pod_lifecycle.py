@@ -17,4 +17,8 @@ def test_e2e_pod_execution(client):
     assert response.status_code == 200
     data = response.get_json()
     assert "status" in data
-    assert data["status"] in ["PASSED", "COMPLETED", "PARTIAL_FAILURE"] or "error" in data
+    
+    if "result" in data and isinstance(data["result"], dict) and "status" in data["result"]:
+        assert data["result"]["status"] in ["PASSED", "COMPLETED", "PARTIAL_FAILURE"]
+    else:
+        assert data["status"] in ["PASSED", "COMPLETED", "PARTIAL_FAILURE"] or "error" in data
