@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026-05-27] - Epic: Custom Agent Remediation (Phase 3 Handoff)
+- **Completed**: Phase 3 (Maintainability & Policy) is complete.
+- **Changed**: Decoupled hardcoded port configurations using `VITE_API_URL` environment variables in `client/vite.config.js` and `deployment/docker-compose.yml`.
+- **Added**: Drafted GDPR-compliant Data Governance Policy in `docs/operations/data_governance_policy.md`.
+- **Status**: The Custom Agent Remediation epic is fully complete and ready for final review or closure.
+
 ## [2026-05-27] - Epic: Custom Agent Remediation (Phase 2 Handoff)
 - **Verified**: Human-in-the-loop manual verification successfully passed for Custom Agent Remediation Phase 2.
 - **Fixed**: Corrected `VITE_API_URL` proxy target fallback in `client/vite.config.js` to fix 401 Unauthorized errors during auto-login.

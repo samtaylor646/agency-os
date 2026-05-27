@@ -22,9 +22,11 @@ services:
       context: ../client
       dockerfile: ../deployment/client.Dockerfile
       args:
-        - VITE_API_URL=http://localhost:5001
+        - VITE_API_URL=${VITE_API_URL}
     ports:
       - "3000:80"
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
 
   db:
     image: pgvector/pgvector:pg16

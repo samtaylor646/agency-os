@@ -5,6 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   
+  const apiUrl = env.VITE_API_URL;
+  if (!apiUrl) {
+    console.warn('WARNING: VITE_API_URL is not set. API proxying may fail.');
+  }
+
   return {
     plugins: [react()],
     server: {
@@ -13,12 +18,12 @@ export default defineConfig(({ mode }) => {
       watch: {
         usePolling: true,
       },
-      proxy: {
+      proxy: apiUrl ? {
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:8000',
+          target: apiUrl,
           changeOrigin: true
         }
-      }
+      } : {}
     }
   }
 })

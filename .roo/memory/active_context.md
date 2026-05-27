@@ -8,8 +8,7 @@ Epic: Custom Agent Remediation - Phase 2 complete.
 - Proved atomic transaction rollback mechanism in `server/routers/custom_agents.py`.
 
 ## Next Steps
-- Execute git commit and push for Phase 2 handoff.
-- Start Phase 3: Maintainability & Policy (Dynamic Configuration & Data Governance).
+- Epic is fully complete and ready for final review or closure.
 
 ## Active Epic
 Custom Agent Remediation
@@ -17,4 +16,4 @@ Custom Agent Remediation
 ## State
 - Phase 1 (Security Hotfixes) complete.
 - Phase 2 (Data Integrity & Schema Mapping) complete and QA verified.
-- Phase 3 (Maintainability & Policy) pending.
+- Phase 3 (Maintainability & Policy) complete. Updated Vite and Docker configs to use `VITE_API_URL` instead of hardcoded ports, and drafted the Data Governance Policy for GDPR compliance.
