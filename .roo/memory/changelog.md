@@ -147,3 +147,11 @@ Archived old QA documents
 ## [2026-05-27] - Documentation Move Reversal
 - **Fixed**: Reverted accidental move of active documentation folders, restoring `docs/core/`, `docs/operations/`, and `docs/technical/`.
 - **Added**: Created matching empty archive directories (`docs/archive/core/`, `docs/archive/operations/`, `docs/archive/technical/`) reflecting true intent.
+## [2026-05-27] - Archiving Superseded Technical Documentation
+- **Changed**: Cross-referenced files in `/docs/technical` with their git commit history.
+- **Changed**: Moved identified old and superseded files (past phase assessments, old sprint specs, and deprecated design plans) to `/docs/archive/technical/` to keep the technical documentation folder clean and relevant.
+
+## [2026-05-27] - Archiving Superseded Operations Documentation (Epic consolidation)
+- **Changed**: Moved old operations logs, sprint plans, and Phase assessments to `/docs/archive/operations/`.
+- **Changed**: Consolidated all recent archive moves (technical, qa, operations) into the `epic/archive-docs` branch.
+- **Verified**: Confirmed documentation routing rules (no files at the root of `docs/`).
