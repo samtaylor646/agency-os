@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026-05-27] - Epic: Project Scope UI Remediation
+- **Added**: Implemented file upload component in `client/src/ChatScopeInterface.jsx` supporting `.txt`, `.md`, and `.pdf` files.
+- **Changed**: Modified `WorkspaceContext.jsx` API interceptor to support native `FormData` uploads by omitting default JSON headers.
+- **Added**: QA Sign-off test and formal handoff document (`docs/qa/qa_signoff_epic_project_scope_remediation.md`).
+- **Changed**: Archived old infrastructure plans to avoid confusion.
+
+
 ## [2026-05-27] - Sprint 4: Secure Execution Sandbox (Infrastructure Remediation)
 - **Added**: Implemented Docker-based isolated execution environment in `server/services/sandbox.py`.
 - **Added**: Built API endpoint `/api/v1/sandbox/execute` in `server/routers/sandbox.py` for dispatching untrusted code.

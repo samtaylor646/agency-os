@@ -1,23 +1,22 @@
 # Active Context
 
 ## Current Objective
-Sprint 4: Secure Execution Sandbox (Infrastructure Remediation) has been completed.
-- Evaluated and prototyped Docker-based isolation with strict memory, CPU, and network limits.
-- Built a SecureSandbox module (`server/services/sandbox.py`) to dynamically provision and manage restricted Python execution containers.
-- Implemented `/api/v1/sandbox/execute` dispatch API.
-- Wired the Python DAG Runner (`central_runner.py`) to seamlessly route untrusted tasks assigned to `CodeSandbox` into the secure environment.
+Epic: Project Scope UI Remediation has been completed.
+- Created `docs/core/epic_project_scope_remediation.md` as the single source of truth for the remaining audit remediations.
+- Implemented file upload UI (paperclip button) in `ChatScopeInterface.jsx` supporting `.txt`, `.md`, and `.pdf`.
+- Wired the frontend UI to POST `FormData` to `/api/v1/chat/{chat_id}/documents/upload` natively.
+- Ensured context parsed from the LLM is injected back into the Right-Hand "Project Details" panel and conversation history.
 
 ## Next Steps
-- Human-in-the-loop validation of the sandbox.
-- Formal sign-off from Evidence Collector (QA).
+- Merge `epic/project-scope-remediation` into main.
+- Validate LLM Configuration (`LLM_PROVIDER_TYPE`) on staging environment.
 - Move on to the next Phase or Sprint as per the master plan.
 
 ## Active Epic
-Infrastructure Remediation - Sprint 4 (Secure Execution Sandbox).
+Project Scope UI Remediation.
 
 ## State
-- Docker-based sandbox prototype implemented and successfully tested.
-- Production SecureSandbox service written.
-- Sandbox API endpoint working.
-- DAG orchestrator wired to use the Sandbox for specific agents.
-- Sprint 4 handoff documented on branch `epic/sprint-4-secure-sandbox`.
+- Document Ingestion UI complete.
+- API Wiring complete.
+- QA Sign-Off generated in `docs/qa/qa_signoff_epic_project_scope_remediation.md`.
+- Handoff branch pushed.
