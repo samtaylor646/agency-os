@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026-05-27] - Epic 4.4.C & Phase 4 Handoff
+- **Completed**: Epic 4.4.C (Comprehensive E2E testing of the Pod lifecycle) is officially complete.
+- **Status**: Formally closed out Phase 4. Next step identified as Phase 5, Sprint 5.1 (GTM Strategy).
+- **Added**: Created PRD for Epic 5.1.A (`docs/core/prd_epic_5.1.A_gtm_strategy.md`) to kick off Launch & Growth.
+
 ## [2026-05-27] - Epic 4.4.A: LLM Kill Switch Architecture
 - **Added**: Implemented `KillSwitch` service backed by Redis in `server/services/kill_switch.py`.
 - **Added**: REST API endpoints for kill switch management (`/kill-switch/activate`, `/kill-switch/deactivate`, `/kill-switch/status`) in `server/api_server.py`.
