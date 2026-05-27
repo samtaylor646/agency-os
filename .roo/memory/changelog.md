@@ -53,3 +53,8 @@
 - **Fixed**: Updated `test_chat.py` payloads to include the required `doc_type` to resolve 422 errors.
 
 - Phase 3 Rebuild Sprint: Completed Epic B (Custom Agent Storage & Lifecycle Management) and DevOps & Infrastructure configuration.
+
+### Epic 4.4.A - QA Sign-Off
+- QA tests for the LLM Kill Switch written and passed successfully.
+- Added `server/tests/test_kill_switch.py`.
+- Documented QA sign-off in `docs/qa/qa_signoff_phase_4_epic_4.4.A.md`.
