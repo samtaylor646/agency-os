@@ -7,18 +7,26 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #0b0f19;
-            --bg-card: #111827;
-            --bg-card-hover: #1f2937;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --border-dark: #374151;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --accent-green: #10b981;
-            --accent-yellow: #f59e0b;
-            --accent-red: #ef4444;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* Atlassian Design System Tokens */
+            --color-text: #172B4D;
+            --color-text-subtle: #44546F;
+            --color-background: #F1F2F4;
+            --color-surface: #FFFFFF;
+            --color-border: #091E4224;
+            --color-border-focused: #388BFF;
+            --color-primary: #0C66E4;
+            --color-primary-hover: #0055CC;
+            --color-success: #22A06B;
+            --color-success-bold: #1F845A;
+            --color-warning: #E2B203;
+            --color-warning-bold: #B38600;
+            --color-danger: #CA3521;
+            --color-danger-bold: #AE2E24;
+            --color-information: #1D7AFC;
+            
+            --elevation-surface-raised: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+            
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", "Ubuntu", "Droid Sans", "Helvetica Neue", sans-serif;
         }
 
         * {
@@ -29,9 +37,9 @@
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            line-height: 1.6;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             display: flex;
         }
@@ -43,114 +51,100 @@
             left: 0;
             width: 260px;
             height: 100vh;
-            background-color: var(--bg-card);
-            padding: 2rem 1.5rem;
+            background-color: var(--color-surface);
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--border-dark);
+            border-right: 1px solid var(--color-border);
             z-index: 100;
         }
 
         .brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text);
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            margin-bottom: 2rem;
         }
 
         .brand-icon {
             width: 24px;
             height: 24px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border-radius: 6px;
+            background-color: var(--color-primary);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        .nav-meta {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-dark);
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-subtle);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            margin-top: 1.5rem;
         }
 
         .nav-links {
             list-style: none;
-            flex-grow: 1;
         }
 
-        .nav-links li { margin-bottom: 0.5rem; }
+        .nav-links li { margin-bottom: 4px; }
 
         .nav-links a {
-            color: var(--text-muted);
+            color: var(--color-text);
             text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+            padding: 8px 12px;
+            border-radius: 3px;
+            transition: background-color 0.1s ease;
         }
 
-        .nav-links a:hover, .nav-links a.active {
-            color: white;
-            background-color: rgba(59, 130, 246, 0.1);
-            border-left: 3px solid var(--accent-blue);
+        .nav-links a:hover {
+            background-color: #091E420F;
+        }
+        
+        .nav-links a.active {
+            background-color: #E9F2FF;
+            color: var(--color-primary);
+            font-weight: 500;
         }
 
         /* Main Content Container */
         main {
             margin-left: 260px;
-            padding: 2rem 3rem;
+            padding: 2.5rem 3rem;
             width: calc(100% - 260px);
-            max-width: 1600px;
+            max-width: 1400px;
         }
 
         .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-dark);
         }
 
         .dashboard-header h1 {
-            font-size: 1.8rem;
+            font-size: 24px;
             font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
         }
-
-        .status-indicator {
+        
+        .header-meta {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--accent-green);
-            background: rgba(16, 185, 129, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .pulse {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-green);
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            gap: 1rem;
+            font-size: 14px;
+            color: var(--color-text-subtle);
         }
 
         /* Grids & Cards */
@@ -158,7 +152,7 @@
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .col-span-12 { grid-column: span 12; }
@@ -168,126 +162,144 @@
         .col-span-3 { grid-column: span 3; }
 
         .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-dark);
-            border-radius: 12px;
+            background-color: var(--color-surface);
+            border-radius: 3px;
             padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s ease;
-        }
-
-        .card:hover {
-            border-color: #4b5563;
+            box-shadow: var(--elevation-surface-raised);
         }
 
         .card-header {
+            margin-bottom: 1rem;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+            align-items: flex-start;
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 16px;
             font-weight: 600;
-            color: #e5e7eb;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .card-icon {
-            color: var(--text-muted);
+            color: var(--color-text);
         }
 
         /* KPI Metrics */
+        .kpi-container {
+            display: flex;
+            flex-direction: column;
+        }
+
         .kpi-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: 0.5rem;
+            font-size: 32px;
+            font-weight: 500;
+            line-height: 1.2;
+            color: var(--color-text);
+            margin-bottom: 4px;
         }
 
         .kpi-label {
-            font-size: 0.875rem;
-            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-subtle);
+            text-transform: uppercase;
         }
         
-        .trend-up { color: var(--accent-green); font-size: 0.875rem; display: flex; align-items: center; gap: 0.25rem;}
-        .trend-down { color: var(--accent-red); font-size: 0.875rem; display: flex; align-items: center; gap: 0.25rem;}
+        .trend-up { color: var(--color-success-bold); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px;}
 
         /* Typography */
-        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; font-weight: 600; color: white; border-bottom: 1px solid var(--border-dark); padding-bottom: 0.5rem;}
-        h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #d1d5db; }
-        p { margin-bottom: 1rem; color: #d1d5db; font-size: 0.95rem; }
-        ul { padding-left: 1.5rem; margin-bottom: 1.5rem; color: #d1d5db; font-size: 0.95rem; }
-        li { margin-bottom: 0.5rem; }
+        h2 { font-size: 20px; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--color-text); }
+        h3 { font-size: 16px; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--color-text); }
+        h4 { font-size: 14px; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text); }
+        p { margin-bottom: 1rem; font-size: 14px; color: var(--color-text); }
+        ul { padding-left: 1.5rem; margin-bottom: 1rem; font-size: 14px; color: var(--color-text); }
+        li { margin-bottom: 0.25rem; }
 
         /* Badges */
         .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
         }
-        .badge-blue { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
-        .badge-green { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .badge-yellow { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge-red { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .badge-purple { background: rgba(139, 92, 246, 0.1); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
+        .badge-blue { background: #E9F2FF; color: #0C66E4; }
+        .badge-green { background: #DFF1E6; color: #1F845A; }
+        .badge-yellow { background: #F8E6A0; color: #B38600; }
+        .badge-red { background: #FFEDEB; color: #AE2E24; }
+        .badge-purple { background: #F3F0FF; color: #6E5DC6; }
+        .badge-gray { background: #091E420F; color: #44546F; }
 
-        /* Progress Bars */
-        .progress-bg { background-color: var(--border-dark); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
-        .progress-bar { height: 100%; background-color: var(--accent-blue); border-radius: 4px; }
-        .progress-green { background-color: var(--accent-green); }
-        
         .chart-container {
             position: relative;
-            height: 250px;
+            height: 280px;
             width: 100%;
         }
 
         .highlight-box {
-            background: linear-gradient(145deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.8) 100%);
-            border-left: 4px solid var(--accent-purple);
+            background-color: #E9F2FF;
             padding: 1.5rem;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 1.5rem;
+            border-radius: 3px;
+            border-left: 4px solid var(--color-primary);
         }
 
         /* Table */
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th { text-align: left; padding: 0.75rem 1rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-dark); }
-        td { padding: 1rem; border-bottom: 1px solid var(--border-dark); font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th { text-align: left; padding: 12px 8px; color: var(--color-text-subtle); font-size: 12px; font-weight: 600; border-bottom: 2px solid var(--color-border); }
+        td { padding: 12px 8px; border-bottom: 1px solid var(--color-border); font-size: 14px; color: var(--color-text); }
         tr:last-child td { border-bottom: none; }
+        
+        /* Timeline / Roadmap */
+        .timeline {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--color-border);
+            position: relative;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -1.95rem;
+            top: 0.25rem;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--color-surface);
+        }
+        
+        .dot-completed { background-color: var(--color-success); }
+        .dot-progress { background-color: var(--color-primary); }
+        .dot-upcoming { background-color: #091E424F; }
+        
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 4px;
+        }
 
-        @media (max-width: 1024px) {
-            .col-span-3, .col-span-4 { grid-column: span 6; }
-            .col-span-8 { grid-column: span 12; }
-        }
-        @media (max-width: 768px) {
-            nav { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border-dark); padding: 1rem; flex-direction: row; align-items: center; justify-content: space-between; }
-            .nav-meta, .nav-links { display: none; }
-            main { margin-left: 0; width: 100%; padding: 1.5rem; }
-            .col-span-6 { grid-column: span 12; }
-        }
     </style>
 </head>
 <body>
 
     <nav>
-        <div>
-            <div class="brand">
-                <div class="brand-icon"></div>
-                AgencyOS
-            </div>
-            <div class="nav-meta">
-                <div>Executive Dashboard</div>
-                <div style="color: #6b7280; font-size: 0.7rem; margin-top: 4px;">Last Updated: May 27, 2026</div>
-            </div>
+        <div class="brand">
+            <div class="brand-icon">A</div>
+            AgencyOS
         </div>
+        
+        <div class="nav-section-title">Dashboard Sections</div>
         <ul class="nav-links">
             <li><a href="#overview" class="active">Overview</a></li>
             <li><a href="#business">Business Strategy</a></li>
@@ -300,44 +312,52 @@
     <main>
         <div class="dashboard-header">
             <h1>Executive Summary Briefing</h1>
-            <div class="status-indicator">
-                <div class="pulse"></div>
-                Platform Status: All Systems Operational
+            <div class="header-meta">
+                <span>Date: May 27, 2026</span>
+                <span>•</span>
+                <span>Prepared by: Product Management</span>
+                <span>•</span>
+                <span class="badge badge-green">All Systems Operational</span>
             </div>
         </div>
 
         <section id="overview">
             <div class="dashboard-grid">
-                <div class="col-span-12 card">
-                    <div class="highlight-box" style="margin: 0; border-left-color: var(--accent-blue);">
-                        <h3 style="color: white; margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
-                            Core Value Proposition: "From Conversation to Creation"
-                        </h3>
-                        <p style="margin-bottom: 0.5rem; font-size: 1rem;">AgencyOS empowers users to initiate complex, multi-disciplinary projects through natural language. The platform intelligently scopes requirements and orchestrates specialized AI agents to execute them transparently.</p>
-                        <p style="margin-bottom: 0;">We are bridging the critical market gap between highly technical developer frameworks and overly narrow point solutions, establishing AgencyOS as an <strong>Enterprise-Ready Virtual Agency Platform</strong>.</p>
+                <div class="col-span-12">
+                    <div class="highlight-box">
+                        <h3 style="margin-top: 0; color: var(--color-primary-hover);">Core Value Proposition: "From Conversation to Creation"</h3>
+                        <p>AgencyOS empowers users to initiate complex, multi-disciplinary projects through natural language. The platform intelligently scopes requirements and orchestrates specialized AI agents to execute them transparently.</p>
+                        <p style="margin-bottom: 0;">We bridge the critical market gap between highly technical developer frameworks and overly narrow point solutions, establishing AgencyOS as an <strong>Enterprise-Ready Virtual Agency Platform</strong>.</p>
                     </div>
                 </div>
 
                 <div class="col-span-3 card">
-                    <div class="card-title">TAM Expansion</div>
-                    <div class="kpi-value">3.2x</div>
-                    <div class="trend-up"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Zero Barrier to Entry</div>
+                    <div class="kpi-container">
+                        <span class="kpi-label">TAM Expansion</span>
+                        <span class="kpi-value">3.2x</span>
+                        <span class="trend-up">Zero Barrier to Entry</span>
+                    </div>
                 </div>
                 <div class="col-span-3 card">
-                    <div class="card-title">Enterprise Readiness</div>
-                    <div class="kpi-value">100%</div>
-                    <div class="kpi-label" style="color: var(--accent-green);">RBAC & GDPR Compliant</div>
+                    <div class="kpi-container">
+                        <span class="kpi-label">Enterprise Readiness</span>
+                        <span class="kpi-value">100%</span>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--color-success-bold); margin-top: 4px;">RBAC & GDPR Compliant</span>
+                    </div>
                 </div>
                 <div class="col-span-3 card">
-                    <div class="card-title">System Uptime</div>
-                    <div class="kpi-value">99.99%</div>
-                    <div class="kpi-label">Last 30 Days</div>
+                    <div class="kpi-container">
+                        <span class="kpi-label">System Uptime</span>
+                        <span class="kpi-value">99.99%</span>
+                        <span style="font-size: 12px; color: var(--color-text-subtle); margin-top: 4px;">Last 30 Days</span>
+                    </div>
                 </div>
                 <div class="col-span-3 card">
-                    <div class="card-title">Active Pods</div>
-                    <div class="kpi-value">1,248</div>
-                    <div class="trend-up"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> +15% this week</div>
+                    <div class="kpi-container">
+                        <span class="kpi-label">Active Pods</span>
+                        <span class="kpi-value">1,248</span>
+                        <span class="trend-up">+15% this week</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -350,31 +370,29 @@
                         <div class="card-title">Go-To-Market & Revenue Drivers</div>
                         <span class="badge badge-purple">Strategic Update</span>
                     </div>
-                    <p>The market is shifting from "Copilots" to "Autopilots". Agency OS aligns entirely with this autopilot transition.</p>
+                    <p>The market is shifting from "Copilots" to "Autopilots". Agency OS aligns entirely with this transition.</p>
                     
-                    <div style="margin-top: 1.5rem;">
-                        <h4 style="color: white; margin-bottom: 0.5rem;">Tiered Monetization Engine</h4>
-                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                            <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-dark);">
-                                <strong style="color: var(--accent-blue); display: block; margin-bottom: 0.25rem;">Pro Tier</strong>
-                                <span style="font-size: 0.85rem; color: var(--text-muted);">Accessible entry for startups. Grassroots adoption focus.</span>
-                            </div>
-                            <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-dark);">
-                                <strong style="color: var(--accent-purple); display: block; margin-bottom: 0.25rem;">Enterprise Tier</strong>
-                                <span style="font-size: 0.85rem; color: var(--text-muted);">High-ACV focus on governance, scale, isolation & SSO.</span>
-                            </div>
-                            <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-dark);">
-                                <strong style="color: var(--accent-green); display: block; margin-bottom: 0.25rem;">Marketplace (Yr 2)</strong>
-                                <span style="font-size: 0.85rem; color: var(--text-muted);">Custom Agent trading ecosystem driving network effects.</span>
-                            </div>
+                    <h4>Tiered Monetization Engine</h4>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="flex: 1; padding: 12px; background: var(--color-background); border-radius: 3px;">
+                            <strong style="color: var(--color-primary); display: block; font-size: 14px;">Pro Tier</strong>
+                            <span style="font-size: 12px; color: var(--color-text-subtle);">Accessible entry for startups. Grassroots adoption.</span>
+                        </div>
+                        <div style="flex: 1; padding: 12px; background: var(--color-background); border-radius: 3px;">
+                            <strong style="color: #6E5DC6; display: block; font-size: 14px;">Enterprise Tier</strong>
+                            <span style="font-size: 12px; color: var(--color-text-subtle);">High-ACV focus on governance, scale, isolation.</span>
+                        </div>
+                        <div style="flex: 1; padding: 12px; background: var(--color-background); border-radius: 3px;">
+                            <strong style="color: var(--color-success-bold); display: block; font-size: 14px;">Marketplace (Yr 2)</strong>
+                            <span style="font-size: 12px; color: var(--color-text-subtle);">Custom Agent trading ecosystem.</span>
                         </div>
                     </div>
 
-                    <h4 style="color: white; margin-bottom: 0.5rem;">Target Audiences</h4>
+                    <h4>Target Audiences</h4>
                     <ul style="margin-bottom: 0;">
-                        <li><strong>Startup Founders:</strong> Rapid MVP execution without managing engineering teams.</li>
-                        <li><strong>DevOps/Eng Leads:</strong> Secure, robust orchestration pipelines.</li>
-                        <li><strong>Agencies:</strong> Scaling capacity and protecting margins via autonomous pods.</li>
+                        <li><strong>Startup Founders & Solopreneurs:</strong> Rapid MVP execution without managing engineering teams.</li>
+                        <li><strong>DevOps & Engineering Leads:</strong> Secure, robust orchestration pipelines.</li>
+                        <li><strong>Marketing & Creative Agencies:</strong> Scaling capacity and protecting margins via autonomous pods.</li>
                     </ul>
                 </div>
                 
@@ -382,26 +400,26 @@
                     <div class="card-header">
                         <div class="card-title">Phased GTM Trajectory</div>
                     </div>
-                    <div style="position: relative; padding-left: 1.5rem; margin-top: 1rem; border-left: 2px solid var(--border-dark);">
-                        <div style="position: relative; margin-bottom: 1.5rem;">
-                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-green);"></div>
-                            <strong style="color: white;">Phase 1: Private Alpha</strong>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Core engine scoping with 20-50 startups.</div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 1: Private Alpha</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Core engine scoping with 20-50 startups.</div>
                         </div>
-                        <div style="position: relative; margin-bottom: 1.5rem;">
-                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-blue);"></div>
-                            <strong style="color: white;">Phase 2: Public Launch</strong>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Pro Tier rollout via Product Hunt. "No-Code Multi-Agent".</div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-progress"></div>
+                            <div class="timeline-title">Phase 2: Public Launch</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Pro Tier rollout. "No-Code Multi-Agent".</div>
                         </div>
-                        <div style="position: relative; margin-bottom: 1.5rem;">
-                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark);"></div>
-                            <strong style="color: white;">Phase 3: Enterprise Exp.</strong>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Direct sales emphasizing built-in security moat.</div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-upcoming"></div>
+                            <div class="timeline-title">Phase 3: Enterprise Expansion</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Direct sales emphasizing built-in security moat.</div>
                         </div>
-                        <div style="position: relative;">
-                            <div style="position: absolute; left: -1.9rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark);"></div>
-                            <strong style="color: white;">Phase 4: Marketplace</strong>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Launch ecosystem for lock-in & network effects.</div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-upcoming"></div>
+                            <div class="timeline-title">Phase 4: Marketplace</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Launch ecosystem for lock-in & network effects.</div>
                         </div>
                     </div>
                 </div>
@@ -414,36 +432,24 @@
                 <div class="col-span-12 card">
                     <div class="card-header">
                         <div class="card-title">Recent Technical Milestones</div>
-                        <span class="badge badge-blue">Phase 4 & 5 Highlights</span>
+                        <span class="badge badge-blue">Phase 4 & 5</span>
                     </div>
-                    <div class="dashboard-grid" style="margin-bottom: 0;">
-                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
-                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                                NEXUS Pipeline Orchestration
-                            </h4>
-                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">Implemented DAG for multi-agent task routing (<code>central_runner.py</code>) and dynamic Agent definition parsing via python-frontmatter.</p>
+                    <div class="dashboard-grid" style="margin-bottom: 0; gap: 1rem;">
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-primary);">NEXUS Pipeline Orchestration</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">Implemented DAG for multi-agent task routing and dynamic Agent definition parsing via python-frontmatter.</p>
                         </div>
-                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
-                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                                Zero-Trust Security & Isolation
-                            </h4>
-                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">Secure multi-tenant tracing (<code>X-Tenant-ID</code>, <code>contextvars</code>) and LLM Kill-Switch architecture via Redis for emergency DAG halting.</p>
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-success-bold);">Zero-Trust Security & Isolation</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">Secure multi-tenant tracing and LLM Kill-Switch architecture via Redis for emergency DAG halting.</p>
                         </div>
-                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
-                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                                Unified Observability
-                            </h4>
-                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">Prometheus/Grafana metrics, OpenTelemetry tracing, and Loki log aggregation with automated PII scrubbing (GDPR/CCPA).</p>
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-warning-bold);">Blue-Green Deployments</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">K8s/Terraform zero-downtime rollouts supported by strict backward-compatible, additive-only DB migrations.</p>
                         </div>
-                        <div class="col-span-6" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 8px;">
-                            <h4 style="color: white; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-yellow)" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                                Blue-Green Deployments
-                            </h4>
-                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">K8s/Terraform zero-downtime rollouts supported by strict backward-compatible, additive-only PostgreSQL migrations.</p>
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-text);">Unified Observability</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">Prometheus/Grafana metrics, OpenTelemetry tracing, and Loki log aggregation with automated PII scrubbing.</p>
                         </div>
                     </div>
                 </div>
@@ -461,19 +467,19 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="color: white;">Infrastructure</td>
+                                <td><strong>Infrastructure</strong></td>
                                 <td>Kubernetes (EKS/GKE), Terraform, Docker</td>
                             </tr>
                             <tr>
-                                <td style="color: white;">Observability</td>
-                                <td>Prometheus, Grafana, OpenTelemetry, Promtail, Loki</td>
+                                <td><strong>Observability</strong></td>
+                                <td>Prometheus, Grafana, OpenTelemetry, Loki</td>
                             </tr>
                             <tr>
-                                <td style="color: white;">Data & State</td>
+                                <td><strong>Data & State</strong></td>
                                 <td>PostgreSQL (Strict Alembic), Redis</td>
                             </tr>
                             <tr>
-                                <td style="color: white;">App Layer</td>
+                                <td><strong>App Layer</strong></td>
                                 <td>FastAPI, Python `contextvars`, Pydantic V2</td>
                             </tr>
                         </tbody>
@@ -485,18 +491,18 @@
                         <div class="card-title">Technical Risks & Blockers</div>
                         <span class="badge badge-red">Active Monitoring</span>
                     </div>
-                    <ul style="margin-bottom: 0; padding-left: 1rem;">
-                        <li style="margin-bottom: 1rem;">
-                            <strong style="color: var(--accent-red); display: block;">Custom Agent Security Drift</strong>
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Legacy schemas lack Pydantic validation. Enforcing V2 strict schemas and rejecting missing X-Tenant-ID requests.</span>
+                    <ul style="margin-bottom: 0; list-style-type: none; padding-left: 0;">
+                        <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+                            <strong style="color: var(--color-danger-bold); display: block;">Custom Agent Security Drift</strong>
+                            <span style="font-size: 13px; color: var(--color-text-subtle);">Legacy schemas lack Pydantic validation. Enforcing V2 strict schemas and rejecting missing X-Tenant-ID requests.</span>
                         </li>
-                        <li style="margin-bottom: 1rem;">
-                            <strong style="color: var(--accent-yellow); display: block;">Blue-Green Migration Discipline</strong>
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Safety relies on zero destructive DB changes. Complex schema mods require a strict 3-release cycle.</span>
+                        <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+                            <strong style="color: var(--color-warning-bold); display: block;">Blue-Green Migration Discipline</strong>
+                            <span style="font-size: 13px; color: var(--color-text-subtle);">Safety relies on zero destructive DB changes. Complex schema mods require a strict 3-release cycle.</span>
                         </li>
                         <li>
-                            <strong style="color: var(--accent-blue); display: block;">LLM Kill-Switch Precision</strong>
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Refining guardrails to prevent false positives that disrupt valid complex DAG workflows.</span>
+                            <strong style="color: var(--color-primary); display: block;">LLM Kill-Switch Precision</strong>
+                            <span style="font-size: 13px; color: var(--color-text-subtle);">Refining guardrails to prevent false positives that disrupt valid complex DAG workflows.</span>
                         </li>
                     </ul>
                 </div>
@@ -518,13 +524,53 @@
                     <div class="card-header">
                         <div class="card-title">Security Interventions</div>
                     </div>
-                    <div class="chart-container" style="height: 200px;">
+                    <div class="chart-container" style="height: 220px;">
                         <canvas id="securityChart"></canvas>
                     </div>
-                    <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
-                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(239, 68, 68, 0.8); border-radius: 50%; margin-right: 4px;"></span> Rate Limit
-                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(245, 158, 11, 0.8); border-radius: 50%; margin-left: 8px; margin-right: 4px;"></span> Data Sanitization
-                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(139, 92, 246, 0.8); border-radius: 50%; margin-left: 8px; margin-right: 4px;"></span> Kill Switch
+                    <div style="margin-top: 1rem; font-size: 12px; color: var(--color-text-subtle); display: flex; flex-direction: column; gap: 4px;">
+                        <div><span style="display: inline-block; width: 10px; height: 10px; background: var(--color-danger); border-radius: 2px; margin-right: 8px;"></span>Rate Limit (65%)</div>
+                        <div><span style="display: inline-block; width: 10px; height: 10px; background: var(--color-warning); border-radius: 2px; margin-right: 8px;"></span>Data Sanitization (25%)</div>
+                        <div><span style="display: inline-block; width: 10px; height: 10px; background: #6E5DC6; border-radius: 2px; margin-right: 8px;"></span>Kill Switch (10%)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="roadmap">
+            <h2>Strategic Roadmap</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-12 card">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 1: The Pivot & UI Overhaul <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">UI Refactoring, Settings/Admin wiring, LLM Runner Integration.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 2: Automated Scoping & Document Generation <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Document Generators, Document Ingestion Engine, Iterative Refinement.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 3: Agent Connection & Orchestration <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Dynamic Agent Selection, Custom Agent Creator Wizard, Task Queue Translation.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 4: Quality Gauntlet & Hardening <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Evidence Collection, E2E Testing, Infrastructure Validation.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-progress"></div>
+                            <div class="timeline-title">Phase 5: Feedback Loops & Intervention <span class="badge badge-blue">In Progress</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Mid-Execution Chat, Human Approval Gates (HITL), Error Escalation.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-upcoming"></div>
+                            <div class="timeline-title" style="color: var(--color-text-subtle);">Phase 6: Iterative Refinements & Advanced Features <span class="badge badge-gray">Upcoming</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Template Library, Robust API Selector, External Tooling Integrations (GitHub, Vercel), Voice Interfaces.</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -533,15 +579,15 @@
     </main>
 
     <script>
-        // Chart.js Implementations
-        Chart.defaults.color = '#9ca3af';
-        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+        // Chart.js Implementations with Atlassian Colors
+        Chart.defaults.color = '#44546F';
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", "Ubuntu", "Droid Sans", "Helvetica Neue", sans-serif';
 
         // Executions Chart (Line)
         const ctxExecutions = document.getElementById('executionsChart').getContext('2d');
         const gradientBlue = ctxExecutions.createLinearGradient(0, 0, 0, 300);
-        gradientBlue.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
-        gradientBlue.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+        gradientBlue.addColorStop(0, 'rgba(12, 102, 228, 0.2)');
+        gradientBlue.addColorStop(1, 'rgba(12, 102, 228, 0.0)');
 
         new Chart(ctxExecutions, {
             type: 'line',
@@ -550,11 +596,14 @@
                 datasets: [{
                     label: 'Successful Executions',
                     data: [3200, 4500, 5800, 8100],
-                    borderColor: '#3b82f6',
+                    borderColor: '#0C66E4',
                     backgroundColor: gradientBlue,
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointBackgroundColor: '#FFFFFF',
+                    pointBorderColor: '#0C66E4',
+                    pointBorderWidth: 2
                 }]
             },
             options: {
@@ -564,7 +613,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#374151', drawBorder: false }
+                        grid: { color: '#091E420F', drawBorder: false }
                     },
                     x: {
                         grid: { display: false, drawBorder: false }
@@ -582,9 +631,9 @@
                 datasets: [{
                     data: [65, 25, 10],
                     backgroundColor: [
-                        'rgba(239, 68, 68, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(139, 92, 246, 0.8)'
+                        '#CA3521', // Danger
+                        '#E2B203', // Warning
+                        '#6E5DC6'  // Purple
                     ],
                     borderWidth: 0,
                     hoverOffset: 4
@@ -607,7 +656,7 @@
             
             const observerOptions = {
                 root: null,
-                rootMargin: '-50% 0px -50% 0px',
+                rootMargin: '-30% 0px -70% 0px',
                 threshold: 0
             };
             
