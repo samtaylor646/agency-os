@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
+from typing import List
 from .. import schemas, dependencies, models
 from ..services.llm_runner import llm_runner
 
@@ -8,6 +9,85 @@ router = APIRouter(
     tags=["chat"],
     dependencies=[Depends(dependencies.get_current_user)]
 )
+
+@router.post("", response_model=schemas.ChatOut, status_code=status.HTTP_201_CREATED)
+async def create_chat(
+    chat: schemas.ChatCreate,
+    workspace: models.Workspace = Depends(dependencies.get_current_workspace),
+    db: Session = Depends(dependencies.get_db)
+):
+    db_chat = models.Chat(
+        **chat.model_dump(),
+        workspace_id=workspace.id
+    )
+    db.add(db_chat)
+    db.commit()
+    db.refresh(db_chat)
+    return db_chat
+
+@router.get("", response_model=List[schemas.ChatOut])
+async def get_chats(
+    workspace: models.Workspace = Depends(dependencies.get_current_workspace),
+    db: Session = Depends(dependencies.get_db)
+):
+    chats = db.query(models.Chat).filter(models.Chat.workspace_id == workspace.id).all()
+    return chats
+
+@router.get("/{chat_id}", response_model=schemas.ChatWithMessagesOut)
+async def get_chat(
+    chat_id: int,
+    workspace: models.Workspace = Depends(dependencies.get_current_workspace),
+    db: Session = Depends(dependencies.get_db)
+):
+    chat = db.query(models.Chat).filter(
+        models.Chat.id == chat_id,
+        models.Chat.workspace_id == workspace.id
+    ).first()
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    return chat
+
+@router.post("/{chat_id}/messages", response_model=schemas.ChatMessageOut)
+async def add_chat_message(
+    chat_id: int,
+    message: schemas.ChatMessageCreate,
+    workspace: models.Workspace = Depends(dependencies.get_current_workspace),
+    db: Session = Depends(dependencies.get_db)
+):
+    chat = db.query(models.Chat).filter(
+        models.Chat.id == chat_id,
+        models.Chat.workspace_id == workspace.id
+    ).first()
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+        
+    db_message = models.ChatMessage(
+        chat_id=chat_id,
+        role=message.role,
+        content=message.content
+    )
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+    return db_message
+
+@router.delete("/{chat_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_chat(
+    chat_id: int,
+    workspace: models.Workspace = Depends(dependencies.get_current_workspace),
+    db: Session = Depends(dependencies.get_db)
+):
+    chat = db.query(models.Chat).filter(
+        models.Chat.id == chat_id,
+        models.Chat.workspace_id == workspace.id
+    ).first()
+    
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+        
+    db.delete(chat)
+    db.commit()
+    return None
 
 @router.post("/scope", response_model=schemas.ChatScopeResponse)
 async def chat_scope(request: schemas.ChatScopeRequest):

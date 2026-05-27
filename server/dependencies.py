@@ -145,3 +145,13 @@ async def rate_limit_ingestion(request: Request):
     # For now, it serves as the defined dependency hook.
     pass
 
+async def get_current_workspace(
+    tenant_id: int = Depends(get_tenant_context),
+    db: Session = Depends(get_db)
+):
+    from .models import Workspace
+    workspace = db.query(Workspace).filter(Workspace.id == tenant_id).first()
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    return workspace
+

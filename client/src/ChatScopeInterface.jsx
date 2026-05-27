@@ -1,20 +1,86 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useWorkspace } from './WorkspaceContext';
+// { useState, useRef, useEffect } from 'react';
 
 const ChatScopeInterface = () => {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! Let\'s finalize the scope for the Marketing Campaign Plan. What is your primary objective?' },
-    { role: 'user', content: 'Our main goal is to increase Q3 signups by 20% using targeted social media ads.' },
-    { role: 'assistant', content: 'Great. We will focus on LinkedIn and Twitter for B2B reach. Have you established a budget for the ad spend?' }
-  ]);
+  const [messages, setMessages] = useState([]);
+  const { apiFetch, activeWorkspaceId } = useWorkspace();
+  const [chatId, setChatId] = useState(null);
+  const [projectId, setProjectId] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [mobileTab, setMobileTab] = useState('chat'); // 'chat' or 'preview'
   const [projectDetails, setProjectDetails] = useState({
-    name: 'Q3 Marketing Campaign Plan',
-    description: 'A comprehensive social media strategy aimed at increasing platform signups by 20% in Q3. The campaign will primarily leverage LinkedIn and Twitter to target B2B software decision-makers.',
-    tech_stack: ['LinkedIn Ads', 'Twitter Ads', 'Google Analytics', 'HubSpot']
+    name: '',
+    description: '',
+    tech_stack: []
   });
   
+  
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        let currentProjectId = null;
+        let currentChatId = null;
+
+        const projRes = await apiFetch('/api/v1/projects');
+        if (projRes.ok) {
+          const projs = await projRes.json();
+          if (projs.length > 0) {
+            currentProjectId = projs[0].id;
+            setProjectId(currentProjectId);
+            setProjectDetails({
+              name: projs[0].name,
+              description: projs[0].description,
+              tech_stack: projs[0].tech_stack || []
+            });
+          } else {
+            const newProjRes = await apiFetch('/api/v1/projects', {
+              method: 'POST',
+              body: JSON.stringify({ name: 'New Project', description: '', tech_stack: [] })
+            });
+            if (newProjRes.ok) {
+              const newProj = await newProjRes.json();
+              currentProjectId = newProj.id;
+              setProjectId(currentProjectId);
+            }
+          }
+        }
+
+        const chatRes = await apiFetch('/api/v1/chat');
+        if (chatRes.ok) {
+          const chats = await chatRes.json();
+          if (chats.length > 0) {
+            currentChatId = chats[0].id;
+            setChatId(currentChatId);
+            const chatDetailsRes = await apiFetch(`/api/v1/chat/${currentChatId}`);
+            if (chatDetailsRes.ok) {
+              const chatDetails = await chatDetailsRes.json();
+              if (chatDetails.messages && chatDetails.messages.length > 0) {
+                setMessages(chatDetails.messages);
+              }
+            }
+          } else {
+            const newChatRes = await apiFetch('/api/v1/chat', {
+              method: 'POST',
+              body: JSON.stringify({ project_id: currentProjectId, name: 'Scoping Chat' })
+            });
+            if (newChatRes.ok) {
+              const newChat = await newChatRes.json();
+              currentChatId = newChat.id;
+              setChatId(currentChatId);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to initialize chat scope:', error);
+      }
+    };
+    if (activeWorkspaceId) {
+      initialize();
+    }
+  }, [apiFetch, activeWorkspaceId]);
+
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -36,12 +102,17 @@ const ChatScopeInterface = () => {
     setInputValue('');
     setIsLoading(true);
 
+    
     try {
-      const response = await fetch('/api/v1/chat/scope', {
+      if (chatId) {
+        await apiFetch(`/api/v1/chat/${chatId}/messages`, {
+          method: 'POST',
+          body: JSON.stringify(userMessage)
+        });
+      }
+
+      const response = await apiFetch('/api/v1/chat/scope', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ message: inputValue }),
       });
 
@@ -52,13 +123,31 @@ const ChatScopeInterface = () => {
       const data = await response.json();
       
       const assistantMessage = { role: 'assistant', content: data.chat_response || data.response || "No response" };
+      
+      if (chatId) {
+        await apiFetch(`/api/v1/chat/${chatId}/messages`, {
+          method: 'POST',
+          body: JSON.stringify(assistantMessage)
+        });
+      }
+
       setMessages((prev) => [...prev, assistantMessage]);
       
-      if (data.extraction) {
-        setProjectDetails(data.extraction);
-      } else if (data.extracted_details) {
-        setProjectDetails(data.extracted_details);
+      const extraction = data.extraction || data.extracted_details;
+      if (extraction) {
+        setProjectDetails(extraction);
+        if (projectId) {
+          await apiFetch(`/api/v1/projects/${projectId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              name: extraction.name || 'New Project',
+              description: extraction.description || '',
+              tech_stack: extraction.tech_stack || []
+            })
+          });
+        }
       }
+
     } catch (error) {
       console.error('Error sending message:', error);
       setMessages((prev) => [...prev, { role: 'system', content: 'Error: Could not reach the server.' }]);
@@ -77,9 +166,9 @@ const ChatScopeInterface = () => {
   const handleGenerateDocument = async (docType) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/v1/chat/1/generate/${docType}`, {
+      const response = await apiFetch(`/api/v1/chat/${chatId || 1}/generate/${docType}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        
         body: JSON.stringify({ doc_type: docType, context: projectDetails })
       });
       if (!response.ok) throw new Error('Generation failed');

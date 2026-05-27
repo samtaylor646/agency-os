@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 from . import models, schemas, auth, dependencies
 from .database import engine, get_db
-from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace, audit, chat, documents, custom_agents, pipelines
+from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace, audit, chat, documents, custom_agents, pipelines, projects
 from .context import set_tenant_id, get_tenant_id
 from scripts.central_runner import DAGOrchestrator
 
@@ -128,6 +128,7 @@ app.include_router(chat.router)
 app.include_router(documents.router)
 app.include_router(custom_agents.router)
 app.include_router(pipelines.router)
+app.include_router(projects.router)
 
 @app.get('/')
 def read_root():

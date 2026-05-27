@@ -71,3 +71,9 @@ Thumbs.db
 /update_*.py
 /generate_*.py
 /add_*.py
+
+# Databases and Uploads
+server/data/*.db
+server/*.db
+server/uploads/*
+!server/uploads/.gitkeep

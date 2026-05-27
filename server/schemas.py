@@ -121,6 +121,62 @@ class ProjectScopeExtraction(BaseModel):
     tech_stack: List[str]
     raw_message: str
 
+class ProjectBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    tech_stack: List[str] = []
+
+class ProjectCreate(ProjectBase):
+    pass
+
+class ProjectUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    tech_stack: Optional[List[str]] = None
+
+class ProjectOut(ProjectBase):
+    id: int
+    workspace_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class ChatMessageBase(BaseModel):
+    role: str
+    content: str
+
+class ChatMessageCreate(ChatMessageBase):
+    pass
+
+class ChatMessageOut(ChatMessageBase):
+    id: int
+    chat_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ChatBase(BaseModel):
+    name: Optional[str] = None
+    project_id: Optional[int] = None
+
+class ChatCreate(ChatBase):
+    pass
+
+class ChatOut(ChatBase):
+    id: int
+    workspace_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class ChatWithMessagesOut(ChatOut):
+    messages: List[ChatMessageOut] = []
+
 class ChatScopeResponse(BaseModel):
     extraction: ProjectScopeExtraction
     chat_response: str
