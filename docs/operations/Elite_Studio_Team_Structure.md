@@ -1,5 +1,15 @@
 # Elite Digital Studio Team Structure & Roles
 
+**Active Deployed Squad: The Executive Strategy & Reporting Pod (ESR Pod)**
+*This specific cross-functional pod was assembled from the larger matrix to build and execute the Executive Strategy Report & Presentation.*
+*   **Product Manager:** Manages the roadmap and bridge logic.
+*   **Business Strategist:** Drives the business narrative and GTM alignment.
+*   **Marketing Content Creator:** Defines the distribution and messaging.
+*   **Visual Storyteller:** Designs the presentation aesthetics.
+*   **Technical Writer & DevOps Engineer:** Synthesizes system architecture and server health.
+
+---
+
 Elite digital studios operate on a matrix structure. Rather than working in isolated silos, staff belong to a specific discipline (like Engineering or Creative) but are deployed into cross-functional "squads" for the duration of a project.
 
 Here is the breakdown of the key players, their specific roles, and when they drive the project forward.
