@@ -1,5 +1,9 @@
 # Changelog
 
+## [2026-05-27] - Epic 4.4.D: Legal Terms of Service
+- **Added**: Drafted comprehensive Legal Terms of Service for User-Generated and AI-Generated Content in `docs/operations/terms_of_service_ugc.md`.
+- **Updated**: Memory files to reflect completion of the legal document drafting.
+
 ## [2026-05-26] - Phase 4 Handoff
 - **Completed**: Phase 4 officially completed.
 - **Added**: Consolidated Phase 4 handoff summary generated at `docs/archive/phase_4_handoff_summary.md`.
