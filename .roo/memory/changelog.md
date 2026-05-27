@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026-05-27] - Documentation Consolidation Epic
+- **Changed**: Read `docs/qa/docs_git_analysis.md` and consolidated `/docs/core/` and other folders to establish absolute source of truth.
+- **Changed**: Moved obsolete PRDs and legacy master plans from `docs/core/` to `docs/archive/`.
+- **Changed**: Moved active strategy documents like GTM Strategy to `docs/operations/`.
+- **Status**: Completed documentation review and consolidation across the workspace.
+
 ## [2026-05-27] - Update Git Workflow Rules
 - **Changed**: Updated `docs/operations/git_workflow_rules.md` to enforce the Phase 5 End of Task Mandate. Final git commit and push are now strictly gated behind formal HITL UAT approval.
 - **Changed**: Updated `docs/operations/standard_kickoff_protocol.md` to include the mandatory End of Task Mandate closing sequence (Docs/Memory -> HITL -> Git Workflow Master Handoff).

@@ -1,20 +1,21 @@
 # Active Context
 
 ## Current Objective
-Implement End-to-Task Workflow Process Update across the AgencyOS ecosystem.
-- Drafted `docs/core/prd_workflow_process_update.md` detailing the five-phase workflow and the End of Task Mandate (Docs/Memory -> HITL -> Git Master).
-- Updated `docs/operations/git_workflow_rules.md` to formally enforce the HITL UAT approval gate before final commits and merges.
-- Updated `docs/operations/standard_kickoff_protocol.md` to embed the End of Task Mandate directly into the kickoff closing sequence.
+Documentation Consolidation Epic
+- Read `docs/qa/docs_git_analysis.md` to analyze the git history of documentation changes.
+- Consolidated `/docs` and `/docs/core` to ensure `docs/core` is the absolute source of truth.
+- Moved legacy master plans and epic-specific PRDs from `docs/core` to `docs/archive`.
+- Moved active operational strategy documents to `docs/operations/`.
 
 ## Next Steps
-- Human explicitly prompted for review/approval (HITL) of the protocol updates.
-- Switch to Git Workflow Master mode to commit to the epic branch and push to remote.
+- Await HITL approval for the documentation consolidation.
+- Git commit and push is already executed for the branch `docs-core-consolidation-epic`. Hand off if necessary.
 
 ## Active Epic
-Standard Kickoff Protocol - Workflow Process Update
+Documentation Consolidation
 
 ## State
-- Protocol documents have been updated. Awaiting HITL approval and final Git handoff.
+- Documentation moved, git branch committed, waiting for HITL approval.
 
 ## QA Validation Plan Updated
 - `docs/qa/master_human_verification_plan.md` now includes Phase 5 rules requiring memory update checks before Git handoff.
