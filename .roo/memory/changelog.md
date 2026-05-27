@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026-05-27] - Sprint 4: Secure Execution Sandbox (Infrastructure Remediation)
+- **Added**: Implemented Docker-based isolated execution environment in `server/services/sandbox.py`.
+- **Added**: Built API endpoint `/api/v1/sandbox/execute` in `server/routers/sandbox.py` for dispatching untrusted code.
+- **Changed**: Modified `scripts/central_runner.py` to route node execution to the Secure Sandbox when `agent_name` is `"CodeSandbox"`.
+- **Added**: Generated sprint handoff documentation `docs/archive/sprint_4_sandbox_handoff_summary.md` and pushed branch `epic/sprint-4-secure-sandbox`.
+
 ## [2026-05-27] - Sprint 3: Real-Time Orchestration (Infrastructure Remediation)
 - **Added**: Implemented Redis & FastAPI WebSockets in `server/routers/websockets.py` and connected it in `server/main.py`.
 - **Changed**: Instrument DAG Orchestrator in `scripts/central_runner.py` to publish real-time events (`node_start`, `node_complete`, `node_failed`, `workflow_start`, `workflow_complete`, `workflow_failed`) to Redis using `message_broker`.
