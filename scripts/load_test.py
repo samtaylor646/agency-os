@@ -1,61 +1,45 @@
 import asyncio
-import httpx
+import aiohttp
 import time
-import statistics
+import argparse
 
-URL = "http://localhost:8000/"
-
-async def fetch(client, url):
-    start_time = time.time()
+async def simulate_pod(session, url, pod_id):
+    start = time.time()
+    payload = {
+        "task": f"Load test task {pod_id}",
+        "domain": "engineering"
+    }
     try:
-        response = await client.get(url)
-        elapsed = time.time() - start_time
-        return response.status_code, elapsed
+        async with session.post(f"{url}/execute", json=payload) as response:
+            await response.json()
+            return time.time() - start
     except Exception as e:
-        return 500, time.time() - start_time
+        print(f"Pod {pod_id} failed: {e}")
+        return -1
 
-async def load_test(num_requests, concurrency):
-    print(f"Starting load test: {num_requests} requests, concurrency {concurrency}")
+async def run_load_test(url, num_pods):
+    print(f"Starting load test with {num_pods} concurrent pods against {url}...")
+    start_time = time.time()
     
-    async with httpx.AsyncClient(limits=httpx.Limits(max_connections=concurrency, max_keepalive_connections=concurrency)) as client:
-        start_time = time.time()
-        
-        tasks = []
-        for _ in range(num_requests):
-            tasks.append(fetch(client, URL))
-            
+    async with aiohttp.ClientSession() as session:
+        tasks = [simulate_pod(session, url, i) for i in range(num_pods)]
         results = await asyncio.gather(*tasks)
-        
-        total_time = time.time() - start_time
-        
-        status_codes = [r[0] for r in results]
-        times = [r[1] for r in results]
-        
-        successes = status_codes.count(200)
-        failures = len(results) - successes
-        
-        throughput = num_requests / total_time
-        avg_time = statistics.mean(times) * 1000
-        p95_time = statistics.quantiles(times, n=20)[18] * 1000 if len(times) > 1 else avg_time
-        max_time = max(times) * 1000
-        min_time = min(times) * 1000
-        
-        print("\n--- Load Test Results ---")
-        print(f"Total Requests: {num_requests}")
-        print(f"Concurrency Level: {concurrency}")
-        print(f"Time taken: {total_time:.2f} seconds")
-        print(f"Successes: {successes}")
-        print(f"Failures: {failures}")
-        print(f"Throughput: {throughput:.2f} req/s")
-        print(f"Min Response Time: {min_time:.2f} ms")
-        print(f"Max Response Time: {max_time:.2f} ms")
-        print(f"Average Response Time: {avg_time:.2f} ms")
-        print(f"95th Percentile Time: {p95_time:.2f} ms")
+    
+    total_time = time.time() - start_time
+    successful = [r for r in results if r > 0]
+    
+    print("\n--- Load Test Results ---")
+    print(f"Total time: {total_time:.2f}s")
+    print(f"Successful Pods: {len(successful)}/{num_pods}")
+    if successful:
+        print(f"Avg Response Time: {sum(successful)/len(successful):.2f}s")
+        print(f"Max Response Time: {max(successful):.2f}s")
+        print(f"Min Response Time: {min(successful):.2f}s")
 
 if __name__ == "__main__":
-    # Test 1: Normal load
-    asyncio.run(load_test(100, 10))
-    # Test 2: 10x Load
-    asyncio.run(load_test(1000, 100))
-    # Test 3: Stress Test (Breaking point)
-    asyncio.run(load_test(5000, 500))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--url", default="http://localhost:5000", help="API URL")
+    parser.add_argument("--pods", type=int, default=50, help="Number of concurrent pods")
+    args = parser.parse_args()
+    
+    asyncio.run(run_load_test(args.url, args.pods))
