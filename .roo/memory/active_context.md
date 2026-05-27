@@ -14,3 +14,6 @@ Standard Kickoff Protocol - Workflow Process Update
 
 ## State
 - Step 1 (Scope Document/PRD) drafted. Awaiting HITL approval and final Git handoff.
+
+## QA Validation Plan Updated
+- `docs/qa/master_human_verification_plan.md` now includes Phase 5 rules requiring memory update checks before Git handoff.

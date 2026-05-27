@@ -41,3 +41,28 @@ Accurately verify the functionality, UI/UX, and tenant isolation of the "Create 
 
 *Placeholder for DAG execution, central runner validation, and human-in-the-loop phase gates.*
 
+
+---
+
+## 5. Phase 5: Sequence Validation (End of Task Mandate)
+
+### Objective
+Enforce the strict sequence for task finalization to ensure all documentation, memory, and code handoffs are completed in the correct order.
+
+### Prerequisites
+- [] Task implementation is complete.
+- [] Automated tests have passed (Phase 4 QA Gate).
+- [] The AI Agent has generated specific Human Testing Instructions.
+
+### Step-by-Step Verification
+- [ ] **1. Handoff Documentation & Memory Updates Verification:**
+    - Verify `docs/` subfolders have been updated appropriately. NO new documents should be in the root `docs/` folder.
+    - **CRITICAL:** The Human Operator MUST verify that both `.roo/memory/changelog.md` and `.roo/memory/active_context.md` contain the latest changes and context. **Do not proceed to step 2 or grant final Git approval until memory is updated.**
+- [ ] **2. HITL Verification (Formal UAT):**
+    - Ensure the AI agent explicitly halted operations and prompted for review.
+    - Follow the agent's provided Human Testing Instructions.
+    - Explicitly state approval or provide feedback for iteration.
+- [ ] **3. Git Workflow Master Handoff Verification:**
+    - After UAT and Memory Verification are confirmed, give the final Git approval.
+    - Verify the agent (via Git Workflow Master) creates a commit encapsulating all changes (including docs/memory) on the dedicated feature/epic branch.
+    - Verify the commit is pushed to the remote repository.
