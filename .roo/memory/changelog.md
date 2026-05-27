@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026-05-27] - Sprint 3: Real-Time Orchestration (Infrastructure Remediation)
+- **Added**: Implemented Redis & FastAPI WebSockets in `server/routers/websockets.py` and connected it in `server/main.py`.
+- **Changed**: Instrument DAG Orchestrator in `scripts/central_runner.py` to publish real-time events (`node_start`, `node_complete`, `node_failed`, `workflow_start`, `workflow_complete`, `workflow_failed`) to Redis using `message_broker`.
+- **Changed**: Refactored frontend components (`PipelineExecutionViewer.jsx` and `PodChatContainer.jsx`) to connect to WebSocket endpoints and render backend execution states instead of simulated mocks.
+- **Completed**: End-to-end integration mapping from DAG Python runner -> Redis -> FastAPI WebSockets -> React frontend.
 ## [2026-05-27] - Epic 4.4.C & Phase 4 Handoff
 - **Completed**: Epic 4.4.C (Comprehensive E2E testing of the Pod lifecycle) is officially complete.
 - **Status**: Formally closed out Phase 4. Next step identified as Phase 5, Sprint 5.1 (GTM Strategy).

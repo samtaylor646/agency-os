@@ -21,6 +21,7 @@ try:
     from server.database import SessionLocal
     from server.models import AgentExecutionMetric, WorkflowExecution
     from server.schemas import DAGNodeInput, DAGNodeOutput
+    from server.services.message_broker import message_broker
 except ImportError as e:
     print(f"Warning: Could not import server dependencies: {e}")
     set_tenant_context = None
@@ -29,6 +30,7 @@ except ImportError as e:
     WorkflowExecution = None
     DAGNodeInput = None
     DAGNodeOutput = None
+    message_broker = None
 
 # A4-1: Implement standard Pydantic models for DAG node inputs and outputs
 # Models imported from server.schemas: DAGNodeInput, DAGNodeOutput
@@ -60,6 +62,13 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
     error_msg = None
     status = "success"
     
+    if message_broker:
+        await message_broker.publish(str(validated_input.tenant_id), {
+            "type": "node_start",
+            "node_id": node_id,
+            "agent_name": agent_name
+        })
+        
     if TaskValidator and set_tenant_context:
         set_tenant_context(validated_input.tenant_id)
         validator = TaskValidator()
@@ -133,6 +142,20 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
             print(f"Failed to save analytics: {e}")
         finally:
             db.close()
+            
+    if message_broker:
+        if status == "success":
+            await message_broker.publish(str(validated_input.tenant_id), {
+                "type": "node_complete",
+                "node_id": node_id,
+                "result": result
+            })
+        else:
+            await message_broker.publish(str(validated_input.tenant_id), {
+                "type": "node_failed",
+                "node_id": node_id,
+                "error": error_msg
+            })
             
     return DAGNodeOutput(node_id=node_id, status=status, result=result, error=error_msg)
 
@@ -232,6 +255,16 @@ class DAGOrchestrator:
             return {"status": "FAILED", "error": str(e)}
 
         self._save_state(tenant_id, "RUNNING")
+        
+        if message_broker:
+            await message_broker.publish(str(tenant_id), {
+                "type": "workflow_start",
+                "workflow_id": self.workflow_id,
+                "workflow_name": self.workflow_name,
+                "nodes": {k: {"agent_name": v["agent_name"], "task": v["task"]} for k, v in self.nodes.items()},
+                "edges": dict(self.edges)
+            })
+            
         results = {}
         has_failure = False
         
@@ -245,6 +278,14 @@ class DAGOrchestrator:
             if kill_switch and kill_switch.is_active(tenant_id):
                 final_status = "KILLED_BY_SWITCH"
                 self._save_state(tenant_id, final_status)
+                
+                if message_broker:
+                    await message_broker.publish(str(tenant_id), {
+                        "type": "workflow_failed",
+                        "workflow_id": self.workflow_id,
+                        "error": "Workflow execution halted by LLM Kill Switch."
+                    })
+                    
                 return {"status": final_status, "results": results, "error": "Workflow execution halted by LLM Kill Switch."}
 
             tasks = []
@@ -316,5 +357,14 @@ class DAGOrchestrator:
                 
         final_status = "PARTIAL_FAILURE" if has_failure else "COMPLETED"
         self._save_state(tenant_id, final_status)
+        
+        if message_broker:
+            await message_broker.publish(str(tenant_id), {
+                "type": "workflow_complete",
+                "workflow_id": self.workflow_id,
+                "status": final_status,
+                "results": results
+            })
+            
         return {"status": final_status, "results": results}
 

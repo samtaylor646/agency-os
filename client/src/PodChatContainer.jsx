@@ -4,7 +4,7 @@ import MemoryInspectorSidebar from './MemoryInspectorSidebar';
 import { useWorkspace } from './WorkspaceContext';
 
 export default function PodChatContainer({ sessionId }) {
-  const { apiFetch } = useWorkspace();
+  const { apiFetch, currentWorkspace } = useWorkspace();
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [input, setInput] = useState('');
@@ -42,28 +42,30 @@ export default function PodChatContainer({ sessionId }) {
 
     fetchMessages();
 
-    // Set up real-time streaming using Server-Sent Events (SSE)
-    if (!sessionId) return;
-    const eventSource = new EventSource(`/api/v1/agent_sessions/${sessionId}/stream`);
+    // Set up real-time streaming using WebSockets instead of SSE
+    if (!sessionId || !currentWorkspace) return;
+    const wsUrl = import.meta.env.VITE_WS_URL || (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('http', 'ws') : 'ws://localhost:5000');
+    const ws = new WebSocket(`${wsUrl}/ws/${currentWorkspace.id}`);
 
-    eventSource.onmessage = (event) => {
+    ws.onmessage = (event) => {
       try {
-        const newMsg = JSON.parse(event.data);
-        setMessages((prev) => [...prev, newMsg]);
+        const data = JSON.parse(event.data);
+        if (data.type === 'agent_message' || data.type === 'message') {
+           setMessages((prev) => [...prev, data.message || data]);
+        }
       } catch (e) {
         console.error("Failed to parse streamed message", e);
       }
     };
 
-    eventSource.onerror = (error) => {
-      console.error("EventSource failed:", error);
-      eventSource.close();
+    ws.onerror = (error) => {
+      console.error("WebSocket failed:", error);
     };
 
     return () => {
-      eventSource.close();
+      ws.close();
     };
-  }, [sessionId]);
+  }, [sessionId, currentWorkspace]);
 
   const handleSend = async (e) => {
     e.preventDefault();

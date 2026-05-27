@@ -1,39 +1,119 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, CheckCircle, Clock, AlertCircle, Terminal, Activity, FileText, ChevronRight, XCircle } from 'lucide-react';
+import { useWorkspace } from './WorkspaceContext';
 
 export const PipelineExecutionViewer = () => {
+  const { currentWorkspace, apiFetch } = useWorkspace();
   const [pipelineState, setPipelineState] = useState('idle'); // idle, running, completed, error, waiting_approval
   const [pauseReason, setPauseReason] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
-  const [tasks, setTasks] = useState([
-    { id: 't1', name: 'Parse Marketing Brief', agent: 'nexus-strategy', status: 'pending', logs: [] },
-    { id: 't2', name: 'Extract Target Audience', agent: 'academic-psychologist', status: 'pending', logs: [] },
-    { id: 't3', name: 'Draft Ad Copy', agent: 'design-visual-storyteller', status: 'pending', logs: [] },
-    { id: 't4', name: 'Generate Visual Assets', agent: 'design-image-prompt-engineer', status: 'pending', logs: [] },
-  ]);
+  const [tasks, setTasks] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
   const [overallLogs, setOverallLogs] = useState([]);
   
   const logsEndRef = useRef(null);
+  const wsRef = useRef(null);
 
   useEffect(() => {
     if (logsEndRef.current) {
       logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [overallLogs, tasks]);
+  }, [overallLogs, tasks, chatMessages]);
+
+  useEffect(() => {
+    if (!currentWorkspace) return;
+
+    // Connect WebSocket
+    const wsUrl = import.meta.env.VITE_WS_URL || (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('http', 'ws') : 'ws://localhost:5000');
+    const ws = new WebSocket(`${wsUrl}/ws/${currentWorkspace.id}`);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log("WebSocket connected for Pipeline Execution Viewer");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        handleWebSocketMessage(data);
+      } catch (e) {
+        console.error("Failed to parse WS message", e);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [currentWorkspace]);
+
+  const handleWebSocketMessage = (data) => {
+    switch(data.type) {
+      case 'workflow_start':
+        setPipelineState('running');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Workflow started: ${data.workflow_name}`]);
+        // Initialize tasks from data.nodes if available
+        if (data.nodes) {
+          const newTasks = Object.entries(data.nodes).map(([id, info]) => ({
+            id,
+            name: info.task,
+            agent: info.agent_name,
+            status: 'pending',
+            logs: []
+          }));
+          setTasks(newTasks);
+        }
+        break;
+
+      case 'node_start':
+        setActiveTask(data.node_id);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'running', logs: [...t.logs, `[${data.agent_name}] Initializing...`] } : t));
+        setOverallLogs(prev => [...prev, `[ORCHESTRATOR] Node ${data.node_id} started by ${data.agent_name}`]);
+        break;
+
+      case 'node_complete':
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'completed', logs: [...t.logs, `[SYSTEM] Completed successfully. Result: ${JSON.stringify(data.result)}`] } : t));
+        setOverallLogs(prev => [...prev, `[ORCHESTRATOR] Node ${data.node_id} completed.`]);
+        break;
+
+      case 'node_failed':
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'error', logs: [...t.logs, `[ERROR] ${data.error}`] } : t));
+        setOverallLogs(prev => [...prev, `[ERROR] Node ${data.node_id} failed: ${data.error}`]);
+        break;
+
+      case 'workflow_complete':
+        setPipelineState('completed');
+        setActiveTask(null);
+        setOverallLogs(prev => [...prev, `[SYSTEM] Workflow execution finished with status: ${data.status}`]);
+        if (data.status === 'PARTIAL_FAILURE') {
+            setPipelineState('error');
+            setErrorDetails('Workflow completed with partial failures.');
+        }
+        break;
+
+      case 'workflow_failed':
+        setPipelineState('error');
+        setErrorDetails(data.error || 'Workflow execution failed.');
+        setOverallLogs(prev => [...prev, `[ERROR] Workflow failed: ${data.error}`]);
+        break;
+
+      default:
+        // Handle unhandled or generic messages
+        break;
+    }
+  };
 
   const handleApprove = () => {
-    setPipelineState('running');
-    setOverallLogs(prev => [...prev, '[SYSTEM] Pipeline execution approved. Resuming...']);
-    simulateExecution(2); // Resume from task 3
+    // Left for backward compatibility/demo purposes if needed
   };
 
   const handleReject = () => {
-    setPipelineState('error');
-    setErrorDetails('Pipeline execution rejected by user.');
-    setOverallLogs(prev => [...prev, '[SYSTEM] Pipeline execution rejected.']);
+    // Left for backward compatibility/demo purposes if needed
   };
 
   const handleSendChatMessage = (e) => {
@@ -43,77 +123,44 @@ export const PipelineExecutionViewer = () => {
     const newMsg = { sender: 'user', text: chatInput };
     setChatMessages(prev => [...prev, newMsg]);
     setOverallLogs(prev => [...prev, `[USER CHAT] ${chatInput}`]);
-    setChatInput('');
     
-    // Simulate agent reply
-    setTimeout(() => {
-      setChatMessages(prev => [...prev, { sender: 'agent', text: 'Acknowledged. Will adjust execution accordingly.' }]);
-      setOverallLogs(prev => [...prev, `[AGENT CHAT] Acknowledged. Will adjust execution accordingly.`]);
-    }, 1000);
-  };
-
-  const startPipeline = () => {
-    setPipelineState('running');
-    setOverallLogs(prev => [...prev, '[SYSTEM] Pipeline execution started.']);
-    simulateExecution(0);
-  };
-
-  const simulateExecution = async (startIndex = 0) => {
-    for (let i = startIndex; i < tasks.length; i++) {
-      const task = tasks[i];
-      
-      // Simulate approval gate for task 2
-      if (i === 2 && pipelineState !== 'waiting_approval' && startIndex !== 2) {
-        setPipelineState('waiting_approval');
-        setPauseReason('Requires human review of draft ad copy before generating visual assets.');
-        setOverallLogs(prev => [...prev, `[ORCHESTRATOR] Pipeline paused for approval: Requires human review of draft ad copy before generating visual assets.`]);
-        return; // Pause execution loop
-      }
-      
-      // Simulate error for task 3
-      if (i === 3 && Math.random() < 0.2) { // 20% chance of error
-         setPipelineState('error');
-         setErrorDetails(`Failed to generate visual assets: Image generation API rate limit exceeded.`);
-         setOverallLogs(prev => [...prev, `[ERROR] Failed to generate visual assets: Image generation API rate limit exceeded.`]);
-         setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: 'error', logs: [...t.logs, `[ERROR] Image generation API rate limit exceeded.`] } : t));
-         return;
-      }
-
-      setActiveTask(task.id);
-      
-      // Update task to running
-      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: 'running' } : t));
-      setOverallLogs(prev => [...prev, `[ORCHESTRATOR] Assigned task "${task.name}" to agent: ${task.agent}`]);
-      
-      // Simulate task processing
-      await new Promise(r => setTimeout(r, 1000));
-      
-      setTasks(prev => prev.map(t => {
-        if (t.id === task.id) {
-          return { ...t, logs: [...t.logs, `[${task.agent}] Initializing context...`] };
-        }
-        return t;
-      }));
-      
-      await new Promise(r => setTimeout(r, 1500));
-      
-      setTasks(prev => prev.map(t => {
-        if (t.id === task.id) {
-          return { ...t, logs: [...t.logs, `[${task.agent}] Processing data and generating output...`] };
-        }
-        return t;
-      }));
-      
-      await new Promise(r => setTimeout(r, 1000));
-      
-      // Complete task
-      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: 'completed', logs: [...t.logs, `[${task.agent}] Task completed successfully.`] } : t));
-      setOverallLogs(prev => [...prev, `[ORCHESTRATOR] Task "${task.name}" completed.`]);
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'user_message', text: chatInput }));
     }
     
-    setPipelineState('completed');
-    setActiveTask(null);
-    setOverallLogs(prev => [...prev, '[SYSTEM] Pipeline execution finished successfully.']);
+    setChatInput('');
+  };
+
+  const startPipeline = async () => {
+    if (!currentWorkspace) return;
+    
+    setPipelineState('running');
+    setOverallLogs(prev => [...prev, '[SYSTEM] Triggering pipeline execution via API...']);
+    
+    // We send a request to the backend to start a test workflow
+    try {
+        const response = await apiFetch(`/api/v1/workflows/run`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nodes: [
+                    { node_id: "1", agent_name: "nexus-strategy", task: "Analyze requirements", required_inputs: [] },
+                    { node_id: "2", agent_name: "academic-psychologist", task: "Draft plan", required_inputs: ["1"] }
+                ],
+                edges: [
+                    { from_node: "1", to_node: "2" }
+                ]
+            })
+        });
+        
+        if (!response.ok) {
+            setPipelineState('error');
+            setErrorDetails('Failed to start pipeline via API.');
+        }
+    } catch (e) {
+        setPipelineState('error');
+        setErrorDetails(e.toString());
+    }
   };
 
   const getStatusIcon = (status) => {
