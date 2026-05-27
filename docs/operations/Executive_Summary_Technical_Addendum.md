@@ -43,3 +43,15 @@ While the platform is stable for launch, the engineering teams are actively moni
     *   *Blocker Action:* Any complex schema modifications (like dropping or renaming columns) require a stringent 3-release cycle and high developer discipline, temporarily slowing down rapid data-model iterations.
 *   **LLM Kill-Switch Precision:**
     *   *Risk:* Current LLM guardrails or kill-switches need refinement to prevent false positives that disrupt valid workflows, particularly when orchestrating complex DAGs across specialized agents.
+
+## 4. Security Posture & Containment Mechanisms
+
+A robust security foundation has been implemented to protect both infrastructure and data integrity during multi-agent workflows:
+
+*   **LLM Kill Switch Architecture:**
+    *   A Redis-backed global and per-tenant halting mechanism acts as an emergency stop for autonomous multi-agent pods. If a DAG runs away, consumes excess resources, or begins hallucinating, it can be instantaneously halted (`KILLED_BY_SWITCH`) at the current level without affecting other tenants.
+*   **Data Poisoning & Injection Defenses:**
+    *   To mitigate Denial-of-Wallet (DoW) and prompt injection via document ingestion, all inputs undergo rigorous sanitation (null byte stripping, special control token removal).
+    *   Strict IP-based and tenant-based rate limits alongside file payload caps defend against malicious volume-based attacks.
+*   **Tenant Isolation Validation:**
+    *   Every database query and ingested context block requires explicit Role-Based Access Control (RBAC) verification and tenant boundary checks before a RAG pipeline can consume it.
