@@ -41,8 +41,8 @@ Following the successful stabilization of the DAG orchestrator in Phase 3, Phase
 *   **Epics:**
     *   ~~`Epic-4.4.A`: Security audit of Pod messaging, implement LLM Kill Switch, and validate blast radius containment for autonomous DAGs.~~ (COMPLETED)
     *   ~~`Epic-4.4.D`: Finalize Marketplace Terms of Service and User Generated Content (UGC) Liability Framework.~~ (COMPLETED)
-    *   `Epic-4.4.B`: Load testing of the new message broker and vector DB, expanding `scripts/load_test.py` to simulate concurrent Pods. (DevOps Engineer, Infrastructure Maintainer)
-    *   `Epic-4.4.C`: Comprehensive E2E testing of the Pod lifecycle, ensuring automated test scripts are required before main merge. (Evidence Collector)
+    *   `Epic-4.4.B`: Load testing of the new message broker and vector DB, expanding `scripts/load_test.py` to simulate concurrent Pods. (DevOps Engineer, Infrastructure Maintainer) [AGENT INSTRUCTION: Ensure Ecosystem Board is toggled OFF (via ./scripts/toggle_ecosystem_board.sh) during load tests to restore max velocity, then toggled back ON afterwards.]
+    *   `Epic-4.4.C`: Comprehensive E2E testing of the Pod lifecycle, ensuring automated test scripts are required before main merge. (Evidence Collector) [AGENT INSTRUCTION: Run ./scripts/toggle_ecosystem_board.sh to ensure architectural guardrails are active during final QA.]
 
 ## 4. Roles & Responsibilities
 *   **Product Manager:** Backlog grooming, sprint planning, and feature validation.
