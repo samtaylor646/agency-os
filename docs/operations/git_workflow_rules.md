@@ -64,3 +64,12 @@ Examples:
 ## 5. Handoffs
 
 When a task requires multiple specialists sequentially (e.g., UX Architect -> Senior Developer -> Evidence Collector), agents should pass the branch name in their handoff payload. The subsequent agent will check out the existing branch instead of creating a new one.
+
+## 6. End of Epic / Feature Finalization Sequence
+
+To align with Phase 5 End of Task Mandates, the finalization of an Epic or Feature strictly follows the "Docs/Memory Finalization -> HITL Approval -> Git Workflow Master Handoff" sequence:
+
+1. **Docs and Memory Finalization**: Before requesting HITL approval, all related documentation (`docs/`) and memory files (`.roo/memory/changelog.md` & `.roo/memory/active_context.md`) must be fully updated.
+2. **HITL (Human-in-the-Loop) Approval Gate**: The final Epic/Feature git commit and merge must **NOT** occur until *after* formal HITL (User Acceptance Testing) approval is explicitly granted. Agents must present the testing instructions and wait for the human to log their consent in the chat/branch history.
+3. **Final Commit & Push**: The branch must only receive its final commit encapsulating the completed epic and the final `git push` *after* the human has given this explicit consent.
+4. **Git Workflow Master Handoff**: Once approved and pushed, the PR merging process and final repository management can proceed.

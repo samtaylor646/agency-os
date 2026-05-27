@@ -3,6 +3,7 @@
 ## Current Objective
 Implement End-to-Task Workflow Process Update across the AgencyOS ecosystem.
 - Drafted `docs/core/prd_workflow_process_update.md` detailing the five-phase workflow and the End of Task Mandate (Docs/Memory -> HITL -> Git Master).
+- Updated `docs/operations/git_workflow_rules.md` to formally enforce the HITL UAT approval gate before final commits and merges.
 
 ## Next Steps
 - Human explicitly prompted for review/approval (HITL) of the PRD.
