@@ -163,6 +163,46 @@ const ChatScopeInterface = () => {
     tasks: ''
   });
 
+  const fileInputRef = useRef(null);
+  
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file || !chatId) return;
+
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await apiFetch(`/api/v1/chat/${chatId}/documents/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      
+      const extraction = data.extraction || data.extracted_details || data;
+      
+      const systemMessage = { role: 'system', content: `Successfully ingested '${file.name}'. Context has been updated.` };
+      setMessages(prev => [...prev, systemMessage]);
+      
+      if (extraction) {
+        setProjectDetails(prev => ({
+          name: extraction.name || prev.name,
+          description: extraction.description ? `${prev.description}\n\n[Ingested Data]:\n${extraction.description}` : prev.description,
+          tech_stack: [...new Set([...(prev.tech_stack || []), ...(extraction.tech_stack || [])])]
+        }));
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
+      setMessages(prev => [...prev, { role: 'system', content: `Error: Failed to upload ${file.name}` }]);
+    } finally {
+      setIsLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleGenerateDocument = async (docType) => {
     setIsLoading(true);
     try {
@@ -243,7 +283,25 @@ const ChatScopeInterface = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white flex shrink-0">
+        <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white flex shrink-0 items-center">
+          <input
+            type="file"
+            accept=".txt,.md,.pdf"
+            hidden
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2 mr-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors disabled:text-gray-300"
+            disabled={isLoading || !chatId}
+            title="Upload Document"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+            </svg>
+          </button>
           <input
             type="text"
             value={inputValue}

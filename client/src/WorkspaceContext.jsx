@@ -34,7 +34,7 @@ export const WorkspaceProvider = ({ children }) => {
 
     const headers = {
       ...options.headers,
-      'Content-Type': 'application/json',
+      ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     };
 
