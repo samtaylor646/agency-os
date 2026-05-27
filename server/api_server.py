@@ -4,7 +4,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts')))
 
-from central_runner import AgentRunner
+from central_runner import DAGOrchestrator
 from validation_layer import TaskValidator
 from services.kill_switch import kill_switch
 
@@ -42,8 +42,11 @@ def execute():
     validation_status = validator.pre_flight_check(task)
     
     # 2. Execute
-    runner = AgentRunner(domain)
-    result = runner.execute_task(task)
+    runner = DAGOrchestrator('test_workflow')
+    runner.add_node('1', 'TestAgent', task)
+    import asyncio
+    result = asyncio.run(runner.execute_workflow('1'))
+    
     
     return jsonify({"status": validation_status, "result": result})
 
