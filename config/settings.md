@@ -26,3 +26,14 @@
 9. **Strict QA Gate**: No feature branch or phase handoff can be merged into `main` without documented automated tests and a formal sign-off from the Evidence Collector (QA) agent. Code must be proven to work via tests before merging.
 10. **Human-in-the-Loop Mandate**: A human must be explicitly involved in all phases of the project lifecycle (Phase 0 through Phase 6) going forward. This includes manual review of specifications, environment scaffolding validation, continuous UI/UX spot-checks during build cycles, and formal User Acceptance Testing (UAT). You must prompt for human verification before finalizing any phase gate.
 11. **Explicit Consent Mandate**: Do not execute tool operations (such as file modifications, command executions, etc.) when the user is simply asking a clarifying question. You must wait for explicit consent from the user before making changes or executing actions based on an inquiry.
+
+## Strict Task Template for Orchestrator
+When issued a complex prompt, the `agents-orchestrator` must immediately respond with a step-by-step delegation plan using the following format BEFORE taking any action:
+
+*Subject: Execution Plan for [Task Name]*
+
+**Step 1:** Spin up `[agent-slug]` via `new_task`.
+* **Task:** [Specific atomic task]
+* **Pause:** Await human review.
+
+**Approval Required:** Do you approve this delegation sequence? Reply 'Yes' and I will initiate Step 1.

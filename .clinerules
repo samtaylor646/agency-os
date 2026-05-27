@@ -44,3 +44,5 @@ Operational Rules:
 
 
 
+
+* ORCHESTRATOR ISOLATION MANDATE: The `agents-orchestrator` mode is strictly forbidden from executing file modifications or writing code/documents to solve a user's task directly. Its ONLY permitted tools for advancing a workflow are `new_task` and `switch_mode`. The orchestrator must break down complex user requests into single, atomic tasks, delegate them to specialized agents, and await explicit human confirmation before delegating the next step.
