@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026-05-27] - Executive Summary HTML Presentation Deck
+- **Added**: Built a standalone HTML presentation `docs/operations/Executive_Summary_Presentation.html` based on the Executive Summary Report.
+- **Changed**: Included Tailwind CSS via CDN for styling and Chart.js for data visualization.
+- **Status**: Completed frontend implementation and pushed to `feature/executive-summary-spec`.
+
 ## [2026-05-27] - Executive Summary Report Generation
 - **Added**: Authored the final Markdown version of the Executive Summary Report in `docs/operations/Executive_Summary_Report.md` based on `docs/operations/Executive_Summary_Report_Spec.md`.
 - **Status**: Completed document generation.
