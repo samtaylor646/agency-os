@@ -1,4 +1,5 @@
 # Active Context
-We have successfully completed Phase 5: Launch & Growth.
+We have successfully completed Ticket 2.3: Frontend Global State Migration on the `feature/ticket-2.3-frontend-global-state` branch.
+We removed mock data from standard UI flows and wired components like `WorkspaceContext`, `AuditLogViewer`, `Marketplace`, and `RBACManager` to their real backend endpoints.
+We have previously successfully completed Phase 5: Launch & Growth.
 Sprint 5.1, Sprint 5.2, and Sprint 5.3 have all been executed. The platform is live in production.
-We are on the `epic/phase-5-launch-and-growth` branch, preparing for final branch merge and transition to Phase 6 (Operate & Evolve).

@@ -31,7 +31,7 @@ This sprint plan breaks down the Infrastructure Remediation into actionable, seq
 *   **Ticket 2.2: Frontend ChatScopeInterface Refactor**
     *   **Task:** Update `ChatScopeInterface.jsx` to consume real APIs.
     *   **Acceptance Criteria:** Chat history and project scope persist across page reloads.
-*   **Ticket 2.3: Frontend Global State Migration**
+*   **Ticket 2.3: Frontend Global State Migration** (Completed)
     *   **Task:** Audit remaining static state components and wire them to backend endpoints.
     *   **Acceptance Criteria:** No static mock data remains in standard UI flows.
 

@@ -7,38 +7,6 @@ export const WorkspaceProvider = ({ children }) => {
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(null);
   const [userRole, setUserRole] = useState('Agency Admin'); // Mocked user role for now
 
-  // Fetch workspaces on mount
-  useEffect(() => {
-    const fetchWorkspaces = async () => {
-      try {
-        // Mock API call
-        const mockWorkspaces = [
-          { id: '1', name: 'Acme Corp' },
-          { id: '2', name: 'Globex Inc' }
-        ];
-        setWorkspaces(mockWorkspaces);
-        
-        // Retrieve last active from localStorage or default to first
-        const saved = localStorage.getItem('activeWorkspaceId');
-        if (saved && mockWorkspaces.find(w => w.id === saved)) {
-          setActiveWorkspaceId(saved);
-        } else if (mockWorkspaces.length > 0) {
-          setActiveWorkspaceId(mockWorkspaces[0].id);
-        }
-      } catch (err) {
-        console.error('Failed to fetch workspaces', err);
-      }
-    };
-    
-    fetchWorkspaces();
-  }, []);
-
-  useEffect(() => {
-    if (activeWorkspaceId) {
-      localStorage.setItem('activeWorkspaceId', activeWorkspaceId);
-    }
-  }, [activeWorkspaceId]);
-
   // Intercept fetch calls to append tenant ID
   const apiFetch = async (url, options = {}) => {
     let token = localStorage.getItem('agency_os_token');
@@ -66,10 +34,14 @@ export const WorkspaceProvider = ({ children }) => {
 
     const headers = {
       ...options.headers,
-      'X-Tenant-ID': activeWorkspaceId,
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     };
+
+    // Only add X-Tenant-ID if activeWorkspaceId is present, or if it's already set in options
+    if (activeWorkspaceId && !headers['X-Tenant-ID']) {
+      headers['X-Tenant-ID'] = activeWorkspaceId;
+    }
     
     const res = await fetch(url, { ...options, headers });
     
@@ -80,6 +52,50 @@ export const WorkspaceProvider = ({ children }) => {
     
     return res;
   };
+
+  // Fetch workspaces on mount
+  useEffect(() => {
+    const fetchWorkspaces = async () => {
+      try {
+        // Fetch API workspaces
+        const res = await apiFetch('/api/v1/workspaces');
+        let fetchedWorkspaces = [];
+        if (res.ok) {
+          fetchedWorkspaces = await res.json();
+          // Map backend IDs to strings to match frontend usage, or just keep as is if backend returns string IDs.
+          // Backend returns integer IDs based on models.
+          fetchedWorkspaces = fetchedWorkspaces.map(w => ({ ...w, id: String(w.id) }));
+        }
+
+        if (fetchedWorkspaces.length === 0) {
+           fetchedWorkspaces = [
+             { id: '1', name: 'Default Workspace (Fallback)' }
+           ];
+        }
+
+        setWorkspaces(fetchedWorkspaces);
+        
+        // Retrieve last active from localStorage or default to first
+        const saved = localStorage.getItem('activeWorkspaceId');
+        if (saved && fetchedWorkspaces.find(w => w.id === saved)) {
+          setActiveWorkspaceId(saved);
+        } else if (fetchedWorkspaces.length > 0) {
+          setActiveWorkspaceId(fetchedWorkspaces[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to fetch workspaces', err);
+      }
+    };
+    
+    fetchWorkspaces();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (activeWorkspaceId) {
+      localStorage.setItem('activeWorkspaceId', activeWorkspaceId);
+    }
+  }, [activeWorkspaceId]);
 
   const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
 

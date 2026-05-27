@@ -3,34 +3,34 @@ import { Database, Download, AlertCircle } from 'lucide-react';
 import { useWorkspace } from './WorkspaceContext';
 
 export const AuditLogViewer = () => {
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, apiFetch } = useWorkspace();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchLogs = async () => {
+      if (!activeWorkspace) return;
       setLoading(true);
+      setError(null);
       try {
-        // Assume an endpoint exists or mock it
-        const res = await fetch('/api/v1/workspaces/audit-logs');
+        const res = await apiFetch('/api/v1/workspaces/audit-logs');
         if (res.ok) {
-          setLogs(await res.json());
+          const data = await res.json();
+          // Backend returns user_id instead of user string right now, map it if needed
+          // Assuming user_id for now, we can format it
+          const formattedData = data.map(log => ({
+            ...log,
+            user: log.user_id ? `User ${log.user_id}` : 'System'
+          }));
+          setLogs(formattedData);
         } else {
-          // Mock data if endpoint fails
-          setLogs([
-            { id: 1, user: 'admin@agencyos.com', action: 'CREATE_AGENT', resource: 'Marketing Agent', created_at: new Date().toISOString() },
-            { id: 2, user: 'client@company.com', action: 'VIEW_DASHBOARD', resource: 'Dashboard', created_at: new Date(Date.now() - 3600000).toISOString() },
-            { id: 3, user: 'system', action: 'EXECUTE_WORKFLOW', resource: 'SEO Optimization', created_at: new Date(Date.now() - 7200000).toISOString() },
-          ]);
+          setError('Failed to load audit logs.');
+          setLogs([]);
         }
       } catch (err) {
-        // Fallback mock
-        setLogs([
-            { id: 1, user: 'admin@agencyos.com', action: 'CREATE_AGENT', resource: 'Marketing Agent', created_at: new Date().toISOString() },
-            { id: 2, user: 'client@company.com', action: 'VIEW_DASHBOARD', resource: 'Dashboard', created_at: new Date(Date.now() - 3600000).toISOString() },
-            { id: 3, user: 'system', action: 'EXECUTE_WORKFLOW', resource: 'SEO Optimization', created_at: new Date(Date.now() - 7200000).toISOString() },
-        ]);
+        setError('Failed to load audit logs.');
+        setLogs([]);
       } finally {
         setLoading(false);
       }
@@ -57,6 +57,13 @@ export const AuditLogViewer = () => {
         
         {loading ? (
           <p className="text-gray-500">Loading audit logs...</p>
+        ) : error ? (
+          <div className="text-red-500 p-4 bg-red-50 rounded-lg flex items-center space-x-2">
+            <AlertCircle className="w-5 h-5" />
+            <span>{error}</span>
+          </div>
+        ) : logs.length === 0 ? (
+          <p className="text-gray-500">No audit logs found.</p>
         ) : (
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             {/* Desktop View */}

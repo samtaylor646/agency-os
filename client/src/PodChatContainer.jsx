@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AgentMessageBubble from './AgentMessageBubble';
 import MemoryInspectorSidebar from './MemoryInspectorSidebar';
+import { useWorkspace } from './WorkspaceContext';
 
 export default function PodChatContainer({ sessionId }) {
+  const { apiFetch } = useWorkspace();
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [input, setInput] = useState('');
@@ -23,18 +25,13 @@ export default function PodChatContainer({ sessionId }) {
       if (!sessionId) return;
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/v1/agent_sessions/${sessionId}/messages`);
+        const response = await apiFetch(`/api/v1/agent_sessions/${sessionId}/messages`);
         if (response.ok) {
           const data = await response.json();
           setMessages(data.messages || []);
         } else {
           console.error('Failed to fetch pod messages');
-          // Fallback mock data for UI demo if API fails
-          setMessages([
-            { id: 1, message: "Pod session initialized. Architect agent is analyzing requirements.", agentName: "System", agentRole: "System", timestamp: new Date().toISOString(), isUser: false },
-            { id: 2, message: "I've reviewed the requirements. Developer, please start scaffolding the container components.", agentName: "Alice", agentRole: "Architect", timestamp: new Date(Date.now() + 1000).toISOString(), isUser: false },
-            { id: 3, message: "On it. Scaffolding the React components now.", agentName: "Bob", agentRole: "Developer", timestamp: new Date(Date.now() + 2000).toISOString(), isUser: false },
-          ]);
+          setMessages([]);
         }
       } catch (error) {
         console.error('Error fetching messages:', error);
@@ -85,7 +82,7 @@ export default function PodChatContainer({ sessionId }) {
     setInput('');
 
     try {
-      await fetch(`/api/v1/agent_sessions/${sessionId}/intervene`, {
+      await apiFetch(`/api/v1/agent_sessions/${sessionId}/intervene`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input })

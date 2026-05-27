@@ -3,7 +3,7 @@ import { Shield, ShieldAlert, Check, Plus, Minus } from 'lucide-react';
 import { useWorkspace } from './WorkspaceContext';
 
 export const RBACManager = () => {
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, apiFetch } = useWorkspace();
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,8 +17,8 @@ export const RBACManager = () => {
     setLoading(true);
     try {
       const [rolesRes, permsRes] = await Promise.all([
-        fetch('/api/v1/rbac/roles'),
-        fetch('/api/v1/rbac/permissions')
+        apiFetch('/api/v1/rbac/roles'),
+        apiFetch('/api/v1/rbac/permissions')
       ]);
       
       if (rolesRes.ok) setRoles(await rolesRes.json());
@@ -43,7 +43,7 @@ export const RBACManager = () => {
       return;
     }
     try {
-      const res = await fetch('/api/v1/rbac/roles', {
+      const res = await apiFetch('/api/v1/rbac/roles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newRole)

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Store, Plus, Search, Filter } from 'lucide-react';
 import { MarketplaceGrid } from './MarketplaceGrid';
 import { EntityDetailModal } from './EntityDetailModal';
+import { useWorkspace } from './WorkspaceContext';
 
 export const Marketplace = () => {
+  const { apiFetch } = useWorkspace();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState(null);
@@ -13,30 +15,28 @@ export const Marketplace = () => {
     const fetchTemplates = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/v1/marketplace/templates');
+        const res = await apiFetch('/api/v1/marketplace/templates');
         if (res.ok) {
-          setTemplates(await res.json());
+          const data = await res.json();
+          // Normalize data structure if missing fields
+          const normalized = data.map(t => ({
+             ...t,
+             category: t.category || 'marketing', // Default or fallback
+             author: t.author || 'Community',
+             full_description: t.full_description || t.description
+          }));
+          setTemplates(normalized);
         } else {
-            // Mock templates
-            setTemplates([
-                { id: 1, name: 'SEO Auditor', description: 'Automated SEO auditing for websites. Generates comprehensive reports on on-page and off-page factors.', full_description: 'The SEO Auditor agent automatically crawls specified domains, analyzing meta tags, keyword density, broken links, and site speed. It compiles these findings into a detailed markdown report, highlighting critical issues and actionable recommendations for improving search engine rankings.', template_type: 'agent', version: '1.0.0', author: 'Marketing Pod', category: 'marketing' },
-                { id: 2, name: 'Content Writer', description: 'Generates blog posts based on topics.', full_description: 'A versatile agent that takes a topic, tone, and target audience to produce high-quality, engaging blog posts. It can also perform basic web research to include up-to-date statistics and references.', template_type: 'agent', version: '1.1.0', author: 'Creative Team', category: 'content' },
-                { id: 3, name: 'Social Media Campaign', description: 'End-to-end social media workflow.', full_description: 'This pod template orchestrates multiple agents to handle a full social media campaign. It includes a Strategist to plan content, a Writer for drafting posts, a Designer for generating image prompts, and an Analyst for reviewing engagement metrics.', template_type: 'workflow', version: '2.0.0', author: 'AgencyOS Core', category: 'marketing' },
-                { id: 4, name: 'Code Reviewer', description: 'Automated code review and linting.', full_description: 'An agent that analyzes pull requests for code quality, security vulnerabilities, and adherence to style guides. It leaves inline comments and a summary review.', template_type: 'agent', version: '1.0.5', author: 'DevOps Team', category: 'development' },
-                { id: 5, name: 'Data Analyst', description: 'Processes CSVs and generates insights.', full_description: 'Upload your raw data files, and this agent will clean, process, and analyze the data to extract key trends. It can generate charts and write a summary report explaining the findings in plain English.', template_type: 'agent', version: '1.2.0', author: 'Data Science Pod', category: 'strategy' },
-            ]);
+          setTemplates([]);
         }
       } catch (err) {
-        setTemplates([
-            { id: 1, name: 'SEO Auditor', description: 'Automated SEO auditing for websites.', template_type: 'agent', version: '1.0.0', category: 'marketing' },
-            { id: 2, name: 'Content Writer', description: 'Generates blog posts based on topics.', template_type: 'agent', version: '1.1.0', category: 'content' },
-            { id: 3, name: 'Social Media Campaign', description: 'End-to-end social media workflow.', template_type: 'workflow', version: '2.0.0', category: 'marketing' },
-        ]);
+        setTemplates([]);
       } finally {
         setLoading(false);
       }
     };
     fetchTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const categories = [

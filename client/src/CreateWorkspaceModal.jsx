@@ -4,24 +4,33 @@ import { useWorkspace } from './WorkspaceContext';
 
 export default function CreateWorkspaceModal({ isOpen, onClose }) {
   const [workspaceName, setWorkspaceName] = useState('');
-  const { workspaces, setWorkspaces, setActiveWorkspaceId } = useWorkspace();
+  const { workspaces, setWorkspaces, setActiveWorkspaceId, apiFetch } = useWorkspace();
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!workspaceName.trim()) return;
 
-    // Create a new mock workspace
-    const newWorkspace = {
-      id: Date.now().toString(),
-      name: workspaceName.trim()
-    };
+    try {
+      const res = await apiFetch('/api/v1/workspaces', {
+        method: 'POST',
+        body: JSON.stringify({ name: workspaceName.trim(), settings_json: {} })
+      });
 
-    setWorkspaces([...workspaces, newWorkspace]);
-    setActiveWorkspaceId(newWorkspace.id);
-    setWorkspaceName('');
-    onClose();
+      if (res.ok) {
+        const data = await res.json();
+        const newWorkspace = { ...data, id: String(data.id) };
+        setWorkspaces([...workspaces, newWorkspace]);
+        setActiveWorkspaceId(newWorkspace.id);
+        setWorkspaceName('');
+        onClose();
+      } else {
+        console.error('Failed to create workspace');
+      }
+    } catch (err) {
+      console.error('Error creating workspace:', err);
+    }
   };
 
   return (
