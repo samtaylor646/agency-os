@@ -53,3 +53,13 @@ Not limited to our default roster? Build your own.
 ## 4. Next Steps
 
 Now that you understand the basics, try initiating your first project! Start a conversation or upload a document, and watch your Virtual Agency come to life.
+
+## 5. Testing & Verification
+
+If you are a QA tester, stakeholder, or developer performing local verification, a complete suite of testing documentation is available to ensure the platform operates to our standard:
+
+*   **Comprehensive Human Verification:** Refer to `docs/qa/master_human_verification_plan.md` for the overarching User Acceptance Testing (UAT) guidelines.
+*   **Release-Specific Testing:** Review `docs/qa/test_plan_phase_5.md` to verify the latest deployment state, GTM tracking pixels, and required cookie consent barriers.
+*   **General UI/UX Testing:** Follow `docs/qa/manual-test-plan.md` and `docs/qa/manual_visual_qa_checklist.md` for explicit, step-by-step click paths to verify frontend behavior, mobile responsiveness, and visual fidelity.
+
+To run the environment locally for testing, please refer to the `docs/technical/Developer_Onboarding.md` for commands to spin up the Docker containers or Vite/FastAPI servers.
