@@ -1,2 +1,2 @@
-Current Context: Created matching subdirectories (`core`, `operations`, `technical`) in `docs/archive/` to maintain structural organization for archived documents.
+Current Context: Reverted accidental move of active documentation folders. Restored `docs/core`, `docs/operations`, and `docs/technical`. Created matching empty archive directories (`docs/archive/core`, `docs/archive/operations`, `docs/archive/technical`) per true intent.
 Cleaned up docs/qa by moving obsolete docs to docs/archive/qa

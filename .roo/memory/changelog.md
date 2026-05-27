@@ -143,3 +143,7 @@
 - Identified older sprints and point-in-time test plans as candidates for archival to streamline QA document tracking.
 Archived old QA documents
 - Created subdirectories `core`, `operations`, and `technical` in `docs/archive` to maintain category structure for archived documents.
+
+## [2026-05-27] - Documentation Move Reversal
+- **Fixed**: Reverted accidental move of active documentation folders, restoring `docs/core/`, `docs/operations/`, and `docs/technical/`.
+- **Added**: Created matching empty archive directories (`docs/archive/core/`, `docs/archive/operations/`, `docs/archive/technical/`) reflecting true intent.
