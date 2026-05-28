@@ -296,7 +296,7 @@ class DAGOrchestrator:
             kill_switch = None
 
         for level in levels:
-            if kill_switch and kill_switch.is_active(tenant_id):
+            if kill_switch and kill_switch.is_active(tenant_id=tenant_id, workflow_id=self.workflow_id):
                 final_status = "KILLED_BY_SWITCH"
                 self._save_state(tenant_id, final_status)
                 

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026-05-28] - Phase 5 Feedback Loops & Intervention Epic
+- **Completed**: Phase 5 Feedback Loops & Intervention Epic is complete.
+- **Added**: Implemented Mid-Execution Chat for active workflows.
+- **Added**: Integrated HITL (Human-In-The-Loop) Gates to require explicit user validation before advancing critical phase steps.
+- **Added**: Formalized Error Escalation pathways for autonomous workflows.
+- **Completed**: Backend Security Drift remediation executed.
+- **Changed**: Enforced Pydantic V2 schemas across API endpoints.
+- **Fixed**: Implemented strict `X-Tenant-ID` rejection for invalid or missing tenant headers to enforce multi-tenant isolation.
+- **Changed**: Improved LLM Kill-switch precision to allow targeted halt of granular processes without impacting unrelated workflows.
+- **Added**: Architectural notes filed at `docs/technical/phase_5_feedback_loops_and_security_drift.md`.
+
 ## [2026-05-27] - Epic: Custom Agent Remediation (Phase 3 Handoff)
 - **Completed**: Phase 3 (Maintainability & Policy) is complete.
 - **Changed**: Decoupled hardcoded port configurations using `VITE_API_URL` environment variables in `client/vite.config.js` and `deployment/docker-compose.yml`.

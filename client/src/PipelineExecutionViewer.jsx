@@ -82,8 +82,19 @@ export const PipelineExecutionViewer = () => {
         break;
 
       case 'node_failed':
+      case 'node_error':
+        setPipelineState('error');
+        setErrorDetails(data.error || 'Task execution failed.');
         setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'error', logs: [...t.logs, `[ERROR] ${data.error}`] } : t));
         setOverallLogs(prev => [...prev, `[ERROR] Node ${data.node_id} failed: ${data.error}`]);
+        break;
+
+      case 'node_waiting_approval':
+        setPipelineState('waiting_approval');
+        setPauseReason(data.reason || 'Human approval required to proceed.');
+        setActiveTask(data.node_id);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'waiting_approval', logs: [...t.logs, `[SYSTEM] ${data.reason || 'Waiting for human approval...'}`] } : t));
+        setOverallLogs(prev => [...prev, `[SYSTEM] Node ${data.node_id} is waiting for human approval.`]);
         break;
 
       case 'workflow_complete':
@@ -109,11 +120,22 @@ export const PipelineExecutionViewer = () => {
   };
 
   const handleApprove = () => {
-    // Left for backward compatibility/demo purposes if needed
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'human_approval', node_id: activeTask, approved: true }));
+      setPipelineState('running');
+      setOverallLogs(prev => [...prev, `[USER] Approved node ${activeTask}`]);
+      setTasks(prev => prev.map(t => t.id === activeTask ? { ...t, status: 'running', logs: [...t.logs, `[SYSTEM] Human approval granted.`] } : t));
+    }
   };
 
   const handleReject = () => {
-    // Left for backward compatibility/demo purposes if needed
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'human_approval', node_id: activeTask, approved: false }));
+      setPipelineState('error');
+      setErrorDetails('Execution rejected by user.');
+      setOverallLogs(prev => [...prev, `[USER] Rejected node ${activeTask}`]);
+      setTasks(prev => prev.map(t => t.id === activeTask ? { ...t, status: 'error', logs: [...t.logs, `[ERROR] Human approval denied.`] } : t));
+    }
   };
 
   const handleSendChatMessage = (e) => {
@@ -225,11 +247,30 @@ export const PipelineExecutionViewer = () => {
 
           {/* Error Escalation UI */}
           {pipelineState === 'error' && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
-              <XCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
-              <div>
-                <h3 className="font-semibold text-red-800 text-sm md:text-base">Execution Error</h3>
-                <p className="text-red-700 text-xs md:text-sm mt-1">{errorDetails}</p>
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start">
+                <XCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-red-800 text-sm md:text-base">Execution Error</h3>
+                  <p className="text-red-700 text-xs md:text-sm mt-1">{errorDetails}</p>
+                  <p className="text-red-600 text-xs mt-2 italic">Propose a solution or provide context in the Mid-Execution Chat below.</p>
+                </div>
+              </div>
+              <div className="flex space-x-3 w-full md:w-auto">
+                <button 
+                  onClick={() => {
+                    const msg = { type: 'retry_node', node_id: activeTask };
+                    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                      wsRef.current.send(JSON.stringify(msg));
+                      setPipelineState('running');
+                      setOverallLogs(prev => [...prev, `[USER] Requested retry for node ${activeTask}`]);
+                      setTasks(prev => prev.map(t => t.id === activeTask ? { ...t, status: 'running', logs: [...t.logs, `[SYSTEM] Retrying execution...`] } : t));
+                    }
+                  }} 
+                  className="flex-1 md:flex-none px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  Retry Execution
+                </button>
               </div>
             </div>
           )}
@@ -244,6 +285,8 @@ export const PipelineExecutionViewer = () => {
                 className={`flex items-start space-x-3 md:space-x-4 p-3 md:p-4 rounded-xl border transition-all ${
                   task.status === 'running' ? 'border-blue-300 bg-blue-50/50 md:bg-blue-50 shadow-sm' : 
                   task.status === 'completed' ? 'border-green-200 bg-green-50/20 md:bg-green-50/30' : 
+                  task.status === 'error' ? 'border-red-300 bg-red-50/50 shadow-sm' :
+                  task.status === 'waiting_approval' ? 'border-yellow-300 bg-yellow-50/50 shadow-sm' :
                   'border-gray-200 md:border-gray-100 bg-white'
                 }`}
               >
@@ -264,9 +307,11 @@ export const PipelineExecutionViewer = () => {
                       <span className={`text-xs font-medium px-2.5 py-1 rounded-full uppercase ${
                         task.status === 'running' ? 'bg-blue-100 text-blue-700' :
                         task.status === 'completed' ? 'bg-green-100 text-green-700' :
+                        task.status === 'error' ? 'bg-red-100 text-red-700' :
+                        task.status === 'waiting_approval' ? 'bg-yellow-100 text-yellow-700' :
                         'bg-gray-100 text-gray-500'
                       }`}>
-                        {task.status}
+                        {task.status.replace('_', ' ')}
                       </span>
                     </div>
                   </div>

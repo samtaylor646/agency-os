@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from .models import RoleEnum
@@ -222,7 +222,7 @@ class AgentSystemRules(BaseModel):
 
 
 class Identity(BaseModel):
-    model_config = {"extra": "forbid"}
+    model_config = ConfigDict(extra="forbid", strict=True)
     name: str
     role: str
     domain: str = "specialized"
@@ -234,7 +234,7 @@ class Identity(BaseModel):
     intro_paragraph: Optional[str] = ""
 
 class SystemRules(BaseModel):
-    model_config = {"extra": "forbid"}
+    model_config = ConfigDict(extra="forbid", strict=True)
     mission: Optional[str] = ""
     rules: Optional[List[str]] = []
     personality: Optional[str] = ""
@@ -248,7 +248,7 @@ class SystemRules(BaseModel):
     instructions_reference: Optional[str] = ""
 
 class CustomAgentCreate(BaseModel):
-    model_config = {"extra": "forbid"}
+    model_config = ConfigDict(extra="forbid", strict=True)
     identity: Identity
     system_rules: SystemRules
     capabilities: List[str] = []

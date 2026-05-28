@@ -22,32 +22,43 @@ class KillSwitch:
                 logger.error(f"Failed to connect to Redis for Kill Switch: {e}")
         return self._redis_client
 
-    def activate(self, tenant_id: str = "GLOBAL"):
-        """Activate the kill switch for a specific tenant or globally."""
-        key = f"kill_switch_active:{tenant_id}"
+    def activate(self, tenant_id: str = "GLOBAL", workflow_id: str = None):
+        """Activate the kill switch for a specific tenant, workflow, or globally."""
+        if workflow_id:
+            key = f"kill_switch_active:workflow:{workflow_id}"
+            target = f"WORKFLOW {workflow_id}"
+        else:
+            key = f"kill_switch_active:{tenant_id}"
+            target = f"TENANT {tenant_id}"
+            
         try:
             if self.redis:
                 self.redis.set(key, "1")
-                logger.warning(f"KILL SWITCH ACTIVATED FOR: {tenant_id}")
+                logger.warning(f"KILL SWITCH ACTIVATED FOR: {target}")
                 return True
         except Exception as e:
             logger.error(f"Failed to activate kill switch via Redis: {e}")
-            # Fallback could be implemented here
         return False
 
-    def deactivate(self, tenant_id: str = "GLOBAL"):
+    def deactivate(self, tenant_id: str = "GLOBAL", workflow_id: str = None):
         """Deactivate the kill switch."""
-        key = f"kill_switch_active:{tenant_id}"
+        if workflow_id:
+            key = f"kill_switch_active:workflow:{workflow_id}"
+            target = f"WORKFLOW {workflow_id}"
+        else:
+            key = f"kill_switch_active:{tenant_id}"
+            target = f"TENANT {tenant_id}"
+            
         try:
             if self.redis:
                 self.redis.delete(key)
-                logger.info(f"Kill switch deactivated for: {tenant_id}")
+                logger.info(f"Kill switch deactivated for: {target}")
                 return True
         except Exception as e:
             logger.error(f"Failed to deactivate kill switch via Redis: {e}")
         return False
 
-    def is_active(self, tenant_id: str = "GLOBAL") -> bool:
+    def is_active(self, tenant_id: str = "GLOBAL", workflow_id: str = None) -> bool:
         """Check if the kill switch is currently active."""
         try:
             if self.redis:
@@ -55,6 +66,8 @@ class KillSwitch:
                 if self.redis.get("kill_switch_active:GLOBAL") == "1":
                     return True
                 if tenant_id != "GLOBAL" and self.redis.get(f"kill_switch_active:{tenant_id}") == "1":
+                    return True
+                if workflow_id and self.redis.get(f"kill_switch_active:workflow:{workflow_id}") == "1":
                     return True
         except Exception as e:
             logger.error(f"Failed to check kill switch status via Redis: {e}")
