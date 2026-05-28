@@ -1,22 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
 
 from ..database import get_db
 from .. import models, dependencies
 
-router = APIRouter(prefix="/api/v1/workspaces/audit-logs", tags=["audit"])
+router = APIRouter(prefix="/api/v1/audit", tags=["audit"])
 
 class AuditLogOut(BaseModel):
     id: int
     user_id: Optional[int]
     workspace_id: int
     action: str
-    resource: str
-    details: Optional[str]
-    ip_address: Optional[str]
+    resource_type: Optional[str]
+    resource_id: Optional[str]
+    details: Optional[Dict[str, Any]]
     created_at: datetime
 
     class Config:
@@ -49,10 +49,10 @@ def export_audit_logs(
     
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow(["id", "user_id", "workspace_id", "action", "resource", "details", "ip_address", "created_at"])
+    writer.writerow(["id", "user_id", "workspace_id", "action", "resource_type", "resource_id", "details", "created_at"])
     
     for log in logs:
-        writer.writerow([log.id, log.user_id, log.workspace_id, log.action, log.resource, log.details, log.ip_address, log.created_at])
+        writer.writerow([log.id, log.user_id, log.workspace_id, log.action, log.resource_type, log.resource_id, log.details, log.created_at])
         
     response = Response(content=output.getvalue(), media_type="text/csv")
     response.headers["Content-Disposition"] = "attachment; filename=audit_logs_export.csv"

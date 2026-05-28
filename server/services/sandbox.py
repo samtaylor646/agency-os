@@ -18,42 +18,35 @@ class SecureSandbox:
         Executes arbitrary python code in a restricted Docker container.
         Returns a dict with stdout, stderr, and exit_code.
         """
-        # Create a temporary directory to store the script
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script_path = os.path.join(temp_dir, "agent_code.py")
-            with open(script_path, "w") as f:
-                f.write(code_string)
-            
-            cmd = [
-                "docker", "run", "--rm",
-                "--network", "none",
-                "--memory", self.memory_limit,
-                "--cpus", self.cpu_limit,
-                "-v", f"{os.path.abspath(script_path)}:/app/agent_code.py:ro",
-                self.image,
-                "python", "/app/agent_code.py"
-            ]
-            
-            try:
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=self.timeout)
-                return {
-                    "stdout": result.stdout,
-                    "stderr": result.stderr,
-                    "exit_code": result.returncode
-                }
-            except subprocess.TimeoutExpired:
-                return {
-                    "stdout": "",
-                    "stderr": "Execution timed out",
-                    "exit_code": -1
-                }
-            except Exception as e:
-                logger.error(f"Sandbox execution failed: {e}")
-                return {
-                    "stdout": "",
-                    "stderr": str(e),
-                    "exit_code": -2
-                }
+        cmd = [
+            "docker", "run", "--rm", "-i",
+            "--network", "none",
+            "--memory", self.memory_limit,
+            "--cpus", self.cpu_limit,
+            self.image,
+            "python", "-"
+        ]
+        
+        try:
+            result = subprocess.run(cmd, input=code_string, capture_output=True, text=True, timeout=self.timeout)
+            return {
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "exit_code": result.returncode
+            }
+        except subprocess.TimeoutExpired:
+            return {
+                "stdout": "",
+                "stderr": "Execution timed out",
+                "exit_code": -1
+            }
+        except Exception as e:
+            logger.error(f"Sandbox execution failed: {e}")
+            return {
+                "stdout": "",
+                "stderr": str(e),
+                "exit_code": -2
+            }
 
 # Singleton instance
 sandbox_env = SecureSandbox()

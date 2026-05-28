@@ -58,13 +58,13 @@ def create_template(
     db.refresh(template)
     return template
 
-@router.post("/templates/{template_id}/clone", response_model=TemplateOut)
+@router.post("/templates/{id}/clone", response_model=TemplateOut)
 def clone_template(
-    template_id: int,
+    id: int,
     db: Session = Depends(get_db),
     tenant_id: int = Depends(dependencies.get_tenant_context)
 ):
-    template = db.query(models.Template).filter(models.Template.id == template_id).first()
+    template = db.query(models.Template).filter(models.Template.id == id).first()
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
     new_template = models.Template(

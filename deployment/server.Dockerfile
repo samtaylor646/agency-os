@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y git sqlite3 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git sqlite3 docker.io && rm -rf /var/lib/apt/lists/*
 
 COPY server/requirements.txt ./server/
 RUN pip install --no-cache-dir -r ./server/requirements.txt
