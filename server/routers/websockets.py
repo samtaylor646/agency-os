@@ -42,6 +42,24 @@ async def websocket_endpoint(websocket: WebSocket, pod_id: str):
             data = await websocket.receive_text()
             # In MVP, client might not send much back, but we handle it
             logger.debug(f"Received message from client {pod_id}: {data}")
+            try:
+                import json
+                parsed = json.loads(data)
+                if parsed.get("type") == "intervention_received":
+                    workflow_id = parsed.get("workflow_id")
+                    text = parsed.get("text", "")
+                    if workflow_id:
+                        from server.core.state_manager import StateManager
+                        sm = StateManager()
+                        sm.inject_intervention(workflow_id, text)
+                        # Broadcast intervention received
+                        await message_broker.publish(pod_id, {
+                            "type": "intervention_received",
+                            "workflow_id": workflow_id,
+                            "text": text
+                        })
+            except Exception as e:
+                logger.error(f"Failed to parse or handle incoming WS message: {e}")
             
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected for pod: {pod_id}")

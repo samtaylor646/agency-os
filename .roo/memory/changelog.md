@@ -4,7 +4,10 @@
 - **Completed**: Phase 5 Feedback Loops Epic is officially complete.
 - **Added**: Documentation for Architecture, Tech Debt, Risk Assessment, and PRD finalized.
 - **Added**: Formal QA Sign-off for Phase 5 Feedback Loops (`docs/qa/Phase5_Feedback_Loops_QA_Signoff.md`).
-- **Status**: Formally closed out Phase 5 Epic. Next steps are pending roadmap review.
+- **Added**: Implemented new `Paused` and `Awaiting_Approval` states in the execution engine.
+- **Added**: Added WebSocket events for real-time pipeline status updates.
+- **Added**: Built `PipelineExecutionViewer` Mid-Execution Chat UI for human-in-the-loop interventions.
+- **Status**: Formally closed out Phase 5 Epic. Transitioned to Phase 6: Operate & Evolve.
 
 ## [2026-05-29] - Epic: Feedback Loops & Intervention (Phase 5) Kickoff
 - **Added**: Authored `docs/core/Epic_Phase5_Feedback_Loops_PRD.md` defining requirements for Mid-Execution Chat, Mandatory Approval Gates, and Error Escalation.

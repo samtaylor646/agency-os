@@ -22,6 +22,8 @@ try:
     from server.models import AgentExecutionMetric, WorkflowExecution
     from server.schemas import DAGNodeInput, DAGNodeOutput
     from server.services.message_broker import message_broker
+    from server.core.state_manager import StateManager
+    from server.core.validation_middleware import TaskValidationMiddleware
 except ImportError as e:
     print(f"Warning: Could not import server dependencies: {e}")
     set_tenant_context = None
@@ -42,6 +44,18 @@ class TransientNodeError(Exception):
 class TerminalNodeError(Exception):
     """Exception raised for unrecoverable errors."""
     pass
+
+# Initialize services
+try:
+    from server.services.task_router import DefaultTaskRouter
+    from server.services.execution_engine import DefaultExecutionEngine
+    
+    task_router = DefaultTaskRouter()
+    execution_engine = DefaultExecutionEngine()
+except ImportError as e:
+    print(f"Warning: Could not import task_router or execution_engine: {e}")
+    task_router = None
+    execution_engine = None
 
 # A3-1: Implement retry mechanism with exponential backoff
 @retry(
@@ -69,74 +83,37 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
             "agent_name": agent_name
         })
         
-    if TaskValidator and set_tenant_context:
-        set_tenant_context(validated_input.tenant_id)
-        validator = TaskValidator()
-        validator.pre_flight_check(validated_input.task)
-        
-    # Semantic Context Injection (RAG)
     try:
-        from server.services.semantic_search import search_documents
-        if SessionLocal:
-            db_session = SessionLocal()
-            try:
-                rag_results = await search_documents(
-                    db=db_session, 
-                    workspace_id=int(validated_input.tenant_id), 
-                    query=validated_input.task, 
-                    top_k=3
-                )
-                
-                if rag_results:
-                    rag_context = "\n\n---\n\n".join([r['text_content'] for r in rag_results])
-                    validated_input.context_data["Semantic_Knowledge"] = rag_context
-            except Exception as e:
-                print(f"RAG semantic search error: {e}")
-            finally:
-                db_session.close()
-    except ImportError:
-        pass
-
+        validator = TaskValidationMiddleware()
+        validation_result = validator.validate(validated_input.task, validated_input.tenant_id)
+        if not validation_result.is_valid:
+            raise TerminalNodeError(f"Pre-flight validation failed: {validation_result.error_message}")
+    except NameError:
+        pass # Handle if TaskValidationMiddleware not imported
+        
     try:
-        # A2-1: Replace mock execute_node in central_runner.py with actual LLM/agent dispatch logic
-        # Import LLM orchestration layer and pass the context.
-        from server.services.llm_runner import llm_runner
-        
-        # Build context prompt from dependencies
-        context_str = "\n".join([f"{k}: {json.dumps(v)}" for k, v in validated_input.context_data.items()])
-        full_prompt = f"Task: {validated_input.task}\nContext:\n{context_str}"
-        
-        if agent_name == "CodeSandbox":
-            # Offload untrusted code to the secure execution sandbox
-            try:
-                from server.services.sandbox import sandbox_env
-                code_to_run = validated_input.task # Assume task contains the code directly or as part of JSON
-                # Check if task is JSON that contains 'code'
-                try:
-                    task_data = json.loads(validated_input.task)
-                    if isinstance(task_data, dict) and 'code' in task_data:
-                        code_to_run = task_data['code']
-                except json.JSONDecodeError:
-                    pass
-                    
-                sandbox_result = sandbox_env.execute_script(code_to_run)
-                response = f"Sandbox Output:\nStdout: {sandbox_result['stdout']}\nStderr: {sandbox_result['stderr']}\nExit Code: {sandbox_result['exit_code']}"
-                if sandbox_result['exit_code'] != 0:
-                    status = "failed"
-                    error_msg = f"Sandbox execution failed with exit code {sandbox_result['exit_code']}"
-            except Exception as sb_err:
-                raise TerminalNodeError(f"Sandbox execution failed: {sb_err}")
+        if task_router and execution_engine:
+            route_dest = await task_router.evaluate_task({"agent_name": agent_name})
+            
+            step_data = {
+                "task": validated_input.task,
+                "context_data": validated_input.context_data,
+                "tenant_id": validated_input.tenant_id,
+                "execution_type": route_dest.execution_type,
+                "agent_name": route_dest.agent_id
+            }
+            
+            exec_result = await execution_engine.execute_step(node_id, step_data)
+            
+            if not exec_result.success:
+                status = "failed"
+                error_msg = exec_result.error_details
+            
+            result = {"output": exec_result.output, "context_keys": exec_result.context_keys}
+            execution_duration_ms = exec_result.execution_time_ms
         else:
-            # Dispatch to LLM runner
-            try:
-                response = await llm_runner.generate_response(
-                    prompt=full_prompt, 
-                    system_prompt=f"You are acting as the specialized agent: {agent_name}."
-                )
-            except (TimeoutError, ConnectionError) as net_err:
-                raise TransientNodeError(f"Network error during LLM generation: {net_err}")
-        
-        result = {"output": response, "context_keys": list(validated_input.context_data.keys())}
+            raise TerminalNodeError("Services not initialized")
+            
     except TransientNodeError as e:
         raise e # Let tenacity handle it
     except Exception as e:
@@ -144,7 +121,9 @@ async def execute_node_with_retry(node_id: str, agent_name: str, task: str, cont
         error_msg = str(e)
         raise TerminalNodeError(f"Node execution failed permanently: {e}")
 
-    execution_duration_ms = int((time.time() - start_time) * 1000)
+    # execution_duration_ms might be 0 from engine right now, we can calculate it
+    if execution_duration_ms == 0:
+        execution_duration_ms = int((time.time() - start_time) * 1000)
     
     if SessionLocal and AgentExecutionMetric:
         db = SessionLocal()
@@ -189,6 +168,10 @@ class DAGOrchestrator:
         self.incoming_edges = defaultdict(list)  # node_id -> list of parent node_ids
         self.in_degree = defaultdict(int)
         self.state = {} # node_id -> DAGNodeOutput dict
+        try:
+            self.state_manager = StateManager()
+        except NameError:
+            self.state_manager = None
     
     def add_node(self, node_id: str, agent_name: str, task: str, required_inputs: typing.List[str] = None, requires_human_approval: bool = False):
         self.nodes[node_id] = {"agent_name": agent_name, "task": task, "required_inputs": required_inputs or [], "requires_human_approval": requires_human_approval}
@@ -231,57 +214,15 @@ class DAGOrchestrator:
         return levels
 
     def load_state(self):
-        if not SessionLocal or not WorkflowExecution:
-            return
-            
-        db = SessionLocal()
-        try:
-            exec_record = db.query(WorkflowExecution).filter(WorkflowExecution.id == self.workflow_id).first()
-            if exec_record and exec_record.execution_context:
-                self.state = exec_record.execution_context
-        except Exception as e:
-            print(f"Failed to load workflow state: {e}")
-        finally:
-            db.close()
+        if self.state_manager:
+            loaded = self.state_manager.load_state(self.workflow_id)
+            if loaded:
+                self.state = loaded
 
     # A1-2: Implement workflow state saving
     def _save_state(self, tenant_id: str, status: str):
-        if not SessionLocal or not WorkflowExecution:
-            return
-            
-        db = SessionLocal()
-        try:
-            completed_nodes = []
-            failed_nodes = []
-            for node_id, data in self.state.items():
-                if data.get("status") == "success":
-                    completed_nodes.append(node_id)
-                elif data.get("status") in ["failed", "skipped"]:
-                    failed_nodes.append(node_id)
-
-            exec_record = db.query(WorkflowExecution).filter(WorkflowExecution.id == self.workflow_id).first()
-            if not exec_record:
-                exec_record = WorkflowExecution(
-                    id=self.workflow_id,
-                    tenant_id=int(tenant_id),
-                    pipeline_id=self.workflow_name,
-                    status=status,
-                    completed_nodes=completed_nodes,
-                    failed_nodes=failed_nodes,
-                    execution_context=self.state,
-                    retry_counts={}
-                )
-                db.add(exec_record)
-            else:
-                exec_record.status = status
-                exec_record.completed_nodes = completed_nodes
-                exec_record.failed_nodes = failed_nodes
-                exec_record.execution_context = self.state
-            db.commit()
-        except Exception as e:
-            print(f"Failed to save workflow state: {e}")
-        finally:
-            db.close()
+        if self.state_manager:
+            self.state_manager.save_state(self.workflow_id, tenant_id, self.workflow_name, status, self.state)
 
     async def execute_workflow(self, tenant_id: str):
         try:

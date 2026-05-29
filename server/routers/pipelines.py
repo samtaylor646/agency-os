@@ -88,6 +88,47 @@ def post_chat_message(run_id: int, role: str, content: str, db: Session = Depend
     db.commit()
     return {"status": "ok"}
 
+@router.post("/runs/{run_id}/intervene")
+def inject_intervention_to_run(run_id: int, request: ApprovalRequest, db: Session = Depends(get_db)):
+    run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+    if not run:
+        raise HTTPException(status_code=404, detail="Run not found")
+        
+    # If the user sends comments as intervention
+    intervention_text = request.comments or "Approved/Intervened"
+    
+    # Send intervention to state_manager
+    from server.core.state_manager import StateManager
+    sm = StateManager()
+    success = sm.inject_intervention(str(run_id), intervention_text)
+    
+    # Emit intervention_received over message broker (which routes to WS)
+    from server.services.message_broker import message_broker
+    import asyncio
+    
+    if message_broker:
+        try:
+            # Get the tenant ID or use 'GLOBAL' if we don't have it here
+            tenant_id = run.pipeline.workspace_id if hasattr(run.pipeline, 'workspace_id') else 'GLOBAL'
+        except Exception:
+            tenant_id = 'GLOBAL'
+            
+        # Using a background task or event loop to run async function
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(message_broker.publish(str(tenant_id), {
+                "type": "intervention_received",
+                "workflow_id": str(run_id),
+                "text": intervention_text
+            }))
+        except RuntimeError:
+            pass # No running event loop
+            
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to inject intervention")
+        
+    return {"status": "intervention_injected"}
+
 @router.websocket("/runs/{run_id}/ws")
 async def websocket_chat(websocket: WebSocket, run_id: int, db: Session = Depends(get_db)):
     await websocket.accept()

@@ -19,7 +19,7 @@ from . import models, schemas, auth, dependencies
 from .database import engine, get_db
 from .routers import workspaces, credentials, api_keys, webhooks, rbac, analytics, marketplace, audit, chat, documents, custom_agents, pipelines, projects, websockets, sandbox
 from .context import set_tenant_id, get_tenant_id
-from scripts.central_runner import DAGOrchestrator
+from server.services.orchestrator_service import DAGOrchestrator
 
 from sqlalchemy import text
 

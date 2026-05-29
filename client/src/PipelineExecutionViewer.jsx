@@ -111,7 +111,9 @@ export const PipelineExecutionViewer = () => {
         break;
 
       case 'pipeline_paused':
+        setPipelineState('paused');
         setOverallLogs(prev => [...prev, `[SYSTEM] Pipeline paused: ${data.reason || 'No reason provided.'}`]);
+        if (data.node_id) setActiveTask(data.node_id);
         break;
 
       case 'workflow_complete':
@@ -136,31 +138,43 @@ export const PipelineExecutionViewer = () => {
     }
   };
 
-  const handleApprove = () => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && activeTask && activeWorkflowId) {
-      wsRef.current.send(JSON.stringify({
-        type: 'intervention',
-        action: 'approve_and_continue',
-        node_id: activeTask,
-        workflow_id: activeWorkflowId
-      }));
-      setOverallLogs(prev => [...prev, `[USER] Approved node ${activeTask}`]);
+  const handleApprove = async () => {
+    if (activeTask && activeWorkflowId) {
+      try {
+        await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/intervene`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'approve',
+            comments: 'Approved by user'
+          })
+        });
+        setOverallLogs(prev => [...prev, `[USER] Approved node ${activeTask}`]);
+      } catch (e) {
+        setOverallLogs(prev => [...prev, `[ERROR] Failed to send approval: ${e.toString()}`]);
+      }
     }
   };
 
-  const handleReject = () => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && activeTask && activeWorkflowId) {
-      wsRef.current.send(JSON.stringify({
-        type: 'intervention',
-        action: 'reject',
-        node_id: activeTask,
-        workflow_id: activeWorkflowId
-      }));
-      setOverallLogs(prev => [...prev, `[USER] Rejected node ${activeTask}`]);
+  const handleReject = async () => {
+    if (activeTask && activeWorkflowId) {
+      try {
+        await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/intervene`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'reject',
+            comments: 'Rejected by user'
+          })
+        });
+        setOverallLogs(prev => [...prev, `[USER] Rejected node ${activeTask}`]);
+      } catch (e) {
+        setOverallLogs(prev => [...prev, `[ERROR] Failed to send rejection: ${e.toString()}`]);
+      }
     }
   };
 
-  const handleSendChatMessage = (e) => {
+  const handleSendChatMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
     
@@ -168,18 +182,23 @@ export const PipelineExecutionViewer = () => {
     setChatMessages(prev => [...prev, newMsg]);
     setOverallLogs(prev => [...prev, `[USER CHAT] ${chatInput}`]);
     
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        if (pipelineState === 'error_escalation' || pipelineState === 'running' || pipelineState === 'waiting_approval') {
-          wsRef.current.send(JSON.stringify({ 
-            type: 'intervention', 
-            action: 'intervene',
-            node_id: activeTask,
-            workflow_id: activeWorkflowId,
-            payload: { user_prompt: chatInput }
-          }));
-        } else {
-          wsRef.current.send(JSON.stringify({ type: 'user_message', text: chatInput }));
-        }
+    const isInterventionState = pipelineState === 'error_escalation' || pipelineState === 'waiting_approval' || pipelineState === 'paused';
+    
+    if (isInterventionState && activeTask && activeWorkflowId) {
+      try {
+        await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/intervene`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'approve',
+            comments: chatInput
+          })
+        });
+      } catch (error) {
+        setOverallLogs(prev => [...prev, `[ERROR] Failed to send intervention: ${error.toString()}`]);
+      }
+    } else if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'user_message', text: chatInput }));
     }
     
     setChatInput('');

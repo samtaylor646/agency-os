@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from server.agent_parser import AgentParser
-from scripts.central_runner import DAGOrchestrator
+from server.services.orchestrator_service import DAGOrchestrator
 
 @pytest.fixture
 def dummy_agent_dir(tmp_path):
