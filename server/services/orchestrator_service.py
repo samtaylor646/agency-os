@@ -416,3 +416,40 @@ class DAGOrchestrator:
             })
             
         return {"status": final_status, "results": results}
+
+    def get_downstream_nodes(self, target_node_id: str) -> list:
+        downstream = set()
+        queue = [target_node_id]
+        while queue:
+            current = queue.pop(0)
+            for child in self.edges.get(current, []):
+                if child not in downstream:
+                    downstream.add(child)
+                    queue.append(child)
+        return list(downstream)
+
+    async def handle_rollback_request(self, tenant_id: str, node_id: str):
+        # Pause pipeline handled implicitly by saving state as PAUSED
+        downstream_nodes = self.get_downstream_nodes(node_id)
+        nodes_to_reset = downstream_nodes + [node_id]
+        
+        self.load_state()
+        
+        for n in nodes_to_reset:
+            if n in self.state:
+                self.state[n]["status"] = "pending"
+                if "result" in self.state[n]:
+                    del self.state[n]["result"]
+                if "error" in self.state[n]:
+                    del self.state[n]["error"]
+
+        if self.state_manager:
+            self.state_manager.rollback_nodes(self.workflow_id, tenant_id, self.workflow_name, nodes_to_reset)
+            
+        if message_broker:
+            await message_broker.publish(str(tenant_id), {
+                "type": "ROLLBACK_COMPLETED",
+                "workflow_id": self.workflow_id,
+                "node_id": node_id,
+                "state": self.state
+            })

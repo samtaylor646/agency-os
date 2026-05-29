@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026-05-29] - Epic: Phase 6 Template Library & Dynamic API Routing Completed
+- **Completed**: Phase 6 Epic is officially complete and QA signed off.
+- **Added**: Implemented Template Library features, dynamic API routing (OpenAI/Anthropic/Gemini), and Rollback mechanisms.
+- **Status**: Formally closed out Phase 6.
+
 ## [2026-05-29] - Epic: Feedback Loops & Intervention (Phase 5) Completed
 - **Completed**: Phase 5 Feedback Loops Epic is officially complete.
 - **Added**: Documentation for Architecture, Tech Debt, Risk Assessment, and PRD finalized.

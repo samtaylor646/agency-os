@@ -204,6 +204,34 @@ export const PipelineExecutionViewer = () => {
     setChatInput('');
   };
 
+  const handleRollback = async (nodeId) => {
+    if (!activeWorkflowId) return;
+    try {
+      await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/rollback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ node_id: nodeId })
+      });
+      setOverallLogs(prev => [...prev, `[SYSTEM] Rolling back to node ${nodeId}...`]);
+    } catch (e) {
+      setOverallLogs(prev => [...prev, `[ERROR] Failed to rollback: ${e.toString()}`]);
+    }
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!activeWorkflowId) return;
+    try {
+      await apiFetch(`/api/v1/templates/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workflow_id: activeWorkflowId })
+      });
+      setOverallLogs(prev => [...prev, `[SYSTEM] Workflow saved as template successfully.`]);
+    } catch (e) {
+      setOverallLogs(prev => [...prev, `[ERROR] Failed to save template: ${e.toString()}`]);
+    }
+  };
+
   const startPipeline = async () => {
     if (!currentWorkspace) return;
     
@@ -248,6 +276,7 @@ export const PipelineExecutionViewer = () => {
   };
 
   const activeTaskData = tasks.find(t => t.id === activeTask) || tasks.find(t => t.status === 'error') || tasks[tasks.length - 1];
+  const canRollback = pipelineState === 'paused' || pipelineState === 'error' || pipelineState === 'error_escalation' || pipelineState === 'waiting_approval';
 
   return (
     <div className="flex flex-col h-full space-y-4 md:space-y-6">
@@ -260,21 +289,30 @@ export const PipelineExecutionViewer = () => {
             </h2>
             <p className="text-gray-600 text-xs md:text-sm mt-1">Monitor real-time task orchestration and agent execution.</p>
           </div>
-          <button 
-            onClick={startPipeline}
-            disabled={pipelineState === 'running'}
-            className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm md:text-base font-medium transition-colors w-full sm:w-auto shrink-0 uppercase tracking-wider md:tracking-normal md:normal-case ${
-              pipelineState === 'running' 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 md:border-transparent' 
-                : 'bg-blue-600 md:bg-blue-600 text-white hover:bg-blue-700 md:hover:bg-blue-700'
-            }`}
-          >
-            {pipelineState === 'running' ? (
-              <><Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" /> Running...</>
-            ) : (
-              <><Play className="w-4 h-4 md:w-5 md:h-5 mr-2" /> Start Pipeline</>
-            )}
-          </button>
+          <div className="flex space-x-2">
+            <button 
+              onClick={handleSaveAsTemplate}
+              disabled={!activeWorkflowId}
+              className="flex items-center justify-center px-4 py-2 rounded-xl text-sm md:text-base font-medium transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider md:tracking-normal md:normal-case"
+            >
+              <FileText className="w-4 h-4 md:w-5 md:h-5 mr-2" /> Save as Template
+            </button>
+            <button 
+              onClick={startPipeline}
+              disabled={pipelineState === 'running'}
+              className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm md:text-base font-medium transition-colors w-full sm:w-auto shrink-0 uppercase tracking-wider md:tracking-normal md:normal-case ${
+                pipelineState === 'running' 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 md:border-transparent' 
+                  : 'bg-blue-600 md:bg-blue-600 text-white hover:bg-blue-700 md:hover:bg-blue-700'
+              }`}
+            >
+              {pipelineState === 'running' ? (
+                <><Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" /> Running...</>
+              ) : (
+                <><Play className="w-4 h-4 md:w-5 md:h-5 mr-2" /> Start Pipeline</>
+              )}
+            </button>
+          </div>
         </div>
 
           {/* Approval Gate UI */}
@@ -359,6 +397,14 @@ export const PipelineExecutionViewer = () => {
                       }`}>
                         {task.status}
                       </span>
+                      {canRollback && (
+                        <button 
+                          onClick={() => handleRollback(task.id)}
+                          className="ml-2 text-xs font-medium px-2 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md transition-colors"
+                        >
+                          Rollback Here
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

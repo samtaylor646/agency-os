@@ -4,17 +4,99 @@ import json
 from typing import Dict, Any, Optional, List
 from abc import ABC, abstractmethod
 
-class BaseLLMProvider(ABC):
+class LLMProviderStrategy(ABC):
     @abstractmethod
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
+    async def generate_response(self, messages: list, credentials: dict, model: str, **kwargs) -> str:
         pass
 
-class OpenAIProvider(BaseLLMProvider):
-    def __init__(self, api_key: str):
+class OpenAIStrategy(LLMProviderStrategy):
+    async def generate_response(self, messages: list, credentials: dict, model: str, **kwargs) -> str:
         import openai
-        self.client = openai.AsyncClient(api_key=api_key)
-        self.model = os.getenv("OPENAI_MODEL", "gpt-4o")
+        api_key = credentials.get("api_key")
+        client = openai.AsyncClient(api_key=api_key)
+        
+        response = await client.chat.completions.create(
+            model=model,
+            messages=messages,
+            **kwargs
+        )
+        return response.choices[0].message.content
 
+class AnthropicStrategy(LLMProviderStrategy):
+    async def generate_response(self, messages: list, credentials: dict, model: str, **kwargs) -> str:
+        import anthropic
+        api_key = credentials.get("api_key")
+        client = anthropic.AsyncAnthropic(api_key=api_key)
+        
+        # Anthropic expects 'system' out of messages
+        system_prompt = next((m["content"] for m in messages if m["role"] == "system"), None)
+        filtered_messages = [m for m in messages if m["role"] != "system"]
+        
+        call_kwargs = {
+            "model": model,
+            "max_tokens": kwargs.get("max_tokens", 4096),
+            "messages": filtered_messages
+        }
+        if system_prompt:
+            call_kwargs["system"] = system_prompt
+            
+        response = await client.messages.create(**call_kwargs)
+        return response.content[0].text
+
+class GeminiStrategy(LLMProviderStrategy):
+    async def generate_response(self, messages: list, credentials: dict, model: str, **kwargs) -> str:
+        import google.generativeai as genai
+        api_key = credentials.get("api_key")
+        genai.configure(api_key=api_key)
+        
+        gemini_model = genai.GenerativeModel(model)
+        
+        # Convert messages to Gemini format
+        history = []
+        for m in messages:
+            role = "user" if m["role"] in ["user", "system"] else "model"
+            history.append({"role": role, "parts": [m["content"]]})
+            
+        # Simplistic approach for Gemini
+        response = gemini_model.generate_content(history)
+        return response.text
+
+class MockStrategy(LLMProviderStrategy):
+    async def generate_response(self, messages: list, credentials: dict, model: str, **kwargs) -> str:
+        await asyncio.sleep(0.5)
+        prompt = messages[-1]["content"] if messages else ""
+        return f"Mock response from {model}. Prompt: {prompt[:50]}..."
+
+
+class LLMRunner:
+    """
+    LLM Runner service integrating Strategy pattern for multiple providers.
+    """
+    def __init__(self):
+        self.strategies = {
+            "openai": OpenAIStrategy(),
+            "anthropic": AnthropicStrategy(),
+            "gemini": GeminiStrategy(),
+            "mock": MockStrategy()
+        }
+        self.default_provider = os.getenv("LLM_PROVIDER_TYPE", "mock").lower()
+
+    async def handle_fallback(self, provider: str, messages: list, credentials: dict, model: str, **kwargs) -> str:
+        print(f"LLM Provider Error ({provider}). Falling back to mock.")
+        strategy = self.strategies.get("mock")
+        return await strategy.generate_response(messages, credentials, "mock-fallback-model", **kwargs)
+
+    async def execute(self, provider: str, messages: list, credentials: dict, model: str, **kwargs) -> str:
+        strategy = self.strategies.get(provider.lower())
+        if not strategy:
+            raise ValueError(f"Unsupported provider: {provider}")
+        
+        try:
+            return await strategy.generate_response(messages, credentials, model, **kwargs)
+        except Exception as e:
+            return await self.handle_fallback(provider, messages, credentials, model, **kwargs)
+
+    # Legacy wrapper for backwards compatibility
     async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
         messages = []
         if system_prompt:
@@ -26,68 +108,19 @@ class OpenAIProvider(BaseLLMProvider):
             
         messages.append({"role": "user", "content": prompt})
         
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=messages
-        )
-        return response.choices[0].message.content
-
-class AnthropicProvider(BaseLLMProvider):
-    def __init__(self, api_key: str):
-        import anthropic
-        self.client = anthropic.AsyncAnthropic(api_key=api_key)
-        self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
-
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
-        if human_interventions:
-            intervention_text = "\n\n--- HUMAN INTERVENTION / FEEDBACK ---\n" + "\n".join(f"- {i}" for i in human_interventions) + "\n-------------------------------------\nPlease adjust your response to incorporate the above feedback."
-            prompt += intervention_text
+        provider = self.default_provider
+        
+        # Try to pull creds from env for legacy calls
+        credentials = {}
+        model = "mock-model"
+        if provider == "openai":
+            credentials["api_key"] = os.getenv("OPENAI_API_KEY")
+            model = os.getenv("OPENAI_MODEL", "gpt-4o")
+        elif provider == "anthropic":
+            credentials["api_key"] = os.getenv("ANTHROPIC_API_KEY")
+            model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
             
-        kwargs = {
-            "model": self.model,
-            "max_tokens": 4096,
-            "messages": [{"role": "user", "content": prompt}]
-        }
-        if system_prompt:
-            kwargs["system"] = system_prompt
-            
-        response = await self.client.messages.create(**kwargs)
-        return response.content[0].text
-
-class MockProvider(BaseLLMProvider):
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
-        await asyncio.sleep(0.5)
-        if human_interventions:
-            prompt += f" (with {len(human_interventions)} interventions)"
-        return f"Mock response. Prompt: {prompt[:50]}..."
-
-class LLMRunner:
-    """
-    LLM Runner service integrating real provider classes.
-    """
-    def __init__(self, provider: str = "mock"):
-        self.provider_name = provider
-        self.provider = self._init_provider(provider)
-
-    def _init_provider(self, provider_name: str) -> BaseLLMProvider:
-        if provider_name == "openai":
-            api_key = os.getenv("OPENAI_API_KEY")
-            if api_key:
-                return OpenAIProvider(api_key=api_key)
-        elif provider_name == "anthropic":
-            api_key = os.getenv("ANTHROPIC_API_KEY")
-            if api_key:
-                return AnthropicProvider(api_key=api_key)
-        return MockProvider()
-
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
-        try:
-            return await self.provider.generate_response(prompt, system_prompt, human_interventions)
-        except Exception as e:
-            # Fallback to mock on error for robustness during testing
-            print(f"LLM Provider Error ({self.provider_name}): {e}. Falling back to mock.")
-            mock = MockProvider()
-            return await mock.generate_response(prompt, system_prompt, human_interventions)
+        return await self.execute(provider, messages, credentials, model)
 
     async def generate_document(self, doc_type: str, context: Dict[str, Any]) -> str:
         prompt = f"Generate a {doc_type} based on this context: {json.dumps(context)}"
@@ -101,7 +134,6 @@ class LLMRunner:
         try:
             return json.loads(response_text)
         except:
-            # Fallback mock heuristic
             return {
                 "name": "Parsed Project",
                 "description": message,
@@ -136,6 +168,4 @@ class LLMRunner:
                 "raw_message": f"Ingested from file: {filename}"
             }
 
-# Singleton instance for easy import
-provider_type = os.getenv("LLM_PROVIDER_TYPE", "mock").lower()
-llm_runner = LLMRunner(provider=provider_type)
+llm_runner = LLMRunner()

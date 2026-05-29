@@ -24,9 +24,13 @@ from server.services.orchestrator_service import DAGOrchestrator
 from sqlalchemy import text
 
 # For development MVP, create tables automatically
-with engine.connect() as conn:
-    conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
-    conn.commit()
+if "sqlite" not in str(engine.url):
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+            conn.commit()
+    except Exception as e:
+        print(f"Failed to create vector extension: {e}")
 
 models.Base.metadata.create_all(bind=engine)
 

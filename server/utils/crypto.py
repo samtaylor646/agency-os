@@ -10,11 +10,11 @@ class CryptoService:
         If not provided, it attempts to load from AGENCY_OS_KEK env var.
         The KEK should be a base64 encoded 32-byte (256-bit) key.
         """
-        kek_env = os.environ.get('AGENCY_OS_KEK')
+        kek_env = os.environ.get('AGENCY_OS_KEK') or os.environ.get('ENCRYPTION_KEY')
         kek_str = kek_base64 or kek_env
         
         if not kek_str:
-            raise ValueError("KEK is not provided and AGENCY_OS_KEK environment variable is missing.")
+            raise ValueError("KEK is not provided and AGENCY_OS_KEK / ENCRYPTION_KEY environment variable is missing.")
             
         try:
             self.kek = base64.b64decode(kek_str)

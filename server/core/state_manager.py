@@ -123,3 +123,41 @@ class StateManager(StateManagerBase):
             return False
         finally:
             db.close()
+
+    def rollback_nodes(self, workflow_id: str, tenant_id: str, workflow_name: str, nodes_to_reset: list) -> bool:
+        if not SessionLocal or not WorkflowExecution:
+            return False
+            
+        db = SessionLocal()
+        try:
+            exec_record = db.query(WorkflowExecution).filter(WorkflowExecution.id == workflow_id).first()
+            if not exec_record:
+                return False
+                
+            state = exec_record.execution_context or {}
+            completed_nodes = exec_record.completed_nodes or []
+            failed_nodes = exec_record.failed_nodes or []
+            
+            for node_id in nodes_to_reset:
+                if node_id in state:
+                    state[node_id]["status"] = "pending"
+                    if "result" in state[node_id]:
+                        del state[node_id]["result"]
+                    if "error" in state[node_id]:
+                        del state[node_id]["error"]
+                if node_id in completed_nodes:
+                    completed_nodes.remove(node_id)
+                if node_id in failed_nodes:
+                    failed_nodes.remove(node_id)
+
+            exec_record.execution_context = state
+            exec_record.completed_nodes = completed_nodes
+            exec_record.failed_nodes = failed_nodes
+            exec_record.status = "PAUSED"
+            db.commit()
+            return True
+        except Exception as e:
+            print(f"Failed to rollback state: {e}")
+            return False
+        finally:
+            db.close()
