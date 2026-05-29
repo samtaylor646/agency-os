@@ -7,6 +7,7 @@ AgencyOS is an enterprise-grade multi-agent orchestration platform designed to r
 
 * **Frontend Client (Vite/React/Tailwind):** A single-page application providing the unified workspace interface, real-time agent memory inspection, pod chat containers, and RBAC management.
 * **API Server (FastAPI/Python):** The central orchestration layer handling user authentication, agent configurations, pipeline execution (DAGs), and real-time WebSocket communication.
+* **NEXUS Pipeline (Central Orchestration Engine):** The absolute core routing and execution backbone of AgencyOS. NEXUS manages the lifecycle of multi-agent DAGs, resolving dependencies, allocating tasks to specialized agents (e.g., from the `/agents` directory), and integrating Model Context Protocol (MCP) skills seamlessly into the execution flow.
 * **Agent Sandbox / Execution Engine:** Isolated Docker/containerized environments where LLM-powered agents execute arbitrary code safely. Features a hardware kill switch and resource limitations.
 * **Message Broker (Redis/RabbitMQ):** Facilitates asynchronous communication between the API server and agent runners. Enables event-driven updates to the client (e.g., streaming logs).
 * **Semantic Search & RAG Service:** Integrates with a vector database (e.g., Pinecone/Milvus) for agent memory retrieval, document parsing, and contextual context injection.
