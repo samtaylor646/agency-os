@@ -1,5 +1,9 @@
 # Changelog
 
+## [2026-05-29] - Epic: Feedback Loops & Intervention (Phase 5) Kickoff
+- **Added**: Authored `docs/core/Epic_Phase5_Feedback_Loops_PRD.md` defining requirements for Mid-Execution Chat, Mandatory Approval Gates, and Error Escalation.
+- **Status**: Initiated new epic based on `docs/core/Roadmap.md` Phase 5 goals. Ready for engineering kickoff.
+
 ## [2026-05-27] - Epic: Custom Agent Remediation (Phase 3 Handoff)
 - **Completed**: Phase 3 (Maintainability & Policy) is complete.
 - **Changed**: Decoupled hardcoded port configurations using `VITE_API_URL` environment variables in `client/vite.config.js` and `deployment/docker-compose.yml`.

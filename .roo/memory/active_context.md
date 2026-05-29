@@ -1,19 +1,18 @@
 # Active Context
 
 ## Current Objective
-Epic: Custom Agent Remediation - Phase 2 complete.
-- Validated and human-approved Data Adapter & Strict Schema Enforcement.
-- Fixed 401 Unauthorized errors during custom agent creation by configuring Vite's API proxy fallback to `http://localhost:8000`.
-- Verified strict backend schema rejection of flat payloads (returns 422).
-- Proved atomic transaction rollback mechanism in `server/routers/custom_agents.py`.
+Epic: Feedback Loops & Intervention (Phase 5) Kickoff.
+- Created `Epic_Phase5_Feedback_Loops_PRD.md` outlining the requirements for Mid-Execution Chat, Approval Gates, and Error Escalation Routing.
+- Ready to branch and begin technical architecture implementation.
 
 ## Next Steps
-- Epic is fully complete and ready for final review or closure.
+- Engineer the `central_runner.py` pauses and WebSockets for the UI.
+- Update UI `PipelineExecutionViewer` to support Mid-Execution intervention.
 
 ## Active Epic
-Custom Agent Remediation
+Feedback Loops & Intervention (Phase 5)
 
 ## State
-- Phase 1 (Security Hotfixes) complete.
-- Phase 2 (Data Integrity & Schema Mapping) complete and QA verified.
-- Phase 3 (Maintainability & Policy) complete. Updated Vite and Docker configs to use `VITE_API_URL` instead of hardcoded ports, and drafted the Data Governance Policy for GDPR compliance.
+- Custom Agent Remediation complete.
+- Launch & Growth Phase 5 (Sprint 5.1-5.3) complete.
+- Feedback Loops Epic just initiated.
