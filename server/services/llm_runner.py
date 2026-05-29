@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 
 class BaseLLMProvider(ABC):
     @abstractmethod
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
         pass
 
 class OpenAIProvider(BaseLLMProvider):
@@ -15,10 +15,15 @@ class OpenAIProvider(BaseLLMProvider):
         self.client = openai.AsyncClient(api_key=api_key)
         self.model = os.getenv("OPENAI_MODEL", "gpt-4o")
 
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
+            
+        if human_interventions:
+            intervention_text = "\n\n--- HUMAN INTERVENTION / FEEDBACK ---\n" + "\n".join(f"- {i}" for i in human_interventions) + "\n-------------------------------------\nPlease adjust your response to incorporate the above feedback."
+            prompt += intervention_text
+            
         messages.append({"role": "user", "content": prompt})
         
         response = await self.client.chat.completions.create(
@@ -33,7 +38,11 @@ class AnthropicProvider(BaseLLMProvider):
         self.client = anthropic.AsyncAnthropic(api_key=api_key)
         self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
 
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
+        if human_interventions:
+            intervention_text = "\n\n--- HUMAN INTERVENTION / FEEDBACK ---\n" + "\n".join(f"- {i}" for i in human_interventions) + "\n-------------------------------------\nPlease adjust your response to incorporate the above feedback."
+            prompt += intervention_text
+            
         kwargs = {
             "model": self.model,
             "max_tokens": 4096,
@@ -46,8 +55,10 @@ class AnthropicProvider(BaseLLMProvider):
         return response.content[0].text
 
 class MockProvider(BaseLLMProvider):
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
         await asyncio.sleep(0.5)
+        if human_interventions:
+            prompt += f" (with {len(human_interventions)} interventions)"
         return f"Mock response. Prompt: {prompt[:50]}..."
 
 class LLMRunner:
@@ -69,14 +80,14 @@ class LLMRunner:
                 return AnthropicProvider(api_key=api_key)
         return MockProvider()
 
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, human_interventions: Optional[List[str]] = None) -> str:
         try:
-            return await self.provider.generate_response(prompt, system_prompt)
+            return await self.provider.generate_response(prompt, system_prompt, human_interventions)
         except Exception as e:
             # Fallback to mock on error for robustness during testing
             print(f"LLM Provider Error ({self.provider_name}): {e}. Falling back to mock.")
             mock = MockProvider()
-            return await mock.generate_response(prompt, system_prompt)
+            return await mock.generate_response(prompt, system_prompt, human_interventions)
 
     async def generate_document(self, doc_type: str, context: Dict[str, Any]) -> str:
         prompt = f"Generate a {doc_type} based on this context: {json.dumps(context)}"

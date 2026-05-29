@@ -100,6 +100,7 @@ class DAGNodeInput(BaseModel):
     task: str
     context_data: Dict[str, Any] = {}
     tenant_id: str
+    requires_human_approval: bool = False
 
 class DAGNodeOutput(BaseModel):
     node_id: str

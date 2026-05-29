@@ -4,7 +4,8 @@ import { useWorkspace } from './WorkspaceContext';
 
 export const PipelineExecutionViewer = () => {
   const { currentWorkspace, apiFetch } = useWorkspace();
-  const [pipelineState, setPipelineState] = useState('idle'); // idle, running, completed, error, waiting_approval
+  const [pipelineState, setPipelineState] = useState('idle'); // idle, running, completed, error, waiting_approval, error_escalation
+  const [activeWorkflowId, setActiveWorkflowId] = useState(null);
   const [pauseReason, setPauseReason] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
@@ -56,6 +57,7 @@ export const PipelineExecutionViewer = () => {
     switch(data.type) {
       case 'workflow_start':
         setPipelineState('running');
+        setActiveWorkflowId(data.workflow_id || 'test_workflow_id');
         setOverallLogs(prev => [...prev, `[SYSTEM] Workflow started: ${data.workflow_name}`]);
         // Initialize tasks from data.nodes if available
         if (data.nodes) {
@@ -86,6 +88,32 @@ export const PipelineExecutionViewer = () => {
         setOverallLogs(prev => [...prev, `[ERROR] Node ${data.node_id} failed: ${data.error}`]);
         break;
 
+      case 'awaiting_approval':
+        setPipelineState('waiting_approval');
+        setActiveTask(data.node_id);
+        setPauseReason(data.reason || 'Approval required to proceed');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Pipeline paused. Node ${data.node_id} is awaiting approval.`]);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'waiting_approval', logs: [...t.logs, `[SYSTEM] Awaiting human approval.`] } : t));
+        break;
+
+      case 'error_escalation':
+        setPipelineState('error_escalation');
+        setActiveTask(data.node_id);
+        setErrorDetails(data.error || 'Agent failed and requires human intervention to continue.');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Pipeline paused due to error in Node ${data.node_id}. Escalation required.`]);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'error_escalation', logs: [...t.logs, `[ERROR] Escalated to user: ${data.error}`] } : t));
+        break;
+
+      case 'intervention_acknowledged':
+        setPipelineState('running');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Intervention acknowledged. Resuming execution...`]);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'running', logs: [...t.logs, `[SYSTEM] Resuming with new instructions.`] } : t));
+        break;
+
+      case 'pipeline_paused':
+        setOverallLogs(prev => [...prev, `[SYSTEM] Pipeline paused: ${data.reason || 'No reason provided.'}`]);
+        break;
+
       case 'workflow_complete':
         setPipelineState('completed');
         setActiveTask(null);
@@ -109,11 +137,27 @@ export const PipelineExecutionViewer = () => {
   };
 
   const handleApprove = () => {
-    // Left for backward compatibility/demo purposes if needed
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && activeTask && activeWorkflowId) {
+      wsRef.current.send(JSON.stringify({
+        type: 'intervention',
+        action: 'approve_and_continue',
+        node_id: activeTask,
+        workflow_id: activeWorkflowId
+      }));
+      setOverallLogs(prev => [...prev, `[USER] Approved node ${activeTask}`]);
+    }
   };
 
   const handleReject = () => {
-    // Left for backward compatibility/demo purposes if needed
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && activeTask && activeWorkflowId) {
+      wsRef.current.send(JSON.stringify({
+        type: 'intervention',
+        action: 'reject',
+        node_id: activeTask,
+        workflow_id: activeWorkflowId
+      }));
+      setOverallLogs(prev => [...prev, `[USER] Rejected node ${activeTask}`]);
+    }
   };
 
   const handleSendChatMessage = (e) => {
@@ -125,7 +169,17 @@ export const PipelineExecutionViewer = () => {
     setOverallLogs(prev => [...prev, `[USER CHAT] ${chatInput}`]);
     
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: 'user_message', text: chatInput }));
+        if (pipelineState === 'error_escalation' || pipelineState === 'running' || pipelineState === 'waiting_approval') {
+          wsRef.current.send(JSON.stringify({ 
+            type: 'intervention', 
+            action: 'intervene',
+            node_id: activeTask,
+            workflow_id: activeWorkflowId,
+            payload: { user_prompt: chatInput }
+          }));
+        } else {
+          wsRef.current.send(JSON.stringify({ type: 'user_message', text: chatInput }));
+        }
     }
     
     setChatInput('');
@@ -168,6 +222,8 @@ export const PipelineExecutionViewer = () => {
       case 'completed': return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'running': return <Clock className="w-5 h-5 text-blue-500 animate-spin" />;
       case 'error': return <XCircle className="w-5 h-5 text-red-500" />;
+      case 'error_escalation': return <AlertCircle className="w-5 h-5 text-red-600" />;
+      case 'waiting_approval': return <AlertCircle className="w-5 h-5 text-yellow-500" />;
       default: return <Clock className="w-5 h-5 text-gray-300" />;
     }
   };
@@ -224,6 +280,22 @@ export const PipelineExecutionViewer = () => {
           )}
 
           {/* Error Escalation UI */}
+          {pipelineState === 'error_escalation' && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start">
+                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-red-800 text-sm md:text-base">Intervention Required</h3>
+                  <p className="text-red-700 text-xs md:text-sm mt-1">{errorDetails}</p>
+                </div>
+              </div>
+              <div className="flex space-x-3 w-full md:w-auto">
+                 <div className="text-xs text-red-600 font-medium my-auto mr-2">Use chat below to intervene</div>
+              </div>
+            </div>
+          )}
+
+          {/* Standard Error UI */}
           {pipelineState === 'error' && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
               <XCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
@@ -354,16 +426,17 @@ export const PipelineExecutionViewer = () => {
               </div>
               <form onSubmit={handleSendChatMessage} className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
                 <input
+                  id="chat-input-field"
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder={pipelineState === 'idle' || pipelineState === 'completed' ? "Pipeline not active" : "Message active agent..."}
-                  disabled={pipelineState === 'idle' || pipelineState === 'completed'}
+                  placeholder={pipelineState === 'idle' || pipelineState === 'completed' || pipelineState === 'error' ? "Pipeline not active" : "Message active agent..."}
+                  disabled={pipelineState === 'idle' || pipelineState === 'completed' || pipelineState === 'error'}
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
                 />
                 <button
                   type="submit"
-                  disabled={pipelineState === 'idle' || pipelineState === 'completed' || !chatInput.trim()}
+                  disabled={pipelineState === 'idle' || pipelineState === 'completed' || pipelineState === 'error' || !chatInput.trim()}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Send
