@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Enum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Enum, Boolean
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -197,14 +197,16 @@ class AgentExecutionMetric(Base):
 
 class Template(Base):
     __tablename__ = "templates"
-    
+
     id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True) # Null if system template
     name = Column(String(255), nullable=False)
-    description = Column(String(255), nullable=True)
-    template_type = Column(String(255), nullable=False) # e.g. "agent", "workflow"
-    content = Column(JSON, nullable=False)
-    version = Column(String(255), nullable=False, default="1.0.0")
-    tenant_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)
+    description = Column(String, nullable=True)
+    dag_configuration = Column(JSON, nullable=False) # Serialized DAG matrix, node definitions, and routing
+    agent_definitions = Column(JSON, nullable=False) # Embedded custom agents/prompts
+    required_api_capabilities = Column(JSON, default=list) # e.g., ["vision", "tools"]
+    complexity_rating = Column(Integer, default=1)
+    is_system = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -295,6 +297,7 @@ class WorkflowExecutionStatus(str, enum.Enum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"
     PAUSED = "PAUSED"
+    AWAITING_APPROVAL = "AWAITING_APPROVAL"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     PARTIAL_FAILURE = "PARTIAL_FAILURE"

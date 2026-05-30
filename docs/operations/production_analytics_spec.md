@@ -1,7 +1,7 @@
 # Production Analytics & Monitoring Specification
 
 ## 1. Overview
-This specification details the production analytics, infrastructure monitoring alerts, and Go-To-Market (GTM) tracking pixels required for the Sprint 5.2 Launch of AgencyOS. It aligns with the Phase 5 Master Plan requirements to establish real-time analytics dashboards, monitor system health, and measure the effectiveness of simultaneous cross-channel marketing campaigns.
+This specification details the production analytics, infrastructure monitoring alerts, and Go-To-Market (GTM) tracking pixels required for the ongoing operations of AgencyOS (Phase 6 Completed). It aligns with the Phase 6 Master Plan requirements to establish real-time analytics dashboards, monitor system health, and measure the effectiveness of simultaneous cross-channel marketing campaigns.
 
 ## 2. Infrastructure & Application Monitoring (Prometheus/Grafana)
 We will utilize Prometheus for robust metrics collection and Grafana for visualization dashboards, ensuring high visibility into the blue-green deployment.
@@ -15,6 +15,7 @@ We will utilize Prometheus for robust metrics collection and Grafana for visuali
 *   **API Latency:** Track 50th, 95th, and 99th percentile response times for all core endpoints.
 *   **HTTP Error Rates:** Continuously monitor 4xx and 5xx HTTP status codes.
 *   **Container Health:** Track container restarts, CrashLoopBackOff states, and Out-Of-Memory (OOM) kills.
+*   **Websocket Metrics:** Track active websocket connections, connection drops/reconnect rates, and message latency.
 
 ### 2.3 Nexus Pipeline & Multi-Agent Metrics
 *   **Pipeline Execution Time:** Average duration from task initiation to completion.

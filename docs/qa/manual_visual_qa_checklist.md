@@ -47,6 +47,12 @@ Please go through the application and manually verify the following criteria. As
 - [-] **404 Boundaries:** Navigate to a random/non-existent URL (e.g., `http://localhost:5173/this-does-not-exist`). Verify a proper 404 / Not Found page appears rather than a blank screen or raw code.
   - *Screenshot required:* `error_404_page.png` (FAILED: Application does not handle non-existent routes properly, no 404 page displayed).
 
+### 5. Phase 5 & 6 Evidence
+- [ ] **Phase 5 (Pipeline Intervention Modals):** Open an active pipeline execution, click 'Intervene', and verify the pause modal overlay renders correctly.
+  - *Screenshot required:* `phase5_intervention_modal.png`
+- [ ] **Phase 6 (Template Marketplace Grids):** Navigate to the Template Marketplace. Ensure the template cards render symmetrically in grid format.
+  - *Screenshot required:* `phase6_template_grid.png`
+
 ---
 
 ## Finalizing Evidence

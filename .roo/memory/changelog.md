@@ -1,5 +1,23 @@
 # Changelog
 
+## [2026-05-29] - Epic: Phase 6 Template Library & Dynamic API Routing Completed
+- **Completed**: Phase 6 Epic is officially complete and QA signed off.
+- **Added**: Implemented Template Library features, dynamic API routing (OpenAI/Anthropic/Gemini), and Rollback mechanisms.
+- **Status**: Formally closed out Phase 6.
+
+## [2026-05-29] - Epic: Feedback Loops & Intervention (Phase 5) Completed
+- **Completed**: Phase 5 Feedback Loops Epic is officially complete.
+- **Added**: Documentation for Architecture, Tech Debt, Risk Assessment, and PRD finalized.
+- **Added**: Formal QA Sign-off for Phase 5 Feedback Loops (`docs/qa/Phase5_Feedback_Loops_QA_Signoff.md`).
+- **Added**: Implemented new `Paused` and `Awaiting_Approval` states in the execution engine.
+- **Added**: Added WebSocket events for real-time pipeline status updates.
+- **Added**: Built `PipelineExecutionViewer` Mid-Execution Chat UI for human-in-the-loop interventions.
+- **Status**: Formally closed out Phase 5 Epic. Transitioned to Phase 6: Operate & Evolve.
+
+## [2026-05-29] - Epic: Feedback Loops & Intervention (Phase 5) Kickoff
+- **Added**: Authored `docs/core/Epic_Phase5_Feedback_Loops_PRD.md` defining requirements for Mid-Execution Chat, Mandatory Approval Gates, and Error Escalation.
+- **Status**: Initiated new epic based on `docs/core/Roadmap.md` Phase 5 goals. Ready for engineering kickoff.
+
 ## [2026-05-27] - Epic: Custom Agent Remediation (Phase 3 Handoff)
 - **Completed**: Phase 3 (Maintainability & Policy) is complete.
 - **Changed**: Decoupled hardcoded port configurations using `VITE_API_URL` environment variables in `client/vite.config.js` and `deployment/docker-compose.yml`.

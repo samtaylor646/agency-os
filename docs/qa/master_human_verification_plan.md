@@ -37,7 +37,40 @@ Accurately verify the functionality, UI/UX, and tenant isolation of the "Create 
 
 ---
 
-## 4. Pipeline Orchestration (Pending Execution)
+## 4. Pipeline Orchestration (Phase 2 - Ready for Execution)
 
-*Placeholder for DAG execution, central runner validation, and human-in-the-loop phase gates.*
+### Objective
+Accurately verify the execution of the Phase 2 Core Engine, including NEXUS DAG orchestration, LLM integration, and semantic memory.
+
+### Step-by-Step Verification
+- [ ] **1. DAG Initialization:** Trigger a complex task list and verify the DAG structure is created and visible in the orchestrator logs.
+- [ ] **2. LLM Integration:** Monitor nodes executing and verify real API calls are dispatched to the LLM backend (OpenAI/Anthropic).
+- [ ] **3. Semantic Memory:** Provide context from a previous step and verify the vector database accurately retrieves and applies the memory.
+- [ ] **4. State Persistence:** Pause the pipeline mid-execution and verify `workflow_executions` saves the exact state. Resume to verify accurate continuation.
+- [ ] **5. Resilience:** Induce a transient network failure during a node execution. Verify exponential backoff and retry logic trigger correctly without full pipeline failure.
+
+---
+
+## 5. Phase 5 Verification: Feedback Loops, Interventions & Rollbacks
+
+### Objective
+Accurately verify the functionality of human-in-the-loop interventions, execution rollbacks, and active feedback loops.
+
+### Step-by-Step Verification
+- [ ] **1. Intervention Trigger:** Run a standard pipeline. While running, click "Intervene". Verify the pipeline pauses and state is saved.
+- [ ] **2. Mid-Execution Edits:** Provide feedback in the chat. Verify the orchestrator acknowledges and alters the DAG state.
+- [ ] **3. Rollback Execution:** Trigger a rollback command to a previous node. Verify database state matches the expected state.
+- [ ] **4. Resume Verification:** Click "Resume". Verify pipeline picks up from the modified state seamlessly.
+
+---
+
+## 6. Phase 6 Verification: Template Library & Routing
+
+### Objective
+Accurately verify template creation, discovery, and instantiation.
+
+### Step-by-Step Verification
+- [ ] **1. Template Browsing:** Open Template Marketplace. Verify templates load with correct metadata.
+- [ ] **2. Instantiation:** Select "SaaS Starter". Verify new workspace/project is populated with correct agents and base files.
+- [ ] **3. API Selector:** Open Project Settings -> API Selector. Verify model routing respects custom selections (e.g., GPT-4 vs Claude 3.5 Sonnet).
 

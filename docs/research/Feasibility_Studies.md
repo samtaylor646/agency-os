@@ -1,0 +1,1 @@
+> **Archived:** This document has been superseded by actual implementation and moved to `docs/archive/research/Feasibility_Studies.md`.

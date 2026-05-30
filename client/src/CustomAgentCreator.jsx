@@ -113,6 +113,7 @@ export default function CustomAgentCreator() {
         name: formData.name,
         role: formData.role,
         domain: formData.domain || 'specialized',
+        provider: formData.provider || 'openai',
         base_model: formData.base_model || 'gpt-4o',
         description: formData.description || '',
         color: formData.color || 'blue',
@@ -326,6 +327,15 @@ ${formData.instructions_reference ? `---
                   <textarea name="intro_paragraph" rows={3} value={formData.intro_paragraph} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. You are Backend Architect, a senior backend architect who specializes in..." />
                 </div>
 
+                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Provider</label>
+                  <select name="provider" value={formData.provider || 'openai'} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="openai">OpenAI</option>
+                    <option value="anthropic">Anthropic</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="local">Local Model (e.g. Ollama)</option>
+                  </select>
+                </div>
                  <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Base Model</label>
                   <select name="base_model" value={formData.base_model} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">

@@ -12,29 +12,29 @@ This document serves as the exhaustive checklist of all expected features and re
 - [ ] **Marketplace UI Components:** Foundational components (cards, grids, details) for sharing and discovering agents/pods.
 - [ ] **Administration Settings:** Fully functional integration of RBAC, API Keys, and Audit Logs configuration.
 - [ ] **Draft Projects:** Persistent chat state automatically saved if a user navigates away.
-- [ ] **Mid-Execution Chat:** Ability for users to chat with the Orchestrator while agents are working to intervene or redirect.
-- [ ] **Approval Gates UI:** Interactive prompts requiring explicit human approval before agents proceed to major phases.
-- [ ] **Error Escalation UI:** Automated alerts via chat with context and proposed solutions upon task failure.
-- [ ] **Template Library (Future Phase 6):** Start projects based on pre-defined templates (e.g., "SaaS Starter").
-- [ ] **Robust API Selector (Future Phase 6):** Advanced model selection including dynamic reasoning effort and model routing.
+- [x] **Mid-Execution Chat:** Ability for users to chat with the Orchestrator while agents are working to intervene or redirect.
+- [x] **Approval Gates UI:** Interactive prompts requiring explicit human approval before agents proceed to major phases.
+- [x] **Error Escalation UI:** Automated alerts via chat with context and proposed solutions upon task failure.
+- [x] **Template Library:** Start projects based on pre-defined templates (e.g., "SaaS Starter").
+- [x] **Robust API Selector:** Advanced model selection including dynamic reasoning effort and model routing.
 - [ ] **Voice Interface (Future Phase 6):** Voice-to-text input for initial project scoping.
 
 ## 2. Backend Capabilities & Orchestration
-- [ ] **LLM Runner Integration:** Connection of frontend chat UI to backend LLM engine (OpenAI/Anthropic) for basic conversational scoping and intent parsing.
-- [ ] **Auto-Scoping & Document Generation Engine:** Services to dynamically generate PRDs, Architecture Specs, and Task Checklists based on conversation.
-- [ ] **Document Ingestion Pipeline:** Parsing and extraction of requirements from uploaded documents (PDF, Markdown, TXT) to automatically seed the execution pipeline.
-- [ ] **Nexus Pipeline DAG Orchestration:** Translation of Markdown task lists into actionable Directed Acyclic Graphs (DAGs) for `central_runner.py`.
-- [ ] **Dynamic Agent Selection:** Automated mapping of tasks to appropriate specialized agents from the registry.
-- [ ] **Custom Agent CRUD API:** Complete lifecycle management API (`POST`, `PUT`, `DELETE` `/api/custom-agents/{agent_id}`) with rigorous validation.
-- [ ] **Message Broker Integration:** Redis Pub/Sub integration for asynchronous agent communication within Pods.
-- [ ] **Semantic Memory API:** Integration of a self-hosted Vector Database (`pgvector` via PostgreSQL) for agent memory retrieval and storage.
-- [ ] **DAG State Persistence:** Tracking workflow execution state in a `workflow_executions` database table for pause/resume capabilities and checkpointing.
-- [ ] **Real LLM Runtime Integration in DAG:** Execution of real LLM tasks within the orchestrator (replacing mock functions).
-- [ ] **DAG Resilience & Failure Handling:** Configurable retry logic with exponential backoff for transient errors, and graceful handling of partial node failures.
-- [ ] **Strict Context Schema Validation:** Pydantic schema validation enforced for inputs/outputs between agents/nodes.
-- [ ] **Decoupled Markdown Generation:** Markdown generation logic for custom agents separated into `agent_config_service.py`.
-- [ ] **Transactional Integrity:** Database changes roll back if associated file/storage write operations fail.
-- [ ] **Storage Abstraction Layer:** Support for scalable Cloud Storage (AWS S3) and local filesystem fallback with strict tenant isolation.
+- [x] **LLM Runner Integration:** Connection of frontend chat UI to backend LLM engine (OpenAI/Anthropic) for basic conversational scoping and intent parsing.
+- [x] **Auto-Scoping & Document Generation Engine:** Services to dynamically generate PRDs, Architecture Specs, and Task Checklists based on conversation.
+- [x] **Document Ingestion Pipeline:** Parsing and extraction of requirements from uploaded documents (PDF, Markdown, TXT) to automatically seed the execution pipeline.
+- [x] **Nexus Pipeline DAG Orchestration:** Translation of Markdown task lists into actionable Directed Acyclic Graphs (DAGs) for `central_runner.py`.
+- [x] **Dynamic Agent Selection:** Automated mapping of tasks to appropriate specialized agents from the registry.
+- [x] **Custom Agent CRUD API:** Complete lifecycle management API (`POST`, `PUT`, `DELETE` `/api/custom-agents/{agent_id}`) with rigorous validation.
+- [x] **Message Broker Integration:** Redis Pub/Sub integration for asynchronous agent communication within Pods.
+- [x] **Semantic Memory API:** Integration of a self-hosted Vector Database (`pgvector` via PostgreSQL) for agent memory retrieval and storage.
+- [x] **DAG State Persistence:** Tracking workflow execution state in a `workflow_executions` database table for pause/resume capabilities and checkpointing.
+- [x] **Real LLM Runtime Integration in DAG:** Execution of real LLM tasks within the orchestrator (replacing mock functions).
+- [x] **DAG Resilience & Failure Handling:** Configurable retry logic with exponential backoff for transient errors, and graceful handling of partial node failures.
+- [x] **Strict Context Schema Validation:** Pydantic schema validation enforced for inputs/outputs between agents/nodes.
+- [x] **Decoupled Markdown Generation:** Markdown generation logic for custom agents separated into `agent_config_service.py`.
+- [x] **Transactional Integrity:** Database changes roll back if associated file/storage write operations fail.
+- [x] **Storage Abstraction Layer:** Support for scalable Cloud Storage (AWS S3) and local filesystem fallback with strict tenant isolation.
 
 ## 3. Infrastructure, Security, & DevOps Requirements
 - [ ] **Multi-Tenancy & Workspaces:** Secure, logical isolation of data, projects, and resources per client/team.

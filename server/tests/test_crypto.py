@@ -21,7 +21,7 @@ def test_crypto_service_initialization_missing_kek():
     if "AGENCY_OS_KEK" in os.environ:
         del os.environ["AGENCY_OS_KEK"]
         
-    with pytest.raises(ValueError, match="KEK is not provided and AGENCY_OS_KEK environment variable is missing."):
+    with pytest.raises(ValueError, match="KEK is not provided and AGENCY_OS_KEK / ENCRYPTION_KEY environment variable is missing."):
         CryptoService()
 
 def test_crypto_service_initialization_invalid_kek():

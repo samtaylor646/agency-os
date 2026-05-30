@@ -41,4 +41,11 @@ Verified UI gracefully handles and displays error boundaries:
 - **Network Errors (Backend Offline Simulation):**
   - `docs/qa/screenshots/error_network_toast.png` - Simulated 500/503 responses trigger a red toast notification ("Failed to fetch data") rather than crashing the React application.
 
+## 5. Phase 5 & Phase 6 Evidence
+Verified layout and interaction elements for recently promoted features:
+- **Phase 5 Intervention Modals:**
+  - `docs/qa/screenshots/phase5_intervention_modal.png` - Pipeline pause overlay centers correctly with `bg-black/50` dimming.
+- **Phase 6 Template Marketplace:**
+  - `docs/qa/screenshots/phase6_template_grid.png` - Template cards scale properly in `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` layout.
+
 **Conclusion:** The visual rendering, responsive breakpoints, and interaction states strictly adhere to the requirements. Evidence successfully documented.

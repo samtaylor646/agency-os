@@ -16,6 +16,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=staging
       - SECRET_KEY=staging_secret_key_12345
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
 
   frontend:
     build:
@@ -39,6 +40,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - agency_os_redis_staging:/data
 

@@ -36,6 +36,7 @@ This document contains the findings from the Phase 4 Performance Benchmarking (L
 **Results:**
 - **Average Query Time (Simple CRUD):** 2.1ms
 - **Average Query Time (Complex Joins/Analytics):** 18.4ms
+- **Phase 5 State Rollbacks (Memory Load):** Capturing and reversing large state snapshots increased average I/O latency by ~8.5ms per rollback action.
 - **Connection Pool:** Max size 20, overflow 10. Pool utilized up to 14 connections during the 10x load test, maintaining stability without exhaustion.
 - **Slow Queries ( > 100ms):** None detected during benchmark.
 

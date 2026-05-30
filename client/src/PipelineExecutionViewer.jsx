@@ -4,7 +4,8 @@ import { useWorkspace } from './WorkspaceContext';
 
 export const PipelineExecutionViewer = () => {
   const { currentWorkspace, apiFetch } = useWorkspace();
-  const [pipelineState, setPipelineState] = useState('idle'); // idle, running, completed, error, waiting_approval
+  const [pipelineState, setPipelineState] = useState('idle'); // idle, running, completed, error, waiting_approval, error_escalation
+  const [activeWorkflowId, setActiveWorkflowId] = useState(null);
   const [pauseReason, setPauseReason] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
@@ -56,6 +57,7 @@ export const PipelineExecutionViewer = () => {
     switch(data.type) {
       case 'workflow_start':
         setPipelineState('running');
+        setActiveWorkflowId(data.workflow_id || 'test_workflow_id');
         setOverallLogs(prev => [...prev, `[SYSTEM] Workflow started: ${data.workflow_name}`]);
         // Initialize tasks from data.nodes if available
         if (data.nodes) {
@@ -86,6 +88,34 @@ export const PipelineExecutionViewer = () => {
         setOverallLogs(prev => [...prev, `[ERROR] Node ${data.node_id} failed: ${data.error}`]);
         break;
 
+      case 'awaiting_approval':
+        setPipelineState('waiting_approval');
+        setActiveTask(data.node_id);
+        setPauseReason(data.reason || 'Approval required to proceed');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Pipeline paused. Node ${data.node_id} is awaiting approval.`]);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'waiting_approval', logs: [...t.logs, `[SYSTEM] Awaiting human approval.`] } : t));
+        break;
+
+      case 'error_escalation':
+        setPipelineState('error_escalation');
+        setActiveTask(data.node_id);
+        setErrorDetails(data.error || 'Agent failed and requires human intervention to continue.');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Pipeline paused due to error in Node ${data.node_id}. Escalation required.`]);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'error_escalation', logs: [...t.logs, `[ERROR] Escalated to user: ${data.error}`] } : t));
+        break;
+
+      case 'intervention_acknowledged':
+        setPipelineState('running');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Intervention acknowledged. Resuming execution...`]);
+        setTasks(prev => prev.map(t => t.id === data.node_id ? { ...t, status: 'running', logs: [...t.logs, `[SYSTEM] Resuming with new instructions.`] } : t));
+        break;
+
+      case 'pipeline_paused':
+        setPipelineState('paused');
+        setOverallLogs(prev => [...prev, `[SYSTEM] Pipeline paused: ${data.reason || 'No reason provided.'}`]);
+        if (data.node_id) setActiveTask(data.node_id);
+        break;
+
       case 'workflow_complete':
         setPipelineState('completed');
         setActiveTask(null);
@@ -108,15 +138,43 @@ export const PipelineExecutionViewer = () => {
     }
   };
 
-  const handleApprove = () => {
-    // Left for backward compatibility/demo purposes if needed
+  const handleApprove = async () => {
+    if (activeTask && activeWorkflowId) {
+      try {
+        await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/intervene`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'approve',
+            comments: 'Approved by user'
+          })
+        });
+        setOverallLogs(prev => [...prev, `[USER] Approved node ${activeTask}`]);
+      } catch (e) {
+        setOverallLogs(prev => [...prev, `[ERROR] Failed to send approval: ${e.toString()}`]);
+      }
+    }
   };
 
-  const handleReject = () => {
-    // Left for backward compatibility/demo purposes if needed
+  const handleReject = async () => {
+    if (activeTask && activeWorkflowId) {
+      try {
+        await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/intervene`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'reject',
+            comments: 'Rejected by user'
+          })
+        });
+        setOverallLogs(prev => [...prev, `[USER] Rejected node ${activeTask}`]);
+      } catch (e) {
+        setOverallLogs(prev => [...prev, `[ERROR] Failed to send rejection: ${e.toString()}`]);
+      }
+    }
   };
 
-  const handleSendChatMessage = (e) => {
+  const handleSendChatMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
     
@@ -124,11 +182,54 @@ export const PipelineExecutionViewer = () => {
     setChatMessages(prev => [...prev, newMsg]);
     setOverallLogs(prev => [...prev, `[USER CHAT] ${chatInput}`]);
     
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: 'user_message', text: chatInput }));
+    const isInterventionState = pipelineState === 'error_escalation' || pipelineState === 'waiting_approval' || pipelineState === 'paused';
+    
+    if (isInterventionState && activeTask && activeWorkflowId) {
+      try {
+        await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/intervene`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'approve',
+            comments: chatInput
+          })
+        });
+      } catch (error) {
+        setOverallLogs(prev => [...prev, `[ERROR] Failed to send intervention: ${error.toString()}`]);
+      }
+    } else if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'user_message', text: chatInput }));
     }
     
     setChatInput('');
+  };
+
+  const handleRollback = async (nodeId) => {
+    if (!activeWorkflowId) return;
+    try {
+      await apiFetch(`/api/v1/pipelines/runs/${activeWorkflowId}/rollback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ node_id: nodeId })
+      });
+      setOverallLogs(prev => [...prev, `[SYSTEM] Rolling back to node ${nodeId}...`]);
+    } catch (e) {
+      setOverallLogs(prev => [...prev, `[ERROR] Failed to rollback: ${e.toString()}`]);
+    }
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!activeWorkflowId) return;
+    try {
+      await apiFetch(`/api/v1/templates/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workflow_id: activeWorkflowId })
+      });
+      setOverallLogs(prev => [...prev, `[SYSTEM] Workflow saved as template successfully.`]);
+    } catch (e) {
+      setOverallLogs(prev => [...prev, `[ERROR] Failed to save template: ${e.toString()}`]);
+    }
   };
 
   const startPipeline = async () => {
@@ -168,11 +269,14 @@ export const PipelineExecutionViewer = () => {
       case 'completed': return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'running': return <Clock className="w-5 h-5 text-blue-500 animate-spin" />;
       case 'error': return <XCircle className="w-5 h-5 text-red-500" />;
+      case 'error_escalation': return <AlertCircle className="w-5 h-5 text-red-600" />;
+      case 'waiting_approval': return <AlertCircle className="w-5 h-5 text-yellow-500" />;
       default: return <Clock className="w-5 h-5 text-gray-300" />;
     }
   };
 
   const activeTaskData = tasks.find(t => t.id === activeTask) || tasks.find(t => t.status === 'error') || tasks[tasks.length - 1];
+  const canRollback = pipelineState === 'paused' || pipelineState === 'error' || pipelineState === 'error_escalation' || pipelineState === 'waiting_approval';
 
   return (
     <div className="flex flex-col h-full space-y-4 md:space-y-6">
@@ -185,21 +289,30 @@ export const PipelineExecutionViewer = () => {
             </h2>
             <p className="text-gray-600 text-xs md:text-sm mt-1">Monitor real-time task orchestration and agent execution.</p>
           </div>
-          <button 
-            onClick={startPipeline}
-            disabled={pipelineState === 'running'}
-            className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm md:text-base font-medium transition-colors w-full sm:w-auto shrink-0 uppercase tracking-wider md:tracking-normal md:normal-case ${
-              pipelineState === 'running' 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 md:border-transparent' 
-                : 'bg-blue-600 md:bg-blue-600 text-white hover:bg-blue-700 md:hover:bg-blue-700'
-            }`}
-          >
-            {pipelineState === 'running' ? (
-              <><Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" /> Running...</>
-            ) : (
-              <><Play className="w-4 h-4 md:w-5 md:h-5 mr-2" /> Start Pipeline</>
-            )}
-          </button>
+          <div className="flex space-x-2">
+            <button 
+              onClick={handleSaveAsTemplate}
+              disabled={!activeWorkflowId}
+              className="flex items-center justify-center px-4 py-2 rounded-xl text-sm md:text-base font-medium transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider md:tracking-normal md:normal-case"
+            >
+              <FileText className="w-4 h-4 md:w-5 md:h-5 mr-2" /> Save as Template
+            </button>
+            <button 
+              onClick={startPipeline}
+              disabled={pipelineState === 'running'}
+              className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm md:text-base font-medium transition-colors w-full sm:w-auto shrink-0 uppercase tracking-wider md:tracking-normal md:normal-case ${
+                pipelineState === 'running' 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 md:border-transparent' 
+                  : 'bg-blue-600 md:bg-blue-600 text-white hover:bg-blue-700 md:hover:bg-blue-700'
+              }`}
+            >
+              {pipelineState === 'running' ? (
+                <><Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" /> Running...</>
+              ) : (
+                <><Play className="w-4 h-4 md:w-5 md:h-5 mr-2" /> Start Pipeline</>
+              )}
+            </button>
+          </div>
         </div>
 
           {/* Approval Gate UI */}
@@ -224,6 +337,22 @@ export const PipelineExecutionViewer = () => {
           )}
 
           {/* Error Escalation UI */}
+          {pipelineState === 'error_escalation' && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start">
+                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-red-800 text-sm md:text-base">Intervention Required</h3>
+                  <p className="text-red-700 text-xs md:text-sm mt-1">{errorDetails}</p>
+                </div>
+              </div>
+              <div className="flex space-x-3 w-full md:w-auto">
+                 <div className="text-xs text-red-600 font-medium my-auto mr-2">Use chat below to intervene</div>
+              </div>
+            </div>
+          )}
+
+          {/* Standard Error UI */}
           {pipelineState === 'error' && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
               <XCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
@@ -268,6 +397,14 @@ export const PipelineExecutionViewer = () => {
                       }`}>
                         {task.status}
                       </span>
+                      {canRollback && (
+                        <button 
+                          onClick={() => handleRollback(task.id)}
+                          className="ml-2 text-xs font-medium px-2 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md transition-colors"
+                        >
+                          Rollback Here
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -354,16 +491,17 @@ export const PipelineExecutionViewer = () => {
               </div>
               <form onSubmit={handleSendChatMessage} className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
                 <input
+                  id="chat-input-field"
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder={pipelineState === 'idle' || pipelineState === 'completed' ? "Pipeline not active" : "Message active agent..."}
-                  disabled={pipelineState === 'idle' || pipelineState === 'completed'}
+                  placeholder={pipelineState === 'idle' || pipelineState === 'completed' || pipelineState === 'error' ? "Pipeline not active" : "Message active agent..."}
+                  disabled={pipelineState === 'idle' || pipelineState === 'completed' || pipelineState === 'error'}
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
                 />
                 <button
                   type="submit"
-                  disabled={pipelineState === 'idle' || pipelineState === 'completed' || !chatInput.trim()}
+                  disabled={pipelineState === 'idle' || pipelineState === 'completed' || pipelineState === 'error' || !chatInput.trim()}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Send
