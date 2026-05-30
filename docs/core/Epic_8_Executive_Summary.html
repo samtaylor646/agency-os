@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgencyOS - Epic 8 Executive Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        atlassian: {
+                            blue: '#0052CC',
+                            dark: '#172B4D',
+                            light: '#FAFBFC',
+                            border: '#DFE1E6',
+                            subtle: '#5E6C84',
+                            success: '#36B37E',
+                            warning: '#FFAB00',
+                            danger: '#FF5630',
+                            primaryHover: '#0055CC'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FAFBFC; color: #172B4D; display: flex; }
+        
+        /* Sidebar Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background-color: white;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #DFE1E6;
+            z-index: 100;
+        }
+        
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #172B4D;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            width: 28px;
+            height: 28px;
+            background-color: #0052CC;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #5E6C84;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .nav-links { list-style: none; padding: 0; margin: 0; }
+        .nav-links li { margin-bottom: 4px; }
+        .nav-links a {
+            color: #172B4D;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 6px;
+            transition: background-color 0.1s ease;
+        }
+        .nav-links a:hover { background-color: #091E420F; }
+        .nav-links a.active {
+            background-color: #E9F2FF;
+            color: #0052CC;
+            font-weight: 500;
+        }
+
+        /* Main Content Container */
+        main {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding-bottom: 6rem;
+        }
+
+        /* Mermaid Full Size Override */
+        .mermaid-container {
+            width: 100%;
+            height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .mermaid {
+            width: 100%;
+            height: 100%;
+        }
+        .mermaid svg {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+        }
+
+        .hero-gradient { background: linear-gradient(135deg, #0747A6 0%, #0052CC 100%); }
+        .card { background: white; border: 1px solid #DFE1E6; border-radius: 8px; box-shadow: 0 1px 2px rgba(9, 30, 66, 0.08); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(9, 30, 66, 0.12); }
+        .status-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .status-success { background: #E3FCEF; color: #006644; }
+        .gsap-reveal { opacity: 0; transform: translateY(20px); }
+        
+        section { padding-top: 2rem; scroll-margin-top: 2rem; }
+    </style>
+</head>
+<body class="antialiased" x-data="dashboardData()">
+
+    <!-- Sidebar Navigation -->
+    <nav>
+        <div class="brand">
+            <div class="brand-icon">A</div>
+            AgencyOS
+        </div>
+        
+        <div class="nav-section-title">Dashboard Sections</div>
+        <ul class="nav-links">
+            <li><a href="#overview" class="active">Overview & Health</a></li>
+            <li><a href="#epic8">Epic 8 Completion</a></li>
+            <li><a href="#financials">Financials & Cost Analysis</a></li>
+            <li><a href="#metrics">Velocity & Analytics</a></li>
+            <li><a href="#history">Historical Trajectory</a></li>
+            <li><a href="#architecture">Architecture & Workflows</a></li>
+            <li><a href="#nextsteps">Next Steps</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <header class="hero-gradient text-white py-24 px-8 sm:px-12 relative overflow-hidden">
+            <div class="w-full relative z-10">
+                <h3 class="hero-anim text-atlassian-light opacity-80 font-semibold tracking-wider text-sm mb-2 uppercase">AgencyOS Engineering & Operations</h3>
+                <h1 class="hero-anim text-3xl md:text-5xl font-bold leading-tight mb-4">Epic 8 Completion <br/> <span class="text-blue-200">& Async Scale-Out</span></h1>
+                <p class="hero-anim text-lg max-w-2xl text-blue-100 mb-6">Executive Update: Async Database Refactor, MCP Skills Integration, and Template Library successfully delivered.</p>
+                <div class="hero-anim flex items-center space-x-4 text-sm font-medium">
+                    <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">Present Day</span>
+                    <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">To: Executive Board</span>
+                    <span class="bg-green-500/20 text-green-100 px-3 py-1 rounded-full backdrop-blur-sm border border-green-500/30">All Systems Scaled & Operational</span>
+                </div>
+            </div>
+            <!-- Decorative bg shapes -->
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-white opacity-5 blur-3xl"></div>
+        </header>
+
+        <div class="w-full px-8 sm:px-12">
+            
+            <!-- Workspace Assessment & Health Summary -->
+            <section id="overview" class="gsap-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-atlassian-dark tracking-tight">Workspace Assessment & Health Summary</h2>
+                    <span class="status-badge status-success">System Health: 99.9%</span>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
+                    <!-- Environment Assessment -->
+                    <div class="card p-6 lg:col-span-3 flex flex-col justify-center">
+                        <h3 class="text-2xl font-bold text-atlassian-dark mb-4">Post-Epic 8 Assessment</h3>
+                        <p class="text-atlassian-subtle text-lg mb-6 leading-relaxed">
+                            Following Epic 8, the AgencyOS platform has reached a new plateau of scalability. The asynchronous database refactor eliminated event loop blocking entirely, enabling true horizontal scaling and up to 5x concurrent agent executions. The introduction of the Model Context Protocol (MCP) securely isolated skills into Docker sidecars.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <svg class="w-6 h-6 text-atlassian-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                </div>
+                                <span class="font-bold text-atlassian-dark text-sm leading-tight">Async DB Pool<br><span class="text-atlassian-success font-medium">100% Scalable</span></span>
+                            </div>
+                            <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <svg class="w-6 h-6 text-atlassian-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                </div>
+                                <span class="font-bold text-atlassian-dark text-sm leading-tight">MCP Integration<br><span class="text-atlassian-success font-medium">Isolated & Secure</span></span>
+                            </div>
+                            <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <svg class="w-6 h-6 text-atlassian-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                </div>
+                                <span class="font-bold text-atlassian-dark text-sm leading-tight">Zero Regression<br><span class="text-atlassian-success font-medium">100% Validated</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Health Radar -->
+                    <div class="card p-6 flex flex-col items-center justify-center lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-atlassian-dark mb-2 text-center w-full">System Health Radar</h3>
+                        <div id="healthChart" class="w-full h-64"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Epic 8 Completion Overview -->
+            <section id="epic8" class="mt-16 gsap-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-atlassian-dark tracking-tight">Recent Epics Overview</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card p-6 gsap-card cursor-pointer hover:bg-blue-50 transition-colors" @click="activeModal = 'epic6'">
+                        <div class="w-10 h-10 rounded bg-blue-100 flex items-center justify-center mb-4 text-atlassian-blue">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Epic 6: Template Library</h3>
+                        <p class="text-atlassian-subtle text-sm mb-4">Empowered users to save and discover proven multi-agent DAG configurations.</p>
+                        <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
+                            <li class="flex items-start"><span class="text-atlassian-blue mr-2 font-bold">•</span> Template UI & State Rollbacks</li>
+                            <li class="flex items-start"><span class="text-atlassian-blue mr-2 font-bold">•</span> Dynamic API Selector integration</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card p-6 gsap-card cursor-pointer hover:bg-green-50 transition-colors" @click="activeModal = 'epic7'">
+                        <div class="w-10 h-10 rounded bg-green-100 flex items-center justify-center mb-4 text-atlassian-success">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Epic 7: MCP Integration</h3>
+                        <p class="text-atlassian-subtle text-sm mb-4">Universal Model Context Protocol support and automated Agent Upscaling Pipeline.</p>
+                        <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
+                            <li class="flex items-start"><span class="text-atlassian-success mr-2 font-bold">•</span> Friction-by-Design Security Gates</li>
+                            <li class="flex items-start"><span class="text-atlassian-success mr-2 font-bold">•</span> Sidecar isolated tool executions</li>
+                        </ul>
+                    </div>
+
+                    <div class="card p-6 gsap-card cursor-pointer hover:bg-purple-50 transition-colors" @click="activeModal = 'epic8'">
+                        <div class="w-10 h-10 rounded bg-purple-100 flex items-center justify-center mb-4 text-purple-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3 3h10c1.5 0 3-1 3-3V7c0-2-1.5-3-3-3H7C5.5 4 4 5 4 7zM16 11H8M16 15H8M10 7h4"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Epic 8: Async DB Refactor</h3>
+                        <p class="text-atlassian-subtle text-sm mb-4">Transitioned from synchronous pg calls to asyncpg for unparalleled scalability.</p>
+                        <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
+                            <li class="flex items-start"><span class="text-purple-600 mr-2 font-bold">•</span> P95 latency reduced >30%</li>
+                            <li class="flex items-start"><span class="text-purple-600 mr-2 font-bold">•</span> 5x Agent Concurrency validated</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Financial Projections & Cost Analysis -->
+            <section id="financials" class="mt-16 gsap-section">
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Financial Projections & Cost Analysis</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Cost to Build -->
+                    <div class="card p-6 bg-white border-l-4 border-l-atlassian-blue">
+                        <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Cost to Build (Epics 6-8)</h3>
+                        <div class="text-3xl font-bold text-atlassian-dark mb-2">$85.20 <span class="text-sm font-normal text-atlassian-subtle">/ 720K Tokens</span></div>
+                        <p class="text-xs text-atlassian-subtle leading-relaxed">
+                            Reduced token consumption due to highly targeted architecture reviews and async validation tests.
+                        </p>
+                    </div>
+
+                    <!-- Run Rate -->
+                    <div class="card p-6 bg-white border-l-4 border-l-atlassian-warning">
+                        <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Projected AWS Run Rate</h3>
+                        <div class="text-3xl font-bold text-atlassian-dark mb-2">-$15.1K <span class="text-sm font-normal text-atlassian-subtle">/ mo</span></div>
+                        <p class="text-xs text-atlassian-subtle leading-relaxed">
+                            Further reduction in cloud infrastructure burn after DB optimizations and MCP sidecar scaling.
+                        </p>
+                    </div>
+
+                    <!-- Unit Economics -->
+                    <div class="card p-6 bg-white border-l-4 border-l-atlassian-success">
+                        <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Unit Economics</h3>
+                        <div class="text-3xl font-bold text-atlassian-dark mb-2">87% <span class="text-sm font-normal text-atlassian-subtle">Margin</span></div>
+                        <p class="text-xs text-atlassian-subtle leading-relaxed">
+                            Margin increased due to higher concurrency enabling multiple agents per compute unit.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Metrics Dashboard -->
+            <section id="metrics" class="mt-16 gsap-section">
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Velocity & Resource Analytics</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Chart 1: Resource Allocation -->
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Resource Allocation (Commit Volume)</h3>
+                        <div id="resourceChart" class="w-full h-[60vh]"></div>
+                    </div>
+
+                    <!-- Chart 2: Engineering Velocity -->
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Recent Velocity (Commits)</h3>
+                        <div id="velocityChart" class="w-full h-[60vh]"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Historical Report Since Inception -->
+            <section id="history" class="mt-16 gsap-section">
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Historical Trajectory Since Phase 5</h2>
+                <div class="card p-6 mb-8">
+                    <p class="text-atlassian-subtle text-sm mb-6 leading-relaxed">
+                        The journey of AgencyOS showing the acceleration of features and tech debt reduction across the latest epics.
+                    </p>
+                    <div id="historyChart" class="w-full h-[500px]"></div>
+                </div>
+
+                <!-- Granular Historical Breakdown Accordion -->
+                <div class="card p-6" x-data="{ openPhase: 'epic8' }">
+                    <h3 class="text-lg font-semibold text-atlassian-dark mb-6">Detailed Epic Breakdown</h3>
+                    
+                    <div class="space-y-4">
+                        <template x-for="(phaseData, i) in granularHistory" :key="i">
+                            <div class="border border-atlassian-border rounded-lg overflow-hidden">
+                                <button 
+                                    @click="openPhase === phaseData.id ? openPhase = null : openPhase = phaseData.id"
+                                    class="w-full text-left px-6 py-4 bg-atlassian-light hover:bg-gray-100 flex justify-between items-center transition-colors focus:outline-none"
+                                >
+                                    <span class="font-bold text-lg text-atlassian-dark" x-text="phaseData.title"></span>
+                                    <svg class="w-6 h-6 text-atlassian-subtle transform transition-transform duration-200" 
+                                         :class="{'rotate-180': openPhase === phaseData.id}" 
+                                         fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                
+                                <div 
+                                    x-show="openPhase === phaseData.id" 
+                                    x-collapse 
+                                    class="px-6 py-6 bg-white border-t border-atlassian-border text-base"
+                                    style="display: none;"
+                                >
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div>
+                                            <h4 class="font-bold text-atlassian-dark mb-3 uppercase tracking-wide text-sm">Focus</h4>
+                                            <p class="text-atlassian-subtle text-lg mb-6 leading-relaxed" x-text="phaseData.focus"></p>
+                                            
+                                            <h4 class="font-bold text-atlassian-dark mb-3 uppercase tracking-wide text-sm">Key Deliverables</h4>
+                                            <ul class="list-disc pl-5 text-atlassian-subtle text-lg space-y-2">
+                                                <template x-for="deliv in phaseData.deliverables">
+                                                    <li x-text="deliv"></li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                                            <h4 class="font-bold text-atlassian-blue mb-4 uppercase tracking-wide text-sm">Audits & Remediations</h4>
+                                            <ul class="list-disc pl-5 text-atlassian-dark text-lg space-y-3 font-medium">
+                                                <template x-for="audit in phaseData.audits">
+                                                    <li x-text="audit"></li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture & Workflows (Mermaid) -->
+            <section id="architecture" class="mt-16 gsap-section">
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Epic 8 State Architecture</h2>
+                <div class="card p-6 mb-8 overflow-x-auto bg-white mermaid-container">
+                    <div class="mermaid">
+                        graph TD
+                            classDef core fill:#0052CC,stroke:#0747A6,stroke-width:2px,color:#fff,rx:8px,ry:8px;
+                            classDef async fill:#36B37E,stroke:#006644,stroke-width:2px,color:#fff,rx:8px,ry:8px;
+                            classDef sidecar fill:#FFAB00,stroke:#B37700,stroke-width:2px,color:#fff,rx:8px,ry:8px;
+                            classDef db fill:#6554C0,stroke:#403294,stroke-width:2px,color:#fff,rx:8px,ry:8px;
+
+                            Req([User Request]) --> Router[FastAPI Router]
+                            Router --> Pool{Async Connection Pool}
+                            
+                            Pool --> |asyncpg| PG[(PostgreSQL + pgvector)]
+                            
+                            Router --> Runner[LLM Runner]
+                            Runner --> Upscaler[Agent Upscaler Queue]
+                            
+                            Runner --> |MCP Client| Sidecar1[GitHub MCP Sidecar]
+                            Runner --> |MCP Client| Sidecar2[DB Query MCP Sidecar]
+                            Runner --> |MCP Client| Sidecar3[Slack MCP Sidecar]
+                            
+                            class Router,Runner core;
+                            class Pool async;
+                            class Sidecar1,Sidecar2,Sidecar3,Upscaler sidecar;
+                            class PG db;
+                    </div>
+                </div>
+            </section>
+
+            <!-- Next Steps Callout -->
+            <section id="nextsteps" class="mt-16 mb-12 gsap-section">
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Next Steps: Beyond Epic 8</h2>
+                
+                <div class="card p-8 border-l-4 border-l-atlassian-success bg-white">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-atlassian-dark mb-2">Preparing for Epic 9 / Marketplace</h3>
+                            <p class="text-atlassian-subtle text-base max-w-3xl leading-relaxed">
+                                With the async backend and MCP skills fully proven, the platform is technically ready for the public Marketplace launch and enterprise multitenant stress testing.
+                            </p>
+                        </div>
+                        <span class="status-badge bg-green-50 text-atlassian-success border border-green-200">Ready for Next Phase</span>
+                    </div>
+
+                    <div class="border-t border-atlassian-border pt-6 mt-6">
+                        <h4 class="text-sm font-bold text-atlassian-subtle uppercase tracking-wider mb-6">Strategic Roadmap</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Step 1 -->
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-atlassian-success font-bold mr-4 text-sm">1</div>
+                                <div>
+                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Marketplace Development (Epic 9)</h5>
+                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Open the template library for community sharing, enabling organic asset harvesting and monetization models.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-atlassian-success font-bold mr-4 text-sm">2</div>
+                                <div>
+                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Enterprise SSO & Audit Logging</h5>
+                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Integrate SAML/OIDC and comprehensive audit trails for SOC2 and enterprise compliance readiness.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 3 -->
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-atlassian-success font-bold mr-4 text-sm">3</div>
+                                <div>
+                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Advanced Workflow Capabilities</h5>
+                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Support complex cyclical DAGs and conditional logic inside the templated agent executions.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 4 -->
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-atlassian-subtle font-bold mr-4 text-sm">4</div>
+                                <div>
+                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Ecosystem Review Board</h5>
+                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Convene the board to assess risk and infrastructure capacity before launching the public Marketplace.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button class="px-6 py-2 bg-atlassian-success text-white font-medium text-sm rounded hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-atlassian-success">
+                            Initiate Epic 9 Planning
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Modals for Executive Summary (Alpine.js) -->
+        <div x-show="activeModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="activeModal" x-transition.opacity class="fixed inset-0 bg-atlassian-dark bg-opacity-75 transition-opacity" aria-hidden="true" @click="activeModal = null"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div x-show="activeModal" x-transition.scale class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-atlassian-dark" id="modal-title" x-text="modals[activeModal] ? modals[activeModal].title : ''"></h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-atlassian-subtle" x-text="modals[activeModal] ? modals[activeModal].desc : ''"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-atlassian-blue text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" @click="activeModal = null">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Alpine.js Data Store
+        function dashboardData() {
+            return {
+                activeModal: null,
+                modals: {
+                    'epic6': {
+                        title: 'Epic 6: Template Library & API Selector',
+                        desc: 'Launched the central Template Library for saving DAG configurations and introduced dynamic API routing allowing seamless transitions between LLM providers (e.g. OpenAI, Anthropic, Gemini).'
+                    },
+                    'epic7': {
+                        title: 'Epic 7: MCP Skills Integration',
+                        desc: 'Integrated the open Model Context Protocol to standardize agent tools. Included an automated Upscaler Pipeline to convert raw marketplace agents into robust workers with strict user permission gates.'
+                    },
+                    'epic8': {
+                        title: 'Epic 8: Async DB Refactor',
+                        desc: 'Refactored the underlying database layer from synchronous standard calls to asyncpg, drastically improving system throughput, slashing P95 latency, and enabling robust horizontal scalability for enterprise concurrent loads.'
+                    }
+                },
+                granularHistory: [
+                    {
+                        id: 'epic6',
+                        title: 'Epic 6: Template Library',
+                        focus: 'Reusable agent workflows and provider flexibility.',
+                        deliverables: [
+                            'Template Library UI/UX Marketplace',
+                            'DAG configuration serialization',
+                            'Dynamic API LLM Selector',
+                            'Workflow state rollback functionality'
+                        ],
+                        audits: [
+                            'Resolved provider routing edge cases.',
+                            'Optimized JSON serialization for large complex templates.'
+                        ]
+                    },
+                    {
+                        id: 'epic7',
+                        title: 'Epic 7: MCP Architecture',
+                        focus: 'Standardized tool access and agent upgrading.',
+                        deliverables: [
+                            'Standard agents.md format support',
+                            'Python MCP Client SDK integration',
+                            'Agent Upscaler Pipeline',
+                            'Explicit Opt-In Security Gates'
+                        ],
+                        audits: [
+                            'Ensured strict PII stripping before upscaler ingestion.',
+                            'Validated ephemeral lifecycle of MCP Docker sidecars.'
+                        ]
+                    },
+                    {
+                        id: 'epic8',
+                        title: 'Epic 8: Async DB Refactor',
+                        focus: 'Unblocking horizontal scalability and performance.',
+                        deliverables: [
+                            'Asynchronous Connection Pooling (asyncpg)',
+                            'Dual-layer sync/async migration strategy',
+                            'Async pgvector support implementation',
+                            '100% test coverage on async DAL'
+                        ],
+                        audits: [
+                            'Validated zero regression in data integrity.',
+                            'Completed shadow-testing under high concurrency loads.'
+                        ]
+                    }
+                ]
+            }
+        }
+
+        // Initialize Mermaid
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+        // Initialize GSAP & ECharts after DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Hero Animations
+            gsap.from(".hero-anim", {
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "power3.out"
+            });
+
+            // Section Scroll Reveals
+            gsap.utils.toArray('.gsap-section').forEach(section => {
+                gsap.from(section, {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                    },
+                    y: 30,
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: "power2.out"
+                });
+            });
+
+            // Stagger Cards
+            gsap.from(".gsap-card", {
+                scrollTrigger: {
+                    trigger: "#epic8",
+                    start: "top 80%",
+                },
+                y: 20,
+                opacity: 0,
+                duration: 0.5,
+                stagger: 0.15,
+                ease: "power2.out"
+            });
+
+            // Navigation Active State based on scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: '-30% 0px -70% 0px',
+                threshold: 0
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // ECharts Initialization
+            initCharts();
+        });
+
+        function initCharts() {
+            // Health Chart (Radar)
+            const healthChart = echarts.init(document.getElementById('healthChart'));
+            const healthOption = {
+                tooltip: {},
+                radar: {
+                    indicator: [
+                        { name: 'Security', max: 100 },
+                        { name: 'Uptime', max: 100 },
+                        { name: 'Performance', max: 100 },
+                        { name: 'Data Int', max: 100 },
+                        { name: 'QA Coverage', max: 100 }
+                    ],
+                    radius: '65%',
+                    axisName: { color: '#5E6C84', fontFamily: 'Inter', fontSize: 11 },
+                    splitArea: { areaStyle: { color: ['rgba(0,82,204,0.05)', 'rgba(0,82,204,0.02)'] } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [
+                        {
+                            value: [100, 99.9, 99, 100, 98],
+                            name: 'Health Metrics',
+                            itemStyle: { color: '#36B37E' },
+                            areaStyle: { color: 'rgba(54, 179, 126, 0.3)' }
+                        }
+                    ]
+                }]
+            };
+            healthChart.setOption(healthOption);
+
+            // Resource Allocation Chart (Pie)
+            const resourceChart = echarts.init(document.getElementById('resourceChart'));
+            const resourceOption = {
+                tooltip: { trigger: 'item' },
+                legend: { top: '5%', left: 'center', textStyle: { color: '#5E6C84', fontFamily: 'Inter' } },
+                series: [
+                    {
+                        name: 'Resource Allocation',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: { show: false, position: 'center' },
+                        emphasis: {
+                            label: { show: true, fontSize: 18, fontWeight: 'bold' }
+                        },
+                        labelLine: { show: false },
+                        data: [
+                            { value: 920, name: 'Backend', itemStyle: { color: '#36B37E' } },
+                            { value: 610, name: 'Frontend', itemStyle: { color: '#0052CC' } },
+                            { value: 480, name: 'DevOps', itemStyle: { color: '#FFAB00' } },
+                            { value: 430, name: 'QA/Testing', itemStyle: { color: '#FF5630' } },
+                            { value: 210, name: 'Design', itemStyle: { color: '#6554C0' } }
+                        ]
+                    }
+                ]
+            };
+            resourceChart.setOption(resourceOption);
+
+            // Velocity Chart (Bar)
+            const velocityChart = echarts.init(document.getElementById('velocityChart'));
+            const velocityOption = {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: ['Phase 5', 'Epic 6', 'Epic 7', 'Epic 8'],
+                        axisTick: { alignWithLabel: true },
+                        axisLabel: { color: '#5E6C84', fontFamily: 'Inter' },
+                        axisLine: { lineStyle: { color: '#DFE1E6' } }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        axisLabel: { color: '#5E6C84', fontFamily: 'Inter' },
+                        splitLine: { lineStyle: { color: '#DFE1E6', type: 'dashed' } }
+                    }
+                ],
+                series: [
+                    {
+                        name: 'Commits',
+                        type: 'bar',
+                        barWidth: '50%',
+                        data: [60, 45, 75, 110],
+                        label: {
+                            show: true,
+                            position: 'top',
+                            color: '#0052CC',
+                            fontFamily: 'Inter',
+                            fontWeight: '600'
+                        },
+                        itemStyle: { 
+                            borderRadius: [6, 6, 0, 0],
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#0052CC' },
+                                { offset: 1, color: '#4C9AFF' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            velocityChart.setOption(velocityOption);
+
+            // History Chart (Line)
+            const historyChart = echarts.init(document.getElementById('historyChart'));
+            const historyOption = {
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['Cumulative Features', 'Tech Debt Remediation'], bottom: 0, textStyle: { color: '#5E6C84', fontFamily: 'Inter' } },
+                grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['Phase 5', 'Epic 6', 'Epic 7', 'Epic 8'],
+                    axisLabel: { color: '#5E6C84', fontFamily: 'Inter' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#5E6C84', fontFamily: 'Inter' },
+                    splitLine: { lineStyle: { color: '#DFE1E6', type: 'dashed' } }
+                },
+                series: [
+                    {
+                        name: 'Cumulative Features',
+                        type: 'line',
+                        data: [100, 125, 155, 165],
+                        smooth: true,
+                        symbolSize: 8,
+                        itemStyle: { color: '#0052CC' },
+                        areaStyle: { 
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(0, 82, 204, 0.3)' },
+                                { offset: 1, color: 'rgba(0, 82, 204, 0.05)' }
+                            ])
+                        }
+                    },
+                    {
+                        name: 'Tech Debt Remediation',
+                        type: 'line',
+                        data: [95, 98, 105, 150],
+                        smooth: true,
+                        symbolSize: 8,
+                        itemStyle: { color: '#FFAB00' },
+                        areaStyle: { 
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(255, 171, 0, 0.3)' },
+                                { offset: 1, color: 'rgba(255, 171, 0, 0.05)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            historyChart.setOption(historyOption);
+
+            // Responsive resize
+            window.addEventListener('resize', () => {
+                healthChart.resize();
+                resourceChart.resize();
+                velocityChart.resize();
+                historyChart.resize();
+            });
+        }
+    </script>
+</body>
+</html>

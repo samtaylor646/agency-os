@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgencyOS - Executive Dashboard Template</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        atlassian: {
+                            blue: '#0052CC',
+                            dark: '#172B4D',
+                            light: '#FAFBFC',
+                            border: '#DFE1E6',
+                            subtle: '#5E6C84',
+                            success: '#36B37E',
+                            warning: '#FFAB00',
+                            danger: '#FF5630'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- ECharts for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FAFBFC; color: #172B4D; }
+        .hero-gradient { background: linear-gradient(135deg, #0747A6 0%, #0052CC 100%); }
+        .card { background: white; border: 1px solid #DFE1E6; border-radius: 8px; box-shadow: 0 1px 2px rgba(9, 30, 66, 0.08); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(9, 30, 66, 0.12); }
+        .status-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .status-success { background: #E3FCEF; color: #006644; }
+        .gsap-reveal { opacity: 0; transform: translateY(20px); }
+    </style>
+</head>
+<body class="antialiased" x-data="dashboardData()">
+
+    <!-- Hero Section -->
+    <header class="hero-gradient text-white py-20 px-6 sm:px-10 lg:px-20 relative overflow-hidden">
+        <div class="max-w-6xl mx-auto relative z-10">
+            <h3 class="hero-anim text-atlassian-light opacity-80 font-semibold tracking-wider text-sm mb-2 uppercase">AgencyOS Engineering & Operations</h3>
+            <h1 class="hero-anim text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">{{PHASE_NAME}} Completion <br/> <span class="text-blue-200">& {{NEXT_MILESTONE}}</span></h1>
+            <p class="hero-anim text-lg md:text-xl max-w-2xl text-blue-100 mb-8">Executive Update: {{EXECUTIVE_SUMMARY_SUBTITLE}}.</p>
+            <div class="hero-anim flex items-center space-x-4 text-sm font-medium">
+                <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">{{CURRENT_DATE}}</span>
+                <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">To: CEO & CTO</span>
+            </div>
+        </div>
+        <!-- Decorative bg shapes -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-white opacity-5 blur-3xl"></div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 sm:px-10 py-12">
+        
+        <!-- Executive Summary Grid -->
+        <section class="mb-16 gsap-section">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-atlassian-dark">Workspace Assessment & Health Summary</h2>
+                <span class="status-badge status-success">System Health: {{HEALTH_SCORE}}%</span>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Environment Assessment -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Workspace Assessment</h3>
+                    <p class="text-atlassian-subtle text-sm mb-4 leading-relaxed">
+                        {{WORKSPACE_ASSESSMENT_TEXT}}
+                    </p>
+                    <ul class="space-y-2 text-sm text-atlassian-subtle">
+                        <li class="flex items-center"><svg class="w-4 h-4 text-atlassian-success mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> {{KEY_METRIC_1}}</li>
+                        <li class="flex items-center"><svg class="w-4 h-4 text-atlassian-success mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> {{KEY_METRIC_2}}</li>
+                        <li class="flex items-center"><svg class="w-4 h-4 text-atlassian-success mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> {{KEY_METRIC_3}}</li>
+                    </ul>
+                </div>
+                
+                <!-- Financials & Analytics -->
+                <div class="card p-6 bg-gradient-to-br from-white to-blue-50">
+                    <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Financials & Impact</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-white p-3 rounded border border-blue-100 shadow-sm">
+                            <span class="block text-xs font-bold text-atlassian-subtle uppercase">Infrastructure Burn</span>
+                            <span class="block text-xl font-bold text-atlassian-dark">{{BURN_RATE}} <span class="text-xs text-atlassian-success font-normal">({{BURN_RATE_TREND}})</span></span>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-blue-100 shadow-sm">
+                            <span class="block text-xs font-bold text-atlassian-subtle uppercase">Active Workspaces</span>
+                            <span class="block text-xl font-bold text-atlassian-blue">{{ACTIVE_WORKSPACES}} <span class="text-xs text-atlassian-success font-normal">({{WORKSPACE_TREND}})</span></span>
+                        </div>
+                    </div>
+                    <p class="text-atlassian-subtle text-sm leading-relaxed">
+                        {{FINANCIAL_SUMMARY_TEXT}}
+                    </p>
+                </div>
+
+                <!-- System Health Radar -->
+                <div class="card p-6 flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-semibold text-atlassian-dark mb-2 text-center w-full">System Health Radar</h3>
+                    <div id="healthChart" class="w-full h-64"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-6 mt-12">
+                <h2 class="text-2xl font-bold text-atlassian-dark">{{PHASE_NAME}} Completion Overview</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Overview Card 1 -->
+                <div class="card p-6 gsap-card cursor-pointer hover:bg-blue-50 transition-colors" @click="activeModal = 'infra'">
+                    <div class="w-10 h-10 rounded bg-blue-100 flex items-center justify-center mb-4 text-atlassian-blue">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">{{CARD_1_TITLE}}</h3>
+                    <p class="text-atlassian-subtle text-sm mb-4">{{CARD_1_DESC}}</p>
+                    <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
+                        <li class="flex items-start"><span class="text-atlassian-blue mr-2 font-bold">•</span> {{CARD_1_BULLET_1}}</li>
+                        <li class="flex items-start"><span class="text-atlassian-blue mr-2 font-bold">•</span> {{CARD_1_BULLET_2}}</li>
+                        <li class="flex items-start"><span class="text-atlassian-blue mr-2 font-bold">•</span> {{CARD_1_BULLET_3}}</li>
+                    </ul>
+                </div>
+                
+                <!-- Overview Card 2 -->
+                <div class="card p-6 gsap-card cursor-pointer hover:bg-green-50 transition-colors" @click="activeModal = 'compliance'">
+                    <div class="w-10 h-10 rounded bg-green-100 flex items-center justify-center mb-4 text-atlassian-success">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">{{CARD_2_TITLE}}</h3>
+                    <p class="text-atlassian-subtle text-sm mb-4">{{CARD_2_DESC}}</p>
+                    <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
+                        <li class="flex items-start"><span class="text-atlassian-success mr-2 font-bold">•</span> {{CARD_2_BULLET_1}}</li>
+                        <li class="flex items-start"><span class="text-atlassian-success mr-2 font-bold">•</span> {{CARD_2_BULLET_2}}</li>
+                        <li class="flex items-start"><span class="text-atlassian-success mr-2 font-bold">•</span> {{CARD_2_BULLET_3}}</li>
+                    </ul>
+                </div>
+
+                <!-- Overview Card 3 -->
+                <div class="card p-6 gsap-card cursor-pointer hover:bg-purple-50 transition-colors" @click="activeModal = 'qa'">
+                    <div class="w-10 h-10 rounded bg-purple-100 flex items-center justify-center mb-4 text-purple-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">{{CARD_3_TITLE}}</h3>
+                    <p class="text-atlassian-subtle text-sm mb-4">{{CARD_3_DESC}}</p>
+                    <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
+                        <li class="flex items-start"><span class="text-purple-600 mr-2 font-bold">•</span> {{CARD_3_BULLET_1}}</li>
+                        <li class="flex items-start"><span class="text-purple-600 mr-2 font-bold">•</span> {{CARD_3_BULLET_2}}</li>
+                        <li class="flex items-start"><span class="text-purple-600 mr-2 font-bold">•</span> {{CARD_3_BULLET_3}}</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modals for Executive Summary (Alpine.js) -->
+        <div x-show="activeModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="activeModal" x-transition.opacity class="fixed inset-0 bg-atlassian-dark bg-opacity-75 transition-opacity" aria-hidden="true" @click="activeModal = null"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div x-show="activeModal" x-transition.scale class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-atlassian-dark" id="modal-title" x-text="modals[activeModal] ? modals[activeModal].title : ''"></h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-atlassian-subtle" x-text="modals[activeModal] ? modals[activeModal].desc : ''"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-atlassian-blue text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" @click="activeModal = null">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Dashboard -->
+        <section class="mb-16 gsap-section">
+            <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Velocity & Resource Analytics</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 1: Resource Allocation -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Resource Allocation (Commit Volume)</h3>
+                    <div id="resourceChart" class="w-full h-72"></div>
+                </div>
+                
+                <!-- Chart 2: Engineering Velocity -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Phase Velocity (Commits)</h3>
+                    <div id="velocityChart" class="w-full h-72"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financial Projections & Cost Analysis -->
+        <section class="mb-16 gsap-section">
+            <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Financial Projections & Cost Analysis</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Cost to Build -->
+                <div class="card p-6 bg-white border-l-4 border-l-atlassian-blue">
+                    <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Cost to Build (AI Tokens)</h3>
+                    <div class="text-3xl font-bold text-atlassian-dark mb-2">{{BUILD_COST}} <span class="text-sm font-normal text-atlassian-subtle">/ {{TOKEN_USAGE}}</span></div>
+                    <p class="text-xs text-atlassian-subtle leading-relaxed">
+                        {{COST_TO_BUILD_NOTES}}
+                    </p>
+                </div>
+
+                <!-- Run Rate -->
+                <div class="card p-6 bg-white border-l-4 border-l-atlassian-warning">
+                    <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Projected AWS Run Rate (OpEx)</h3>
+                    <div class="text-3xl font-bold text-atlassian-dark mb-2">{{AWS_RUN_RATE}} <span class="text-sm font-normal text-atlassian-subtle">/ mo</span></div>
+                    <p class="text-xs text-atlassian-subtle leading-relaxed">
+                        {{AWS_RUN_RATE_NOTES}}
+                    </p>
+                </div>
+
+                <!-- Unit Economics -->
+                <div class="card p-6 bg-white border-l-4 border-l-atlassian-success">
+                    <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Unit Economics Projection</h3>
+                    <div class="text-3xl font-bold text-atlassian-dark mb-2">{{GROSS_MARGIN_PERCENTAGE}}% <span class="text-sm font-normal text-atlassian-subtle">Gross Margin</span></div>
+                    <p class="text-xs text-atlassian-subtle leading-relaxed">
+                        {{UNIT_ECONOMICS_NOTES}}
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historical Report Since Inception -->
+        <section class="mb-16 gsap-section">
+            <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Historical Trajectory Since Inception</h2>
+            <div class="card p-6 mb-8">
+                <p class="text-atlassian-subtle text-sm mb-6 leading-relaxed">
+                    {{HISTORICAL_TRAJECTORY_TEXT}}
+                </p>
+                <div id="historyChart" class="w-full h-80"></div>
+            </div>
+
+            <!-- Granular Historical Breakdown Accordion -->
+            <div class="card p-6" x-data="{ openPhase: null }">
+                <h3 class="text-lg font-semibold text-atlassian-dark mb-6">Detailed Historical Breakdown</h3>
+                
+                <div class="space-y-4">
+                    <template x-for="(phaseData, i) in granularHistory" :key="i">
+                        <div class="border border-atlassian-border rounded-lg overflow-hidden">
+                            <button 
+                                @click="openPhase === phaseData.id ? openPhase = null : openPhase = phaseData.id"
+                                class="w-full text-left px-6 py-4 bg-atlassian-light hover:bg-gray-100 flex justify-between items-center transition-colors focus:outline-none"
+                            >
+                                <span class="font-bold text-atlassian-dark" x-text="phaseData.title"></span>
+                                <svg class="w-5 h-5 text-atlassian-subtle transform transition-transform duration-200" 
+                                     :class="{'rotate-180': openPhase === phaseData.id}" 
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            
+                            <div 
+                                x-show="openPhase === phaseData.id" 
+                                x-collapse 
+                                class="px-6 py-4 bg-white border-t border-atlassian-border text-sm"
+                                style="display: none;"
+                            >
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-atlassian-dark mb-2 uppercase tracking-wide text-xs">Focus</h4>
+                                        <p class="text-atlassian-subtle mb-4" x-text="phaseData.focus"></p>
+                                        
+                                        <h4 class="font-semibold text-atlassian-dark mb-2 uppercase tracking-wide text-xs">Key Deliverables</h4>
+                                        <ul class="list-disc pl-5 text-atlassian-subtle space-y-1">
+                                            <template x-for="deliv in phaseData.deliverables">
+                                                <li x-text="deliv"></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-red-50 p-4 rounded border border-red-100">
+                                        <h4 class="font-semibold text-red-800 mb-2 uppercase tracking-wide text-xs">Audits & Remediations</h4>
+                                        <ul class="list-disc pl-5 text-red-700 space-y-2">
+                                            <template x-for="audit in phaseData.audits">
+                                                <li x-text="audit"></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <!-- Next Steps Callout -->
+        <section class="gsap-section">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-8 flex flex-col md:flex-row items-center justify-between shadow-sm">
+                <div class="mb-6 md:mb-0 md:mr-8">
+                    <h2 class="text-2xl font-bold text-atlassian-dark mb-2">Next Steps: {{NEXT_STEPS_TITLE}}</h2>
+                    <p class="text-atlassian-subtle max-w-2xl">{{NEXT_STEPS_DESC}}</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-atlassian-blue shadow-sm hover:bg-blue-700">
+                        {{NEXT_STEPS_BUTTON}}
+                    </span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-atlassian-border mt-12 py-8 px-6 text-center">
+        <p class="text-atlassian-subtle text-sm font-semibold tracking-widest">AGENCYOS INTERNAL EXECUTIVE REPORT</p>
+    </footer>
+
+    <script>
+        // Alpine.js Data Store (Inject Template Data Here)
+        function dashboardData() {
+            return {
+                activeModal: null,
+                modals: {
+                    'infra': {
+                        title: '{{MODAL_1_TITLE}}',
+                        desc: '{{MODAL_1_DESC}}'
+                    },
+                    'compliance': {
+                        title: '{{MODAL_2_TITLE}}',
+                        desc: '{{MODAL_2_DESC}}'
+                    },
+                    'qa': {
+                        title: '{{MODAL_3_TITLE}}',
+                        desc: '{{MODAL_3_DESC}}'
+                    }
+                },
+                granularHistory: [
+                    // Dynamic phase objects added here
+                ]
+            }
+        }
+
+        // Initialize GSAP & ECharts after DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.from(".hero-anim", { y: 30, opacity: 0, duration: 0.8, stagger: 0.2, ease: "power3.out" });
+
+            gsap.utils.toArray('.gsap-section').forEach(section => {
+                gsap.from(section, { scrollTrigger: { trigger: section, start: "top 85%" }, y: 30, opacity: 0, duration: 0.6, ease: "power2.out" });
+            });
+
+            gsap.from(".gsap-card", { scrollTrigger: { trigger: ".gsap-section", start: "top 80%" }, y: 20, opacity: 0, duration: 0.5, stagger: 0.15, ease: "power2.out" });
+
+            initCharts();
+        });
+
+        function initCharts() {
+            // ECharts configurations will read from template variables in production environment
+        }
+    </script>
+</body>
+</html>

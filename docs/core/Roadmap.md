@@ -50,8 +50,8 @@ This roadmap outlines the strategic plan to build out the Conversational Project
 - **External Tooling Integrations:** Agents automatically provision resources (GitHub repos, Vercel deployments, databases).
 - **Voice Interface:** Voice-to-text input for the initial "Napkin Pitch" project scoping phase.
 
-## Epic 8: Async Database Refactor (In Progress)
+## Epic 8: Async Database Refactor (Completed)
 **Goal:** Transition the database layer to asynchronous operations to unblock horizontal scalability.
 
 - **Phase 1: Dual-Engine foundation, `workspaces.py`, `agents.py` (Completed)**
-- **Phase 2: Remaining routes & final migration (Pending)**
+- **Phase 2: Remaining routes & final migration (Completed)**

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgencyOS - Phase 5 Executive Dashboard</title>
+    <title>{{TITLE_META}}</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -160,12 +160,12 @@
         <div class="nav-section-title">Dashboard Sections</div>
         <ul class="nav-links">
             <li><a href="#overview" class="active">Overview & Health</a></li>
-            <li><a href="#phase5">Phase 5 Completion</a></li>
+            <li><a href="#epic">{{EPIC_TITLE}}</a></li>
             <li><a href="#financials">Financials & Cost Analysis</a></li>
             <li><a href="#metrics">Velocity & Analytics</a></li>
             <li><a href="#history">Historical Trajectory</a></li>
             <li><a href="#architecture">Architecture & Workflows</a></li>
-            <li><a href="#redteam">Next Steps</a></li>
+            <li><a href="#nextsteps">Next Steps</a></li>
         </ul>
     </nav>
 
@@ -174,13 +174,13 @@
         <!-- Hero Section -->
         <header class="hero-gradient text-white py-24 px-8 sm:px-12 relative overflow-hidden">
             <div class="w-full relative z-10">
-                <h3 class="hero-anim text-atlassian-light opacity-80 font-semibold tracking-wider text-sm mb-2 uppercase">AgencyOS Engineering & Operations</h3>
-                <h1 class="hero-anim text-3xl md:text-5xl font-bold leading-tight mb-4">Phase 5 Completion <br/> <span class="text-blue-200">& Red Team Handoff</span></h1>
-                <p class="hero-anim text-lg max-w-2xl text-blue-100 mb-6">Executive Update: Launch phase complete, infrastructure blockers resolved, and UAT readiness verified.</p>
+                <h3 class="hero-anim text-atlassian-light opacity-80 font-semibold tracking-wider text-sm mb-2 uppercase">{{HERO_CATEGORY}}</h3>
+                <h1 class="hero-anim text-3xl md:text-5xl font-bold leading-tight mb-4">{{HERO_TITLE}}</h1>
+                <p class="hero-anim text-lg max-w-2xl text-blue-100 mb-6">{{HERO_SUBTITLE}}</p>
                 <div class="hero-anim flex items-center space-x-4 text-sm font-medium">
-                    <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">May 30, 2026</span>
-                    <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">To: CEO & CTO</span>
-                    <span class="bg-green-500/20 text-green-100 px-3 py-1 rounded-full backdrop-blur-sm border border-green-500/30">All Systems Operational</span>
+                    <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">Present Day</span>
+                    <span class="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">To: {{REPORT_AUDIENCE}}</span>
+                    <span class="bg-green-500/20 text-green-100 px-3 py-1 rounded-full backdrop-blur-sm border border-green-500/30">{{SYSTEM_STATUS_SHORT}}</span>
                 </div>
             </div>
             <!-- Decorative bg shapes -->
@@ -193,35 +193,25 @@
             <section id="overview" class="gsap-section">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-atlassian-dark tracking-tight">Workspace Assessment & Health Summary</h2>
-                    <span class="status-badge status-success">System Health: 98%</span>
+                    <span class="status-badge status-success">System Health: {{SYSTEM_HEALTH_PERCENT}}%</span>
                 </div>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
                     <!-- Environment Assessment -->
                     <div class="card p-6 lg:col-span-3 flex flex-col justify-center">
-                        <h3 class="text-2xl font-bold text-atlassian-dark mb-4">Workspace Assessment</h3>
+                        <h3 class="text-2xl font-bold text-atlassian-dark mb-4">{{ASSESSMENT_TITLE}}</h3>
                         <p class="text-atlassian-subtle text-lg mb-6 leading-relaxed">
-                            The AgencyOS environment has successfully stabilized across all core workspaces. The Docker-in-Docker isolation metrics are showing zero cross-tenant contamination. CPU utilization has leveled off post-DAG implementation, and memory leaks identified in Phase 3 have been entirely remediated.
+                            {{ASSESSMENT_DESCRIPTION}}
                         </p>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
-                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                    <svg class="w-6 h-6 text-atlassian-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            <template x-for="item in assessmentHighlights" :key="item.title">
+                                <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                        <svg class="w-6 h-6 text-atlassian-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                    </div>
+                                    <span class="font-bold text-atlassian-dark text-sm leading-tight" x-html="item.title + '<br><span class=\'text-atlassian-success font-medium\'>' + item.subtitle + '</span>'"></span>
                                 </div>
-                                <span class="font-bold text-atlassian-dark text-sm leading-tight">Sandbox Isolation<br><span class="text-atlassian-success font-medium">100% Validated</span></span>
-                            </div>
-                            <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
-                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                    <svg class="w-6 h-6 text-atlassian-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                </div>
-                                <span class="font-bold text-atlassian-dark text-sm leading-tight">LLM Kill Switch<br><span class="text-atlassian-success font-medium">Operational & Tested</span></span>
-                            </div>
-                            <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
-                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                    <svg class="w-6 h-6 text-atlassian-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                </div>
-                                <span class="font-bold text-atlassian-dark text-sm leading-tight">Routing Stability<br><span class="text-atlassian-success font-medium">99.99% Uptime</span></span>
-                            </div>
+                            </template>
                         </div>
                     </div>
 
@@ -233,48 +223,27 @@
                 </div>
             </section>
 
-            <!-- Phase 5 Completion Overview -->
-            <section id="phase5" class="mt-16 gsap-section">
+            <!-- Epic Completion Overview -->
+            <section id="epic" class="mt-16 gsap-section">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-atlassian-dark tracking-tight">Phase 5 Completion Overview</h2>
+                    <h2 class="text-2xl font-bold text-atlassian-dark tracking-tight">Recent Epics Overview</h2>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="card p-6 gsap-card cursor-pointer hover:bg-blue-50 transition-colors" @click="activeModal = 'infra'">
-                        <div class="w-10 h-10 rounded bg-blue-100 flex items-center justify-center mb-4 text-atlassian-blue">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                    <template x-for="(epic, index) in epicOverviews" :key="index">
+                        <div class="card p-6 gsap-card cursor-pointer hover:bg-gray-50 transition-colors" @click="activeModal = epic.id">
+                            <div class="w-10 h-10 rounded flex items-center justify-center mb-4" :class="epic.colorClass">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-html="epic.icon"></svg>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2" x-text="epic.title"></h3>
+                            <p class="text-atlassian-subtle text-sm mb-4" x-text="epic.description"></p>
+                            <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
+                                <template x-for="bullet in epic.bullets">
+                                    <li class="flex items-start"><span class="mr-2 font-bold" :class="epic.textColorClass">•</span> <span x-text="bullet"></span></li>
+                                </template>
+                            </ul>
                         </div>
-                        <h3 class="font-bold text-lg mb-2">Infrastructure Resolved</h3>
-                        <p class="text-atlassian-subtle text-sm mb-4">DinD sandbox and API routing instability fully mitigated. Secure isolation achieved.</p>
-                        <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
-                            <li class="flex items-start"><span class="text-atlassian-blue mr-2 font-bold">•</span> Zero cross-tenant data bleed</li>
-                            <li class="flex items-start"><span class="text-atlassian-blue mr-2 font-bold">•</span> Docker-in-Docker mounts stabilized</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="card p-6 gsap-card cursor-pointer hover:bg-green-50 transition-colors" @click="activeModal = 'compliance'">
-                        <div class="w-10 h-10 rounded bg-green-100 flex items-center justify-center mb-4 text-atlassian-success">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2">HITL & UAT Finalized</h3>
-                        <p class="text-atlassian-subtle text-sm mb-4">Strict adherence to human-in-the-loop mandate with detailed protocols for phase gates.</p>
-                        <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
-                            <li class="flex items-start"><span class="text-atlassian-success mr-2 font-bold">•</span> Mid-Execution chat integrated</li>
-                            <li class="flex items-start"><span class="text-atlassian-success mr-2 font-bold">•</span> UAT user journey guides published</li>
-                        </ul>
-                    </div>
-
-                    <div class="card p-6 gsap-card cursor-pointer hover:bg-purple-50 transition-colors" @click="activeModal = 'qa'">
-                        <div class="w-10 h-10 rounded bg-purple-100 flex items-center justify-center mb-4 text-purple-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2">Testing Framework</h3>
-                        <p class="text-atlassian-subtle text-sm mb-4">Automated tests passing. Evidence Collector pipeline is fully operational.</p>
-                        <ul class="text-xs text-atlassian-subtle space-y-2 border-t border-atlassian-border pt-4">
-                            <li class="flex items-start"><span class="text-purple-600 mr-2 font-bold">•</span> E2E Pod Lifecycle tests passing</li>
-                            <li class="flex items-start"><span class="text-purple-600 mr-2 font-bold">•</span> 95% QA Coverage achieved</li>
-                        </ul>
-                    </div>
+                    </template>
                 </div>
             </section>
 
@@ -282,32 +251,13 @@
             <section id="financials" class="mt-16 gsap-section">
                 <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Financial Projections & Cost Analysis</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Cost to Build -->
-                    <div class="card p-6 bg-white border-l-4 border-l-atlassian-blue">
-                        <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Cost to Build (AI Tokens)</h3>
-                        <div class="text-3xl font-bold text-atlassian-dark mb-2">$142.50 <span class="text-sm font-normal text-atlassian-subtle">/ 1.2M Tokens</span></div>
-                        <p class="text-xs text-atlassian-subtle leading-relaxed">
-                            Total token burn during Phase 5 build, optimized via smart context management.
-                        </p>
-                    </div>
-
-                    <!-- Run Rate -->
-                    <div class="card p-6 bg-white border-l-4 border-l-atlassian-warning">
-                        <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Projected AWS Run Rate</h3>
-                        <div class="text-3xl font-bold text-atlassian-dark mb-2">-$12.4K <span class="text-sm font-normal text-atlassian-subtle">/ mo</span></div>
-                        <p class="text-xs text-atlassian-subtle leading-relaxed">
-                            15% reduction in cloud infrastructure burn after DAG optimization.
-                        </p>
-                    </div>
-
-                    <!-- Unit Economics -->
-                    <div class="card p-6 bg-white border-l-4 border-l-atlassian-success">
-                        <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2">Unit Economics</h3>
-                        <div class="text-3xl font-bold text-atlassian-dark mb-2">82% <span class="text-sm font-normal text-atlassian-subtle">Margin</span></div>
-                        <p class="text-xs text-atlassian-subtle leading-relaxed">
-                            Profit margins per active tenant workspace holding strong. (+42% workspace growth).
-                        </p>
-                    </div>
+                    <template x-for="fin in financials" :key="fin.title">
+                        <div class="card p-6 bg-white border-l-4" :class="fin.borderClass">
+                            <h3 class="text-sm font-semibold text-atlassian-subtle uppercase tracking-wider mb-2" x-text="fin.title"></h3>
+                            <div class="text-3xl font-bold text-atlassian-dark mb-2" x-html="fin.value + ' <span class=\'text-sm font-normal text-atlassian-subtle\'>' + fin.unit + '</span>'"></div>
+                            <p class="text-xs text-atlassian-subtle leading-relaxed" x-text="fin.description"></p>
+                        </div>
+                    </template>
                 </div>
             </section>
 
@@ -318,31 +268,31 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Chart 1: Resource Allocation -->
                     <div class="card p-6">
-                        <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Resource Allocation (Commit Volume)</h3>
+                        <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Resource Allocation</h3>
                         <div id="resourceChart" class="w-full h-[60vh]"></div>
                     </div>
 
                     <!-- Chart 2: Engineering Velocity -->
                     <div class="card p-6">
-                        <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Phase Velocity (Commits)</h3>
+                        <h3 class="text-lg font-semibold text-atlassian-dark mb-4">Recent Velocity</h3>
                         <div id="velocityChart" class="w-full h-[60vh]"></div>
                     </div>
                 </div>
             </section>
 
-            <!-- Historical Report Since Inception -->
+            <!-- Historical Report -->
             <section id="history" class="mt-16 gsap-section">
-                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Historical Trajectory Since Inception</h2>
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Historical Trajectory</h2>
                 <div class="card p-6 mb-8">
                     <p class="text-atlassian-subtle text-sm mb-6 leading-relaxed">
-                        The journey of AgencyOS through 5 distinct phases of evolution, showing cumulative features delivered vs technical debt remediation.
+                        {{HISTORY_DESCRIPTION}}
                     </p>
                     <div id="historyChart" class="w-full h-[500px]"></div>
                 </div>
 
                 <!-- Granular Historical Breakdown Accordion -->
-                <div class="card p-6" x-data="{ openPhase: 'phase1' }">
-                    <h3 class="text-lg font-semibold text-atlassian-dark mb-6">Detailed Historical Breakdown</h3>
+                <div class="card p-6" x-data="{ openPhase: granularHistory.length > 0 ? granularHistory[granularHistory.length - 1].id : null }">
+                    <h3 class="text-lg font-semibold text-atlassian-dark mb-6">Detailed Breakdown</h3>
                     
                     <div class="space-y-4">
                         <template x-for="(phaseData, i) in granularHistory" :key="i">
@@ -375,9 +325,9 @@
                                                 </template>
                                             </ul>
                                         </div>
-                                        <div class="bg-red-50 p-6 rounded-lg border border-red-100">
-                                            <h4 class="font-bold text-red-800 mb-4 uppercase tracking-wide text-sm">Audits & Remediations</h4>
-                                            <ul class="list-disc pl-5 text-red-800 text-lg space-y-3 font-medium">
+                                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                                            <h4 class="font-bold text-atlassian-blue mb-4 uppercase tracking-wide text-sm">Audits & Remediations</h4>
+                                            <ul class="list-disc pl-5 text-atlassian-dark text-lg space-y-3 font-medium">
                                                 <template x-for="audit in phaseData.audits">
                                                     <li x-text="audit"></li>
                                                 </template>
@@ -393,131 +343,48 @@
 
             <!-- Architecture & Workflows (Mermaid) -->
             <section id="architecture" class="mt-16 gsap-section">
-                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Architecture & Workflows</h2>
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Current Architecture</h2>
                 <div class="card p-6 mb-8 overflow-x-auto bg-white mermaid-container">
                     <div class="mermaid">
-                        graph TD
-                            %% Base Styles
-                            classDef orchestrator fill:#0052CC,stroke:#0747A6,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-                            classDef agent fill:#36B37E,stroke:#006644,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-                            classDef human fill:#FFAB00,stroke:#B37700,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-                            classDef db fill:#6554C0,stroke:#403294,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-                            classDef security fill:#FF5630,stroke:#BF2600,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-                            classDef testing fill:#00B8D9,stroke:#008DA6,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-
-                            %% Nodes
-                            User([User Request / Webhook]) --> Auth[RBAC & Auth Middleware]
-                            Auth --> Routing{Task Router}
-                            
-                            subgraph "Nexus Pipeline Core"
-                                Routing -->|Valid| Orch[Agents Orchestrator]
-                                Routing -->|Invalid| Reject[Reject Request]
-                                
-                                Orch --> Guard[Validation Layer / Guardrails]
-                                Guard --> |Clear| Context[(Context Aggregation / Vector DB)]
-                                Guard --> |Violation| Kill[LLM Kill Switch]
-                                
-                                Context --> Plan[DAG Execution Planner]
-                                
-                                Plan --> Agent1[Specialist Agent Pod A]
-                                Plan --> Agent2[Specialist Agent Pod B]
-                                Plan --> Agent3[Specialist Agent Pod C]
-                            end
-
-                            subgraph "Execution Environment (DinD)"
-                                Agent1 <--> Sandbox1[(Isolated Sandbox)]
-                                Agent2 <--> Sandbox2[(Isolated Sandbox)]
-                                Agent3 <--> Sandbox3[(Isolated Sandbox)]
-                            end
-                            
-                            subgraph "Quality & Assurance"
-                                Agent1 --> Review{Peer Review}
-                                Agent2 --> Review
-                                Agent3 --> Review
-                                
-                                Review --> |Pass| Evid[Evidence Collector QA]
-                                Review --> |Fail| Rem[Remediation Loop]
-                                Rem -.-> Plan
-                            end
-                            
-                            subgraph "Release Gates (HITL)"
-                                Evid --> UAT[UAT / Human Validation]
-                                UAT --> |Sign-off| Exec[Final Execution / DB Commit]
-                                UAT --> |Reject| Orch
-                            end
-                            
-                            Exec --> Dash[Analytics & Dashboard]
-
-                            class Orch,Routing,Plan orchestrator;
-                            class Agent1,Agent2,Agent3 agent;
-                            class UAT human;
-                            class Context,Sandbox1,Sandbox2,Sandbox3 db;
-                            class Guard,Auth,Kill security;
-                            class Evid,Review testing;
+                        {{MERMAID_GRAPH}}
                     </div>
                 </div>
             </section>
 
             <!-- Next Steps Callout -->
-            <section id="redteam" class="mt-16 mb-12 gsap-section">
-                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Next Steps: Red Team Handoff</h2>
+            <section id="nextsteps" class="mt-16 mb-12 gsap-section">
+                <h2 class="text-2xl font-bold text-atlassian-dark mb-6">Next Steps</h2>
                 
-                <div class="card p-8 border-l-4 border-l-atlassian-blue bg-white">
+                <div class="card p-8 border-l-4 border-l-atlassian-success bg-white">
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-xl font-bold text-atlassian-dark mb-2">Phase 5 is Complete</h3>
+                            <h3 class="text-xl font-bold text-atlassian-dark mb-2">{{NEXT_STEPS_TITLE}}</h3>
                             <p class="text-atlassian-subtle text-base max-w-3xl leading-relaxed">
-                                The Red Team will now utilize the finalized UAT and HITL guides to stress-test the environment on the active target branch <code class="bg-gray-100 px-2 py-0.5 rounded text-atlassian-dark font-mono text-sm border border-gray-200">qa/red-team-uat</code>.
+                                {{NEXT_STEPS_DESCRIPTION}}
                             </p>
                         </div>
-                        <span class="status-badge bg-blue-50 text-atlassian-blue border border-blue-200">Awaiting Red Team Sign-off</span>
+                        <span class="status-badge bg-green-50 text-atlassian-success border border-green-200">Ready for Next Phase</span>
                     </div>
 
                     <div class="border-t border-atlassian-border pt-6 mt-6">
-                        <h4 class="text-sm font-bold text-atlassian-subtle uppercase tracking-wider mb-6">Red Team Action Plan</h4>
+                        <h4 class="text-sm font-bold text-atlassian-subtle uppercase tracking-wider mb-6">Strategic Roadmap</h4>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Step 1 -->
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-atlassian-blue font-bold mr-4 text-sm">1</div>
-                                <div>
-                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Initialize Environment</h5>
-                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Pull the latest QA branch and rebuild all isolated Docker-in-Docker sandboxes to ensure a clean state.</p>
+                            <template x-for="(step, index) in nextStepsList" :key="index">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold mr-4 text-sm" :class="step.statusClass" x-text="index + 1"></div>
+                                    <div>
+                                        <h5 class="text-base font-bold text-atlassian-dark mb-1" x-text="step.title"></h5>
+                                        <p class="text-atlassian-subtle text-sm leading-relaxed" x-text="step.description"></p>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Step 2 -->
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-atlassian-blue font-bold mr-4 text-sm">2</div>
-                                <div>
-                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Execute Penetration Tests</h5>
-                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Simulate prompt injection vectors and strictly verify zero cross-tenant data bleeding.</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Step 3 -->
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-atlassian-blue font-bold mr-4 text-sm">3</div>
-                                <div>
-                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Validate HITL Protocols</h5>
-                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Run the full UAT lifecycle, explicitly verifying all human-in-the-loop intercept gates function correctly.</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Step 4 -->
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-atlassian-subtle font-bold mr-4 text-sm">4</div>
-                                <div>
-                                    <h5 class="text-base font-bold text-atlassian-dark mb-1">Formal Evidence Collection</h5>
-                                    <p class="text-atlassian-subtle text-sm leading-relaxed">Generate automated test logs and present the finalized report to the Evidence Collector for sign-off.</p>
-                                </div>
-                            </div>
+                            </template>
                         </div>
                     </div>
 
                     <div class="mt-8 flex justify-end">
-                        <button class="px-6 py-2 bg-atlassian-blue text-white font-medium text-sm rounded hover:bg-atlassian-primaryHover transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-atlassian-blue">
-                            Proceed to QA & Sign-off
+                        <button class="px-6 py-2 bg-atlassian-success text-white font-medium text-sm rounded hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-atlassian-success">
+                            {{NEXT_STEPS_BUTTON}}
                         </button>
                     </div>
                 </div>
@@ -551,99 +418,124 @@
     </main>
 
     <script>
-        // Alpine.js Data Store
+        // Alpine.js Data Store Placeholder Data
         function dashboardData() {
             return {
                 activeModal: null,
                 modals: {
-                    'infra': {
-                        title: 'Infrastructure Blockers Resolved',
-                        desc: 'The critical deployment blockers concerning the Docker-in-Docker (DinD) sandbox environment and API routing instability have been successfully mitigated. The sandbox now provides a secure, reliably isolated execution environment for agent tasks, and the API routing layer is stable.'
+                    'item1': {
+                        title: 'Item 1 Detail',
+                        desc: 'Description for item 1.'
                     },
-                    'compliance': {
-                        title: 'HITL & UAT Finalized',
-                        desc: 'Completed Human-in-the-Loop (HITL) user journeys and User Acceptance Testing (UAT) guides (docs/qa/hitl_user_journeys_and_testing_guide.md). Strict adherence to protocols for human verification during phase gates, manual review of specifications, and continuous UI/UX spot-checks.'
+                    'item2': {
+                        title: 'Item 2 Detail',
+                        desc: 'Description for item 2.'
                     },
-                    'qa': {
-                        title: 'Testing Framework Ready',
-                        desc: 'Automated tests are passing, and the QA pipeline managed by the Evidence Collector is fully operational.'
+                    'item3': {
+                        title: 'Item 3 Detail',
+                        desc: 'Description for item 3.'
                     }
                 },
+                assessmentHighlights: [
+                    { title: 'Metric 1', subtitle: 'Status 1' },
+                    { title: 'Metric 2', subtitle: 'Status 2' },
+                    { title: 'Metric 3', subtitle: 'Status 3' }
+                ],
+                epicOverviews: [
+                    {
+                        id: 'item1',
+                        title: 'Item 1',
+                        description: 'Description 1.',
+                        colorClass: 'bg-blue-100 text-atlassian-blue',
+                        textColorClass: 'text-atlassian-blue',
+                        icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>',
+                        bullets: ['Point 1', 'Point 2']
+                    },
+                    {
+                        id: 'item2',
+                        title: 'Item 2',
+                        description: 'Description 2.',
+                        colorClass: 'bg-green-100 text-atlassian-success',
+                        textColorClass: 'text-atlassian-success',
+                        icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>',
+                        bullets: ['Point 1', 'Point 2']
+                    },
+                    {
+                        id: 'item3',
+                        title: 'Item 3',
+                        description: 'Description 3.',
+                        colorClass: 'bg-purple-100 text-purple-600',
+                        textColorClass: 'text-purple-600',
+                        icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3 3h10c1.5 0 3-1 3-3V7c0-2-1.5-3-3-3H7C5.5 4 4 5 4 7zM16 11H8M16 15H8M10 7h4"></path>',
+                        bullets: ['Point 1', 'Point 2']
+                    }
+                ],
+                financials: [
+                    {
+                        title: 'Metric 1',
+                        value: '$0.00',
+                        unit: '/ unit',
+                        description: 'Description for metric 1.',
+                        borderClass: 'border-l-atlassian-blue'
+                    },
+                    {
+                        title: 'Metric 2',
+                        value: '$0.00',
+                        unit: '/ mo',
+                        description: 'Description for metric 2.',
+                        borderClass: 'border-l-atlassian-warning'
+                    },
+                    {
+                        title: 'Metric 3',
+                        value: '0%',
+                        unit: 'Margin',
+                        description: 'Description for metric 3.',
+                        borderClass: 'border-l-atlassian-success'
+                    }
+                ],
                 granularHistory: [
                     {
-                        id: 'phase1',
-                        title: 'Phase 1: Architecture & Foundation',
-                        focus: 'Establishing core system architecture and repository structure.',
+                        id: 'item1',
+                        title: 'History Item 1',
+                        focus: 'Focus area 1.',
                         deliverables: [
-                            'Initial repository setup',
-                            'Core documentation structure',
-                            'Drafting System Architecture and Database Schema',
-                            'Initial Technical Debt identification'
+                            'Deliverable 1',
+                            'Deliverable 2'
                         ],
                         audits: [
-                            'Addressed missing environment validation in early prototype.',
-                            'Refactored early file structures for better modularity.'
+                            'Audit 1',
+                            'Audit 2'
                         ]
                     },
                     {
-                        id: 'phase2',
-                        title: 'Phase 2: Database & Auth',
-                        focus: 'Setting up PostgreSQL, Alembic migrations, and security protocols.',
+                        id: 'item2',
+                        title: 'History Item 2',
+                        focus: 'Focus area 2.',
                         deliverables: [
-                            'Database containerization',
-                            'Alembic migration scripts',
-                            'RBAC and JWT authentication implementation',
-                            'Agent Configuration models'
+                            'Deliverable 1',
+                            'Deliverable 2'
                         ],
                         audits: [
-                            'Fixed circular dependency in User and Agent models.',
-                            'Secured exposed database ports in initial docker-compose.'
+                            'Audit 1',
+                            'Audit 2'
                         ]
+                    }
+                ],
+                nextStepsList: [
+                    {
+                        title: 'Next Step 1',
+                        description: 'Description for step 1.',
+                        statusClass: 'bg-green-50 border-green-200 text-atlassian-success'
                     },
                     {
-                        id: 'phase3',
-                        title: 'Phase 3: Core API & Orchestration',
-                        focus: 'Building the Nexus Orchestrator and task routing APIs.',
-                        deliverables: [
-                            'FastAPI routing layer',
-                            'Nexus Orchestrator core logic',
-                            'Task Routing algorithms',
-                            'Basic LLM provider integration'
-                        ],
-                        audits: [
-                            'Resolved severe memory leak in LLM runner queue.',
-                            'Refactored routing layer from synchronous to asynchronous processing.'
-                        ]
+                        title: 'Next Step 2',
+                        description: 'Description for step 2.',
+                        statusClass: 'bg-green-50 border-green-200 text-atlassian-success'
                     },
                     {
-                        id: 'phase4',
-                        title: 'Phase 4: Agent Ecosystem',
-                        focus: 'Implementing specialized agents and defining role protocols.',
-                        deliverables: [
-                            'Academic, Strategy, and Technical agents deployed',
-                            'Agent Pod lifecycle management',
-                            'Cross-agent communication protocols',
-                            'Prompt injection safeguards'
-                        ],
-                        audits: [
-                            'Fixed prompt bleeding between Academic agents.',
-                            'Enhanced system prompt boundaries to prevent unauthorized mode switching.'
-                        ]
-                    },
-                    {
-                        id: 'phase5',
-                        title: 'Phase 5: Launch Readiness & GTM',
-                        focus: 'Stabilizing infrastructure, HITL integration, and Red Team prep.',
-                        deliverables: [
-                            'Docker-in-Docker isolation stabilized',
-                            'Human-in-the-Loop (HITL) approval workflows',
-                            'GTM Strategy and Pricing formulation',
-                            'Final UAT and automated E2E testing framework'
-                        ],
-                        audits: [
-                            'Remediated DinD volume mounting instability.',
-                            'Optimized API overhead leading to 15% infrastructure cost reduction.'
-                        ]
+                        title: 'Next Step 3',
+                        description: 'Description for step 3.',
+                        statusClass: 'bg-gray-50 border-gray-200 text-atlassian-subtle'
                     }
                 ]
             }
@@ -682,7 +574,7 @@
             // Stagger Cards
             gsap.from(".gsap-card", {
                 scrollTrigger: {
-                    trigger: "#phase5",
+                    trigger: "#epic",
                     start: "top 80%",
                 },
                 y: 20,
@@ -731,11 +623,11 @@
                 tooltip: {},
                 radar: {
                     indicator: [
-                        { name: 'Security', max: 100 },
-                        { name: 'Uptime', max: 100 },
-                        { name: 'Performance', max: 100 },
-                        { name: 'Data Int', max: 100 },
-                        { name: 'QA Coverage', max: 100 }
+                        { name: 'Metric A', max: 100 },
+                        { name: 'Metric B', max: 100 },
+                        { name: 'Metric C', max: 100 },
+                        { name: 'Metric D', max: 100 },
+                        { name: 'Metric E', max: 100 }
                     ],
                     radius: '65%',
                     axisName: { color: '#5E6C84', fontFamily: 'Inter', fontSize: 11 },
@@ -745,7 +637,7 @@
                     type: 'radar',
                     data: [
                         {
-                            value: [98, 99, 92, 100, 95],
+                            value: [80, 80, 80, 80, 80],
                             name: 'Health Metrics',
                             itemStyle: { color: '#36B37E' },
                             areaStyle: { color: 'rgba(54, 179, 126, 0.3)' }
@@ -777,11 +669,9 @@
                         },
                         labelLine: { show: false },
                         data: [
-                            { value: 1048, name: 'Frontend', itemStyle: { color: '#0052CC' } },
-                            { value: 735, name: 'Backend', itemStyle: { color: '#36B37E' } },
-                            { value: 580, name: 'DevOps', itemStyle: { color: '#FFAB00' } },
-                            { value: 484, name: 'QA/Testing', itemStyle: { color: '#FF5630' } },
-                            { value: 300, name: 'Design', itemStyle: { color: '#6554C0' } }
+                            { value: 100, name: 'Category 1', itemStyle: { color: '#36B37E' } },
+                            { value: 100, name: 'Category 2', itemStyle: { color: '#0052CC' } },
+                            { value: 100, name: 'Category 3', itemStyle: { color: '#FFAB00' } }
                         ]
                     }
                 ]
@@ -796,7 +686,7 @@
                 xAxis: [
                     {
                         type: 'category',
-                        data: ['Ph 1-2', 'Ph 3', 'Ph 4', 'Ph 5'],
+                        data: ['Point 1', 'Point 2', 'Point 3'],
                         axisTick: { alignWithLabel: true },
                         axisLabel: { color: '#5E6C84', fontFamily: 'Inter' },
                         axisLine: { lineStyle: { color: '#DFE1E6' } }
@@ -811,10 +701,10 @@
                 ],
                 series: [
                     {
-                        name: 'Commits',
+                        name: 'Value',
                         type: 'bar',
                         barWidth: '50%',
-                        data: [35, 85, 95, 60],
+                        data: [10, 20, 30],
                         label: {
                             show: true,
                             position: 'top',
@@ -838,12 +728,12 @@
             const historyChart = echarts.init(document.getElementById('historyChart'));
             const historyOption = {
                 tooltip: { trigger: 'axis' },
-                legend: { data: ['Cumulative Features', 'Tech Debt Remediation'], bottom: 0, textStyle: { color: '#5E6C84', fontFamily: 'Inter' } },
+                legend: { data: ['Metric 1', 'Metric 2'], bottom: 0, textStyle: { color: '#5E6C84', fontFamily: 'Inter' } },
                 grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
                 xAxis: {
                     type: 'category',
                     boundaryGap: false,
-                    data: ['Ph 1', 'Ph 2', 'Ph 3', 'Ph 4', 'Ph 5'],
+                    data: ['Point 1', 'Point 2', 'Point 3'],
                     axisLabel: { color: '#5E6C84', fontFamily: 'Inter' }
                 },
                 yAxis: {
@@ -853,9 +743,9 @@
                 },
                 series: [
                     {
-                        name: 'Cumulative Features',
+                        name: 'Metric 1',
                         type: 'line',
-                        data: [10, 30, 45, 60, 100],
+                        data: [10, 20, 30],
                         smooth: true,
                         symbolSize: 8,
                         itemStyle: { color: '#0052CC' },
@@ -867,9 +757,9 @@
                         }
                     },
                     {
-                        name: 'Tech Debt Remediation',
+                        name: 'Metric 2',
                         type: 'line',
-                        data: [0, 5, 50, 80, 95],
+                        data: [15, 25, 35],
                         smooth: true,
                         symbolSize: 8,
                         itemStyle: { color: '#FFAB00' },

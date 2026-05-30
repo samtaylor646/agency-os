@@ -1,5 +1,14 @@
 # Changelog
 
+## [2026-05-30] - Epic: Executive Summary Generation Completed
+- **Completed**: Generated the current Executive Summary for the Phase 5 Launch & Red Team Handoff.
+- **Added**: Authored `docs/core/Phase_5_Executive_Summary.md` applying the SCQA framework and executive reporting guidelines.
+- **Status**: Formally closed out the Executive Summary generation Epic and completed the epic handoff.
+
+## [2026-05-30] - Epic 8: Async Database Refactor Completed
+- **Completed**: Phase 2 of the Async DB Refactor is complete.
+- **Completed**: The entire Async Database Refactor Epic (Epic 8) has passed the final QA Gauntlet and is officially completed.
+
 ## [2026-05-29] - Epic: Phase 7 MCP Skills Architecture Completed
 - **Completed**: QA officially signed off on the MCP Skills Architecture Epic.
 - **Added**: Integrated official Python MCP Client SDK into `llm_runner.py` for routing tool calls via the Model Context Protocol.
