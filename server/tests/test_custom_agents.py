@@ -32,7 +32,7 @@ def setup_db():
     db.commit()
     db.refresh(workspace)
     
-    user = models.User(email="test@example.com", hashed_password="hashed_password", tenant_id=workspace.id)
+    user = models.User(email="test@example.com", hashed_password="hashed_password")
     db.add(user)
     db.commit()
     

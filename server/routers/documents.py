@@ -20,9 +20,9 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB Payload size limit
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 async def process_document_pipeline(doc_id: str, storage_path: str, file_type: str, workspace_id: int):
-    from ..database import SessionLocal
+    from ..database import AsyncSessionLocal
     from ..embeddings import get_embedding_provider
-    db = SessionLocal()
+    db = AsyncSessionLocal()
     try:
         doc = (await db.execute(select(models.IngestedDocument).filter(models.IngestedDocument.id == doc_id))).scalars().first()
         if not doc:
@@ -81,7 +81,7 @@ async def process_document_pipeline(doc_id: str, storage_path: str, file_type: s
             await db.commit()
         print(f"Pipeline error: {e}")
     finally:
-        db.close()
+        await db.close()
 
 
 @router.post("/ingest", response_model=dict, dependencies=[Depends(dependencies.rate_limit_ingestion)])
@@ -157,10 +157,10 @@ async def get_ingest_status(
     db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.verify_workspace_access)
 ):
-    doc = db.query(models.IngestedDocument).filter(
+    doc = (await db.execute(select(models.IngestedDocument).filter(
         models.IngestedDocument.id == job_id,
         models.IngestedDocument.workspace_id == workspace_id
-    ).first()
+    ))).scalars().first()
     
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")

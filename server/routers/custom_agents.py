@@ -65,10 +65,10 @@ async def update_agent(
     db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
-    db_agent = db.query(models.CustomAgent).filter(
+    db_agent = (await db.execute(select(models.CustomAgent).filter(
         models.CustomAgent.id == agent_id,
         models.CustomAgent.tenant_id == tenant_id
-    ).first()
+    ))).scalars().first()
     
     if not db_agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -101,10 +101,10 @@ async def delete_agent(
     db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
-    db_agent = db.query(models.CustomAgent).filter(
+    db_agent = (await db.execute(select(models.CustomAgent).filter(
         models.CustomAgent.id == agent_id,
         models.CustomAgent.tenant_id == tenant_id
-    ).first()
+    ))).scalars().first()
     
     if not db_agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -114,7 +114,7 @@ async def delete_agent(
     
     try:
         # B3-1: Transactional integrity: delete from DB first, if succeeds delete from storage
-        db.delete(db_agent)
+        await db.delete(db_agent)
         await db.commit()
     except Exception as e:
         await db.rollback()

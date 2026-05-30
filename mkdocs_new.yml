@@ -1,0 +1,24 @@
+site_name: AgencyOS Internal Docs
+docs_dir: site-docs
+nav:
+- Welcome: index.md
+- Core Strategy: docs/core
+- Technical Architecture: docs/technical
+- Operations & Runbooks: docs/operations
+- Quality Assurance: docs/qa
+- Agent Ecosystem: agents
+theme:
+  name: material
+  custom_dir: site-docs/overrides
+  features:
+  - navigation.path
+  palette:
+    primary: custom
+    accent: custom
+  font:
+    text: Inter
+    code: Roboto Mono
+extra_css:
+- stylesheets/custom.css
+plugins:
+- awesome-pages

@@ -21,6 +21,10 @@ To eliminate "works on my machine" friction and ensure AI agents operate within 
   ```
   *(Path adjustments may be required based on OS, but the pattern of mounting global state must be maintained).*
 
+### Production Container Security
+
+* **Unprivileged Execution:** Production containerization (e.g., `deployment/server.Dockerfile`) is configured to run as an unprivileged non-root user. This is a critical security measure to minimize potential attack surfaces and prevent container breakout vulnerabilities.
+
 ---
 
 ## 2. Core Config: `.roomodes` and `.clinerules`
@@ -76,13 +80,9 @@ While tools like `AGENT-ZERO` emphasize an unconstrained, build-tools-on-the-fly
 ## 4. Initialization Checklist
 
 When starting a new project repository, ensure the following steps are completed:
-1. [ ] Copy the standard `.devcontainer` folder.
-2. [ ] Copy `.roomodes` configuring the core agent routing.
-3. [ ] Copy `.clinerules` establishing the Orchestrator Isolation Mandate and Epic Handoffs.
-4. [ ] Initialize the `.roo/memory/` directory with `active_context.md` and `changelog.md`.
-5. [ ] Establish the `/agents` directory structure for domain-specific prompt storage.
-6. [ ] Establish the `docs/` directory structure with `core/`, `technical/`, `operations/`, `qa/`, `research/`, and `archive/` folders.
-7. [ ] **Enable Automated Validation Layer:** Ensure `.githooks/pre-commit` and `scripts/validate_agent_metadata.py` are copied and executable to enforce SOC2 auditability and prevent malformed agent configurations.
+1. [ ] Clone or copy the `agency-os-template` repository, which contains the fully hardened baseline (DevContainers, unprivileged Dockerfiles, and JIT rules).
+2. [ ] Initialize the `.roo/memory/` directory with `active_context.md` and `changelog.md`.
+3. [ ] **Enable Automated Validation Layer:** Ensure `.githooks/pre-commit` and `scripts/validate_agent_metadata.py` are executable to enforce SOC2 auditability and prevent malformed agent configurations.
 
 ---
 
@@ -111,6 +111,7 @@ When operating strictly within an isolated DevContainer, the risk profile of AI 
 * **`.roomodes` (Customizing Agent Behavior):**
   * **Purpose:** Customizes the available modes and personas within the Roo Code extension, tailored to the specific project's needs.
   * **Best Practice:** Do not rely on default modes. Explicitly define specialized roles (e.g., `frontend-developer`, `database-architect`, `evidence-collector`) mapped to your team's structure.
+  * **Just-In-Time (JIT) Dynamic Loading:** Bulk-loading `/agents` into `.roomodes` is strictly forbidden. The Orchestrator MUST dynamically inject a specific role into `.roomodes` only when needed for a specific task and clean it up ephemerally afterward.
   * **File Restrictions:** Utilize the file restriction capabilities within `.roomodes` heavily. For example, the `frontend-developer` mode should only be allowed to edit files matching `.*(js|jsx|ts|tsx|css|html)$`, preventing it from accidentally altering Python backend code or CI/CD pipelines.
 * **Mandatory Agent File Headers:**
   * **Purpose:** Ensures accountability and traceablity of AI-generated code.
