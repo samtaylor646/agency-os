@@ -127,3 +127,27 @@ Run the following script in your terminal:
 ```
 *   **When toggled ON:** The orchestrator will automatically summon Legal, Security, and Finance agents to audit any proposed changes before code is written.
 *   **When toggled OFF:** Maximum development velocity is restored for daily sprint tasks and bug fixing.
+
+---
+
+## Automated Validation Layer (SOC2 & Quality Control)
+
+To move the system from "hoping the AI behaves" to "mathematically proving it complies", AgencyOS enforces automated guardrails via Git Hooks (for platform development) and Pre-Save Hooks (for autonomous agents operating in user workspaces).
+
+### 1. Marketplace Quality Control (Epic 9)
+When deploying a custom agent to the PRPM marketplace (or committing a new agent to the `agents/` directory), an automated Git Hook enforces strict quality control. The `pre-commit` hook scans all modified `.md` or `.yaml` files in the `agents/` directory to ensure they contain:
+*   Required YAML frontmatter (Role, Dependencies, Capabilities).
+*   Correct IP attributions and safety tags.
+*   Valid schema definitions.
+
+### 2. Blast Radius Containment
+If an autonomous agent inside AgencyOS writes code or generates artifacts for a user, a built-in pre-save hook acts as a final firewall. It automatically runs security checks, prevents unauthorized root-level modifications, and injects required safety tags before the file is persisted to the user's workspace.
+
+### 3. Auditability for SOC2 Compliance
+Every action taken by a multi-agent Pod within AgencyOS is forcefully tagged by the system layer (rather than trusting the AI to tag itself). This guarantees an irrefutable audit log of which AI executed which action, fulfilling enterprise SOC2 requirements.
+
+**Testing the Validation Hooks:**
+The validation layer runs automatically on `git commit`. To manually verify the agent metadata, run:
+```bash
+python scripts/validate_agent_metadata.py
+```

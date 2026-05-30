@@ -42,4 +42,22 @@ if [ $error -ne 0 ]; then
     exit 1
 fi
 
+# ==============================================================================
+# Agent Metadata Validation (SOC2 & Quality Control)
+# ==============================================================================
+# Find all modified or added files in agents/ that are markdown
+agent_files=$(git diff --cached --name-only --diff-filter=ACM | grep '^agents/.*\.md$' || true)
+
+if [ -n "$agent_files" ]; then
+    echo "Running Agent Metadata Validation..."
+    python3 scripts/validate_agent_metadata.py $agent_files
+    if [ $? -ne 0 ]; then
+        echo "======================================================================"
+        echo "ERROR: PRE-COMMIT HOOK FAILED (Agent Validation)"
+        echo "One or more agent definitions lack required metadata."
+        echo "======================================================================"
+        exit 1
+    fi
+fi
+
 exit 0

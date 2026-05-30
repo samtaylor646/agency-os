@@ -82,6 +82,7 @@ When starting a new project repository, ensure the following steps are completed
 4. [ ] Initialize the `.roo/memory/` directory with `active_context.md` and `changelog.md`.
 5. [ ] Establish the `/agents` directory structure for domain-specific prompt storage.
 6. [ ] Establish the `docs/` directory structure with `core/`, `technical/`, `operations/`, `qa/`, `research/`, and `archive/` folders.
+7. [ ] **Enable Automated Validation Layer:** Ensure `.githooks/pre-commit` and `scripts/validate_agent_metadata.py` are copied and executable to enforce SOC2 auditability and prevent malformed agent configurations.
 
 ---
 

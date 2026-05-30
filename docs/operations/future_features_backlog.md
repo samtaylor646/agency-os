@@ -8,3 +8,7 @@
 
 ### Documentation Safeguards & Guardrails
 *   **Documentation Safeguard Implementation:** Implement the proposed documentation safeguard plan (as drafted in `docs/operations/documentation_safeguard_plan.md`) into the core system guardrails. This involves integrating `.clinerules` checks or validation layers that strictly prevent incorrect file creation outside the routing mandate. **[REQUIRES HITL REVIEW]** A Human-in-the-Loop review is required to finalize the rules before implementation.
+
+### Automated Validation Layer Enhancements
+*   **Marketplace EULA Update (Legal & Compliance):** Explicitly state that automated validation checks do not constitute an IP warranty. Update Terms of Service/EULA documents accordingly to protect ecosystem liability.
+*   **Kill Switch Integration (Incident Response):** Integrate `validation_layer.py` with the runtime Kill Switch (`server/services/kill_switch.py`) to automatically trip the kill switch and isolate agents if validation fails repeatedly.

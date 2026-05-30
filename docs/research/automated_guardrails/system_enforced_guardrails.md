@@ -24,3 +24,9 @@ Adopting this inside the AgencyOS platform provides exponential benefits, specif
 1. Write the Git `pre-commit` hook script in `.githooks/pre-commit`.
 2. Configure git to use this local directory: `git config core.hooksPath .githooks`.
 3. Update `docs/operations/Standard_Project_Setup_Guide.md` (or create it if missing) to include this as a mandatory setup step for all future environments and kinetik-os downstream builds.
+
+## 5. Real-World Context: Strict Role Routing
+
+**Common Question:** *"Why do you keep using the roo code standard roles?"*
+
+**Contextual Explanation:** The AgencyOS architecture explicitly mandates a strict multi-agent workflow via `.clinerules` and `.roomodes` (the **Routing First Mandate**). Rather than relying on a single, general-purpose AI, tasks are broken down and routed to specialized domain experts (e.g., UX Architect, Backend Architect, Evidence Collector). This guarantees that context is preserved and code quality is maintained across different architectural domains. When a user queries this behavior, the system enforces a routing rule to switch to a purely conversational "Ask" mode, acting as a behavioral guardrail against unintended file modifications during general inquiries.

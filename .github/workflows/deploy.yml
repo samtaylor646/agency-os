@@ -29,6 +29,8 @@ jobs:
         file: deployment/server.Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/agency-os-server:latest
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/agency-os-server:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/agency-os-server:buildcache,mode=max
 
     - name: Build and Push Client Image
       uses: docker/build-push-action@v4
@@ -37,6 +39,8 @@ jobs:
         file: ./deployment/client.Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/agency-os-client:latest
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/agency-os-client:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/agency-os-client:buildcache,mode=max
 
     - name: Deploy to Staging/Production
       run: |

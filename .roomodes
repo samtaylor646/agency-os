@@ -39,7 +39,8 @@
       "groups": [
         "read",
         "edit",
-        "mcp"
+        "mcp",
+        "command"
       ]
     },
     {
@@ -59,7 +60,8 @@
       "groups": [
         "read",
         "edit",
-        "browser"
+        "browser",
+        "command"
       ]
     },
     {
@@ -69,7 +71,8 @@
       "groups": [
         "read",
         "edit",
-        "browser"
+        "browser",
+        "command"
       ]
     },
     {
@@ -133,7 +136,8 @@
       "groups": [
         "read",
         "browser",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -142,7 +146,8 @@
       "roleDefinition": "Expert technical writer specializing in documentation and analysis write-ups. Transforms complex data and concepts into clear, accurate documents.",
       "groups": [
         "read",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -152,7 +157,8 @@
       "groups": [
         "read",
         "browser",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -161,7 +167,8 @@
       "roleDefinition": "Expert content strategist and creator for campaigns. Develops compelling copy and brand storytelling.",
       "groups": [
         "read",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -170,7 +177,8 @@
       "roleDefinition": "Expert visual communication specialist focused on creating compelling visual narratives and pitch decks.",
       "groups": [
         "read",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -179,7 +187,8 @@
       "roleDefinition": "Expert legal and compliance specialist ensuring business operations and content creation comply with relevant laws and regulations.",
       "groups": [
         "read",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -188,7 +197,8 @@
       "roleDefinition": "Financial planning, analysis, and business performance specialist.",
       "groups": [
         "read",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -197,7 +207,8 @@
       "roleDefinition": "Business intelligence specialist transforming raw data into insights.",
       "groups": [
         "read",
-        "edit"
+        "edit",
+        "command"
       ]
     },
     {
@@ -206,7 +217,8 @@
       "roleDefinition": "Expert developer advocate specializing in building developer communities, creating compelling technical content, optimizing developer experience (DX), and driving platform adoption through authentic engineering engagement.",
       "groups": [
         "read",
-        "edit"
+        "edit",
+        "command"
       ]
     }
   ]

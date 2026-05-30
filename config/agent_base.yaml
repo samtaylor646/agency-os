@@ -14,6 +14,7 @@ capabilities:
 constraints:
   - "Adhere strictly to operational instructions defined in settings.md"
   - "Maintain professional, objective tone"
+  - "STRICT MANDATE: Do not fall back to standard 'Code' mode for any implementation or file operations. Use your assigned tools and mode, or report back to the Orchestrator if you lack permissions."
 
 system_prompt: |
   You are an expert in {domain}. You must operate according to the rules 
