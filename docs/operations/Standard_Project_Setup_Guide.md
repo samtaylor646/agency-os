@@ -1,0 +1,130 @@
+# Standard Project Setup Guide
+
+This guide establishes the highly-optimized baseline for initiating new projects within the AgencyOS ecosystem. It synthesizes learnings from the AgencyOS build and evaluates standalone engine capabilities to create a robust, reliable, and frictionless environment for AI-assisted engineering.
+
+---
+
+## 1. Container Environment Setup (`.devcontainer`)
+
+To eliminate "works on my machine" friction and ensure AI agents operate within a stable, predictable baseline, all new projects MUST utilize a standardized DevContainer architecture.
+
+### Core Configuration Requirements
+
+* **Consistent Baseline:** Use a robust, predictable base image (e.g., standard Debian/Ubuntu with necessary Python/Node runtimes pre-installed).
+* **AI Extension Pre-Installation:** The `devcontainer.json` must automatically install essential VSCode extensions, explicitly including the Roo Code extension (`rooveterinaryinc.roo-cline`). This ensures the AI environment is instantly available upon container spin-up.
+* **Volume Mounts for AI Persistence:** 
+  It is critical to mount the host's global storage into the container to prevent context loss across container rebuilds.
+  ```json
+  "mounts": [
+    "source=${localEnv:HOME}/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline,target=/root/.vscode-server/data/Machine/globalStorage/rooveterinaryinc.roo-cline,type=bind,consistency=cached"
+  ]
+  ```
+  *(Path adjustments may be required based on OS, but the pattern of mounting global state must be maintained).*
+
+---
+
+## 2. Core Config: `.roomodes` and `.clinerules`
+
+The "rules of engagement" must be structurally enforced via project-local configuration files. These files act as the "AgencyOS Brain", immediately instantiating the required governance model.
+
+### `.roomodes` (Role-Based Access Control)
+* **Purpose:** Defines the specialized personas (e.g., `agents-orchestrator`, `frontend-developer`, `evidence-collector`) and strictly bounds their file-access capabilities.
+* **The Orchestrator Isolation Mandate:** The `agents-orchestrator` mode MUST be strictly forbidden from executing file modifications or writing code. Its permitted tools are strictly limited to planning, task breakdown, `switch_mode`, and `new_task`. It exists to *delegate*, not to execute.
+
+### `.clinerules` (Operational Mandates)
+* **Purpose:** Acts as the constitutional law for the project.
+* **Key Directives to Include:**
+  * **Routing First Mandate:** The system must evaluate user intent and switch to the correct specialized agent mode before engaging.
+  * **Epic Workflow & Handoff Protocol:** Enforces isolated git branching, comprehensive documentation updates, and formal commit/push handoffs for major features.
+  * **Strict QA Gate:** No feature can merge to `main` without automated test proof and explicit sign-off from the QA agent.
+  * **Human-in-the-Loop Validation:** Strategic pausing for human verification at critical phase gates.
+  * **Persistent Memory Updates:** Mandatory updates to `.roo/memory/changelog.md` and `active_context.md` at major transitions.
+
+---
+
+## 3. AI Interaction Paradigm
+
+A significant challenge in AI orchestration is the system's tendency to bypass heavy operational protocols in favor of conversational "helpful assistant" defaults. To counter this, the project setup adopts specific interaction patterns.
+
+### The Recommended Paradigm: Explicit Prompting & Lazy Loading
+
+Instead of passively hoping the AI reads a text rule to trigger a heavy setup (branch creation, scaffold generation), the system should utilize **Explicit Decision Gates** and **Progressive Execution**:
+
+1. **Micro-Friction Decision Gates:** 
+   When a user requests a new feature or team assembly, the Orchestrator should not immediately execute the heavy `Standard Kickoff Protocol`. Instead, it must utilize native tools (like `ask_followup_question`) to present explicit options:
+   * `[Run Full Epic Handoff Protocol (Branching & Docs)]`
+   * `[Quick Conversational Assistance]`
+   * `[Generate Architecture Docs Only]`
+   
+2. **Progressive Execution:**
+   Defer heavy lifting. The Orchestrator acknowledges the request, executes the immediate first step (e.g., switching to the primary specialist agent), and provides suggested follow-up actions. 
+
+3. **Explicit Trigger Commands (Future Proofing):**
+   Where possible, move toward explicit CLI-style commands (e.g., `/kickoff Epic_9`) to mechanically trigger procedural workflows, bypassing the LLM's conversational tendency entirely.
+
+### Handling Autonomous Engine Capabilities
+While tools like `AGENT-ZERO` emphasize an unconstrained, build-tools-on-the-fly approach, our setup relies on the structured registry of personas (`agency-agents`). The Orchestrator acts as the bridge—using strict personas for predictable domain expertise, but maintaining the flexibility to write dynamic validation scripts or sandboxed tools when predefined paths fall short.
+
+---
+
+## 4. Initialization Checklist
+
+When starting a new project repository, ensure the following steps are completed:
+1. [ ] Copy the standard `.devcontainer` folder.
+2. [ ] Copy `.roomodes` configuring the core agent routing.
+3. [ ] Copy `.clinerules` establishing the Orchestrator Isolation Mandate and Epic Handoffs.
+4. [ ] Initialize the `.roo/memory/` directory with `active_context.md` and `changelog.md`.
+5. [ ] Establish the `/agents` directory structure for domain-specific prompt storage.
+
+---
+
+## 5. AI Extension Tooling (Roo Code / Cline) Configuration
+
+To maximize velocity while maintaining safety and operational control, the Roo Code extension must be configured specifically for containerized development.
+
+### Auto-Approval Settings in a Containerized Environment
+
+When operating strictly within an isolated DevContainer, the risk profile of AI actions is significantly reduced. This allows for more aggressive auto-approval settings to maintain high momentum during execution.
+
+* **Safe Reads (Auto-Approve):**
+  * `read_file`, `list_files`, `search_files`: MUST be fully auto-approved. These actions are non-destructive and essential for the AI to build context rapidly.
+* **File Modifications (Contextual Approval):**
+  * `edit`, `write_to_file`: Can be auto-approved if working within an easily rebuildable and source-controlled container environment. However, ensure strict `.roomodes` restrictions (e.g., file pattern constraints) are in place to prevent the AI from modifying core configuration or rules outside its purview.
+* **Shell Commands (Require Approval or Sandboxed Auto-Approve):**
+  * `execute_command`: General best practice is to **Require Approval** for shell execution to prevent unintended side effects (e.g., recursive deletions or runaway background processes).
+  * *Exception for Full Isolation:* If the DevContainer is fully ephemeral, completely isolated from sensitive host mounts (other than the workspace and extension storage), and you are utilizing rigorous `git` commit handoffs, you may enable auto-approve for shell commands to achieve maximum velocity.
+
+### Best Practices for `.rootasks` and `.roomodes`
+
+* **`.rootasks` (Structured Task Execution):**
+  * **Purpose:** Provides a persistent, markdown-based checklist of tasks for the Orchestrator and specialized agents to follow, ensuring complex, multi-step workflows are not lost in conversational context.
+  * **Best Practice:** Maintain a modular `.rootasks` template in the project skeleton. When a new Epic or Sprint begins, the Orchestrator should dynamically update `.rootasks` with the specific, atomic steps required. Agents must systematically check off items (`[x]`) as they complete them.
+* **`.roomodes` (Customizing Agent Behavior):**
+  * **Purpose:** Customizes the available modes and personas within the Roo Code extension, tailored to the specific project's needs.
+  * **Best Practice:** Do not rely on default modes. Explicitly define specialized roles (e.g., `frontend-developer`, `database-architect`, `evidence-collector`) mapped to your team's structure.
+  * **File Restrictions:** Utilize the file restriction capabilities within `.roomodes` heavily. For example, the `frontend-developer` mode should only be allowed to edit files matching `.*(js|jsx|ts|tsx|css|html)$`, preventing it from accidentally altering Python backend code or CI/CD pipelines.
+
+---
+
+## 6. QA Audit Findings & Sign-off
+
+**Audit Date:** 2026-05-30
+**Auditor:** Evidence Collector (QA)
+**Status:** ✅ APPROVED WITH MINOR RECOMMENDATIONS
+
+### Audit Summary
+A comprehensive audit was performed comparing the draft `Standard_Project_Setup_Guide.md` against the retrospective learnings documented in `reusable_assets_and_learnings.md`. 
+
+**Verified Strengths:**
+1. **DevContainer Configuration:** The critical volume mounting of `globalStorage/rooveterinaryinc.roo-cline` for AI persistence across rebuilds is accurately captured.
+2. **Auto-Approval Constraints:** The contextual approach to auto-approvals (differentiating between safe reads, contextual file writes, and restricted shell commands) provides a strong security posture.
+3. **Orchestrator Isolation Mandate:** The rules explicitly forbidding the `agents-orchestrator` from executing file modifications are present and correctly align with resolving the "analysis paralysis" bottleneck.
+
+**Minor Gaps & Recommended Tweaks:**
+* **Intent Classification & Asynchronous Executions:** Section 3 (AI Interaction Paradigm) covers "Progressive Execution," but misses two key heuristic patterns outlined in the retrospective:
+  1. *Intent Classification via Request Complexity:* Evaluating the length/complexity of prompts to determine whether to default to a simple conversational response or trigger the heavy Kickoff Protocol.
+  2. *Asynchronous/Shadow Kickoff:* Triggering scaffolding in the background while maintaining immediate conversational velocity.
+  *Recommendation:* Consider incorporating these heuristics into Section 3 as future UX optimizations.
+
+**Sign-off:**
+The guide successfully codifies the required constraints and isolation parameters. It is structurally sound and approved for immediate adoption across the AgencyOS ecosystem.
