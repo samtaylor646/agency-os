@@ -1,7 +1,7 @@
 # Phase 5 Feedback Loops PRD: Risk Assessment & North Star Drift Report
 
 ## 1. Overview
-This document consolidates the technical risk assessment of the `docs/core/Epic_Phase5_Feedback_Loops_PRD.md`. It incorporates architectural findings related to WebSockets and Redis, infrastructure considerations regarding the LLM Kill Switch and Secure Sandbox, and QA implications for End-to-End (E2E) testing.
+This document consolidates the technical risk assessment of the `docs/archive/Epic_Phase5_Feedback_Loops_PRD.md`. It incorporates architectural findings related to WebSockets and Redis, infrastructure considerations regarding the LLM Kill Switch and Secure Sandbox, and QA implications for End-to-End (E2E) testing.
 
 ## 2. North Star Drift Analysis
 **Conclusion: The Phase 5 PRD DOES NOT drift from the North Star vision, but it introduces architectural complexity that must be carefully managed to avoid critical breakages.**

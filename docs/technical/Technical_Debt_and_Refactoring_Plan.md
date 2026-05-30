@@ -5,15 +5,14 @@ This document outlines the top technical debt items within the AgencyOS architec
 
 ## Major Technical Debt Items
 
-### 1. Monolithic Orchestration in `central_runner.py`
-**Description:** The `central_runner.py` script currently handles too much responsibility, acting as a monolithic orchestrator for pipelines, validation, and agent execution. It tightly couples task routing with execution logic.
+### 1. Monolithic Orchestration in `central_runner.py` **[RESOLVED]**
+**Description:** The `central_runner.py` script previously handled too much responsibility, acting as a monolithic orchestrator for pipelines, validation, and agent execution. It tightly coupled task routing with execution logic.
 **Impact:** 
-- Hard to scale horizontally as pipeline execution is bound to this single process bottleneck.
-- Testing is complex due to deep dependencies on external systems (LLMs, databases) within the core runner loop.
+- Hard to scale horizontally as pipeline execution was bound to this single process bottleneck.
+- Testing was complex due to deep dependencies on external systems (LLMs, databases) within the core runner loop.
 - Difficult to implement proper dead-letter queues, task retries, and distributed tracing.
-**Refactoring Plan:**
-- **Decompose the Runner:** Split `central_runner.py` into smaller, event-driven micro-workers utilizing a robust message broker (e.g., RabbitMQ or Redis Streams).
-- **Introduce a State Machine:** Replace the linear/DAG execution logic with a durable workflow engine (like Temporal or Celery) to handle retries, timeouts, and state persistence natively.
+**Resolution:**
+- **Resolved via `orchestrator_service.py`**: The monolithic runner was deprecated and replaced by a modular architecture leveraging `orchestrator_service.py`, `task_router.py`, and `state_manager.py`. This new structure cleanly separates pipeline state management from task execution and routing, enabling horizontal scalability and clearer testing boundaries.
 
 ### 2. Sandbox Isolation and Lifecycle Management
 **Description:** Docker sandbox execution (e.g., for Python code execution via `server/routers/sandbox.py`) lacks rigorous lifecycle constraints, resource quotas (CPU/Memory limits), and concurrent scaling strategies.

@@ -74,6 +74,20 @@ User-defined or dynamically created specialized agents.
 | `tenant_id` | Integer | FK(`workspaces.id`), Not Null | Associated workspace |
 | `created_at` | DateTime(TZ) | Default: now() | Creation timestamp |
 
+### `templates` (Phase 6 Template Library)
+Stores pre-configured multi-agent workflows (DAG definitions) available within a workspace.
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | Integer | PK, Indexed | Template identifier |
+| `tenant_id` | Integer | FK(`workspaces.id`), Not Null | Associated workspace |
+| `name` | String(255) | Not Null | Template display name |
+| `description` | String | Nullable | Template description |
+| `category` | String(50) | Not Null | Grouping category (e.g., Marketing, Engineering) |
+| `dag_definition` | JSON | Not Null | The multi-agent graph structure (nodes, edges, inputs) |
+| `created_at` | DateTime(TZ) | Default: now() | Creation timestamp |
+| `updated_at` | DateTime(TZ) | | Last update timestamp |
+| `is_active` | Boolean | Default: True | Soft delete or toggle flag |
+
 ### `workflow_executions` (Pipelines)
 Tracks the state and progression of DAG-based multi-agent workflows.
 | Column | Type | Constraints | Description |
@@ -81,11 +95,12 @@ Tracks the state and progression of DAG-based multi-agent workflows.
 | `id` | String(255) | PK, Indexed | Workflow run identifier (UUID) |
 | `tenant_id` | Integer | FK(`workspaces.id`), Not Null | Associated workspace |
 | `pipeline_id` | String(255) | Nullable | Template/Pipeline ID |
-| `status` | String(50) | Default: 'PENDING' | Execution state (RUNNING, COMPLETED, etc.) |
+| `status` | String(50) | Default: 'PENDING' | Execution state (RUNNING, COMPLETED, INTERVENTION_REQUIRED, etc.) |
 | `completed_nodes` | JSON | Default: `[]` | List of successfully executed node IDs |
 | `failed_nodes` | JSON | Default: `[]` | List of failed node IDs |
 | `execution_context` | JSON | Default: `{}` | Shared state and payload data for the DAG |
 | `retry_counts` | JSON | Default: `{}` | Tracks retries per node |
+| `rollback_states` | JSON | Default: `{}` | Stores previous execution context snapshots for Phase 5/6 feedback loops and rollbacks |
 
 ## Projects & Chat (Frontend Contexts)
 

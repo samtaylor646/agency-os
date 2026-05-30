@@ -46,6 +46,7 @@ This document outlines the findings of the Phase 4 compliance audit for Agency O
   - Right to Access: Users can retrieve their workspace data and chat history.
   - Right to be Forgotten: Cascading deletes implemented in SQLAlchemy models (e.g., deleting a User or Workspace deletes all associated Documents, ChatSessions, and API Keys).
   - Data Portability: Endpoints available to export data.
+  - **Phase 5 Compliance**: Human-in-the-loop interventions and rollbacks are fully audited, meeting regulatory requirements for traceable AI decision-making loops.
 
 ### CCPA (California Consumer Privacy Act)
 * **Status**: PASS

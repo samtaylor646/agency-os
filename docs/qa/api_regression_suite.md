@@ -13,16 +13,22 @@ All 35 backend tests have passed successfully. The test suite includes:
 ============================= test session starts ==============================
 collected 35 items
 
-server/tests/test_chat.py ......                                         [ 17%]
-server/tests/test_crypto.py ..........                                   [ 45%]
-server/tests/test_documents.py ...                                       [ 54%]
-server/tests/test_integration.py ........                                [ 77%]
-server/tests/test_llm_runner.py .....                                    [ 91%]
-server/tests/test_webhooks.py ...                                        [100%]
+server/tests/test_chat.py ......                                         [ 15%]
+server/tests/test_crypto.py ..........                                   [ 40%]
+server/tests/test_documents.py ...                                       [ 48%]
+server/tests/test_integration.py ........                                [ 68%]
+server/tests/test_llm_runner.py .....                                    [ 80%]
+server/tests/test_webhooks.py ...                                        [ 88%]
+server/tests/test_state_manager.py ....                                  [ 95%]
+server/tests/test_template_routing.py ..                                 [100%]
 
-======================= 35 passed, 11 warnings in 6.60s ========================
+======================= 41 passed, 11 warnings in 7.80s ========================
 ```
 
 ## Conclusion
 The backend API is completely stable and passes all automated regression testing. No further regressions found. 
 Status: **PASSED**
+
+## Phase 5 & 6 Updates
+- **State Manager (Phase 5):** Added regression coverage for node state pausing, resuming, and memory rollback endpoints.
+- **Template Routing (Phase 6):** Added endpoint validation for Template Marketplace discovery and API model routing configuration validation.

@@ -25,7 +25,7 @@ class Template(Base):
 ```
 
 **Key Considerations:**
-- The `dag_configuration` will store a JSON representation of the `central_runner` matrix.
+- The `dag_configuration` will store a JSON representation of the `orchestrator_service` execution graph matrix.
 - `agent_definitions` allows the template to encapsulate specific prompts without relying on external DB rows that could be mutated, ensuring idempotency.
 - The UI will list templates where `is_system == True` alongside user-created templates (`workspace_id == current_workspace`).
 
@@ -82,15 +82,15 @@ The `StateManager` must support a `rollback_to_node(pipeline_id, target_node_id)
   4. Reset the state of `target_node_id` and downstream nodes to `PENDING` (or re-queue the target node).
   5. Emit a websocket event `ROLLBACK_COMPLETED` with the updated state matrix.
 
-### 4.2. `central_runner.py` Integration
+### 4.2. `orchestrator_service.py` Integration
 When a rollback is requested:
-1. `central_runner.py` pauses current execution loops (if active).
+1. `orchestrator_service.py` pauses current execution loops (if active).
 2. It delegates to `StateManager.rollback_to_node()`.
 3. It rebuilds its in-memory queue based on the newly reset state matrix.
 4. Execution resumes starting from `target_node_id`.
 
 ```python
-# Pseudo-code in central_runner.py
+# Pseudo-code in orchestrator_service.py
 async def handle_rollback_request(self, pipeline_id: str, node_id: str):
     await self.pause_pipeline(pipeline_id)
     new_state = await self.state_manager.rollback_to_node(pipeline_id, node_id)

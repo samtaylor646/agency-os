@@ -10,8 +10,9 @@ This directory serves as the source of truth for Quality Assurance plans, execut
 *   **[Visual Evidence Suite](./visual_evidence_suite.md)** - Centralized collection of UI and layout validation evidence.
 
 ## Audits & Assessments
-*   **[Architectural Review & Assessment](./architectural_review.md)** - Comprehensive analysis of critical technical debt, security vulnerabilities, and cross-functional mitigation assessments (consolidated).
 *   **[Compliance Audit](./compliance_audit.md)** - Security, privacy (GDPR/CCPA), and accessibility (WCAG) audit results.
+*   **[Phase 5 Feedback Loops QA Signoff](./Phase5_Feedback_Loops_QA_Signoff.md)** - Official signoff and findings for human-in-the-loop and feedback loop mechanisms.
+*   **[Phase 6 Template Library QA Signoff](./Phase6_Template_Library_QA_Signoff.md)** - Official signoff and findings for template creation and dynamic API routing.
 
 ## Attachments
 *   **`screenshots/`** - Directory containing all raw visual evidence and UI screenshots captured during manual and visual QA processes.

@@ -1,7 +1,7 @@
 # Phase 5: Feedback Loops & Intervention - QA Sign-off
 
 ## Overview
-This document serves as the formal QA sign-off for **Phase 5: Feedback Loops & Intervention**, verifying that the core features as defined in the PRD (`docs/core/Epic_Phase5_Feedback_Loops_PRD.md`) have been successfully implemented and tested.
+This document serves as the formal QA sign-off for **Phase 5: Feedback Loops & Intervention**, verifying that the core features as defined in the PRD (`docs/archive/Epic_Phase5_Feedback_Loops_PRD.md`) have been successfully implemented and tested.
 
 ## Features Tested & Verified
 

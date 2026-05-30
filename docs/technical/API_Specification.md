@@ -91,7 +91,7 @@ Invite a user to a workspace.
 ### Execute DAG Workflow
 `POST /api/v1/workflows/run`
 
-Triggers the execution of a multi-agent Directed Acyclic Graph (DAG) workflow.
+Triggers the execution of a multi-agent Directed Acyclic Graph (DAG) workflow via the `orchestrator_service.py` and `task_router.py`.
 - **Headers:** `X-Tenant-ID: <id>`
 - **Body:**
   ```json
@@ -122,26 +122,68 @@ Triggers the execution of a multi-agent Directed Acyclic Graph (DAG) workflow.
 
 ---
 
-## 4. Custom Agents (`/custom_agents`)
+## 4. Phase 6 Templates (`/templates`)
+
+Endpoints for managing pre-configured multi-agent workflows (DAGs).
+
+### List Templates
+`GET /api/v1/templates`
+- **Response `200 OK`:** List of active templates.
+
+### Create Template
+`POST /api/v1/templates`
+- **Body:** Template payload including `name`, `category`, and `dag_definition` (JSON).
+- **Response `201 Created`:** The created template object.
+
+### Get Template
+`GET /api/v1/templates/{template_id}`
+- **Response `200 OK`:** Details of the requested template.
+
+### Update Template
+`PUT /api/v1/templates/{template_id}`
+- **Body:** Updated template fields.
+- **Response `200 OK`:** The updated template object.
+
+---
+
+## 5. Custom Agents (`/custom_agents`)
 Standard CRUD endpoints for dynamically compiled specialized agents.
 - `GET /api/v1/custom_agents`: List agents.
-- `POST /api/v1/custom_agents`: Generate a new agent and deploy `.py` file to `/agents`.
+- `POST /api/v1/custom_agents`: Define a new agent. Validates schema and saves configuration to the database. (Note: physical `.py` file deployment has been deprecated in favor of database-driven dynamic configurations).
 - `GET /api/v1/custom_agents/{id}`: Retrieve agent details.
 - `DELETE /api/v1/custom_agents/{id}`: Archive/delete agent.
 
-## 5. Memory & Documents (`/documents`)
+---
+
+## 6. Memory & Documents (`/documents`)
 Endpoints for RAG (Retrieval-Augmented Generation) ingestion.
 - `POST /api/v1/documents`: Upload file (PDF, TXT, MD). Triggers semantic chunking and `pgvector` indexing.
 - `GET /api/v1/documents`: List available workspace documents.
 - `GET /api/v1/documents/search`: Execute similarity search against vector store.
 
-## 6. Projects & Chat Contexts (`/projects`, `/chat`)
+---
+
+## 7. Projects & Chat Contexts (`/projects`, `/chat`)
 - `GET /api/v1/projects`: List projects within the tenant.
 - `POST /api/v1/projects`: Create project.
 - `GET /api/v1/chat`: List chat sessions.
 - `POST /api/v1/chat/{chat_id}/messages`: Append user message to thread and trigger LLM streaming response.
 
-## 7. Configuration & Security
+---
+
+## 8. WebSocket Intervention Events (`/ws`)
+WebSockets are used to provide real-time updates and facilitate human-in-the-loop interventions during workflow execution, managed by `state_manager.py`.
+- **Connect:** `ws://<host>:<port>/ws/workflows/{workflow_id}`
+- **Events (Server to Client):**
+  - `status_update`: Sent when a node's status changes.
+  - `human_intervention_required`: Sent when a workflow pauses and requires human input or approval.
+  - `feedback_loop_triggered`: Sent when a node result fails validation and is sent back for revision.
+- **Events (Client to Server):**
+  - `provide_intervention`: Client sends approval or feedback text to resume a paused workflow.
+
+---
+
+## 9. Configuration & Security
 - **Credentials (`/credentials`)**: Manage encrypted LLM API Keys (OpenAI, Anthropic).
 - **API Keys (`/api_keys`)**: Issue platform programmatic access tokens.
 - **Webhooks (`/webhooks`)**: Register and manage outbound event hooks.

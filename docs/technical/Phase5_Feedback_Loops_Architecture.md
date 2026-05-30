@@ -1,6 +1,6 @@
 # Phase 5: Feedback Loops & Intervention Architecture
 
-This document outlines the technical design for the Phase 5 "Feedback Loops & Intervention" features, specifically detailing how the `central_runner.py` (DAG orchestrator) will handle execution pauses, human approvals, error escalations, and the corresponding WebSocket architecture for the UI.
+This document outlines the technical design for the Phase 5 "Feedback Loops & Intervention" features, specifically detailing how the `state_manager.py` and `orchestrator_service.py` (DAG orchestrator) will handle execution pauses, human approvals, error escalations, and the corresponding WebSocket architecture for the UI.
 
 ## 1. Core Concepts
 
@@ -11,13 +11,13 @@ We are introducing three new node states:
 *   `PAUSED_ERROR_ESCALATION`: The node has encountered a terminal/retried error and is awaiting human intervention to resolve.
 *   `INTERVENED`: A transient state indicating new context/instructions have been received and the node should be re-run or the pipeline unblocked.
 
-## 2. DAG Runner Modifications (`central_runner.py`)
+## 2. State Manager Modifications (`state_manager.py`)
 
 ### 2.1 Node Definition Updates
-The `DAGNodeInput` and the internal `DAGOrchestrator.nodes` dictionary will be extended to support a `requires_human_approval` boolean flag.
+The `DAGNodeInput` and the internal state tracking will be extended to support a `requires_human_approval` boolean flag.
 
 ```python
-# In central_runner.py / server.schemas
+# In state_manager.py / server.schemas
 class DAGNodeInput(BaseModel):
     task: str
     context_data: dict
@@ -32,7 +32,7 @@ When the orchestrator processes a level in the topological sort, it will check t
 2.  **Pause Trigger:** If `requires_human_approval` is True, instead of marking the node as `COMPLETED` and moving to the next level, the runner changes the node's status to `PAUSED_AWAITING_APPROVAL`.
 3.  **State Persistence:** The orchestrator persists the `PAUSED` state to the `WorkflowExecution` database record.
 4.  **Event Emission:** The runner uses `message_broker` to publish an `awaiting_approval` event.
-5.  **Yielding Execution:** The runner must yield control. Instead of blocking the thread actively, the `DAGOrchestrator.execute_workflow` method will need to implement a polling mechanism or subscribe to an `asyncio.Event` tied to the specific node ID to wait for the unblock signal.
+5.  **Yielding Execution:** The orchestrator must yield control. Instead of blocking the thread actively, the `orchestrator_service` will need to implement a polling mechanism or subscribe to an `asyncio.Event` tied to the specific node ID to wait for the unblock signal.
 
 ### 2.3 Error Escalation Handling
 If `execute_node_with_retry` exhausts its retry attempts (throwing a `TerminalNodeError` or unresolved `TransientNodeError`), the orchestrator catches this.
@@ -73,11 +73,11 @@ The `websocket_endpoint` will be updated to actively parse incoming JSON payload
 When the WebSocket receives an intervention message:
 1.  **Validation:** Verify the user has permissions for the workspace/workflow.
 2.  **Database Update:** Update the `WorkflowExecution` record to reflect the human input. 
-3.  **Internal Pub/Sub:** Publish an internal event via `message_broker` (e.g., `intervention_received:{workflow_id}:{node_id}`) so the sleeping/waiting `central_runner.py` task can wake up.
+3.  **Internal Pub/Sub:** Publish an internal event via `message_broker` (e.g., `intervention_received:{workflow_id}:{node_id}`) so the sleeping/waiting `orchestrator_service.py` task can wake up.
 4.  **Audit Logging:** Log the intervention to the Audit system (e.g., via `server.audit`).
 
 ### 3.3 Server-to-Client Events (Outbound)
-The `central_runner.py` will emit the following new event types via `message_broker.publish()`, which the WebSocket will forward to the UI:
+The `orchestrator_service.py` will emit the following new event types via `message_broker.publish()`, which the WebSocket will forward to the UI:
 
 *   `pipeline_paused`: Emitted when the runner stops progressing.
 *   `awaiting_approval`: Emitted specifically for gated nodes. Payload includes the output of the node that requires review.
@@ -89,8 +89,8 @@ The `central_runner.py` will emit the following new event types via `message_bro
 ### 4.1 Zombie Prevention
 Because pipelines can now pause indefinitely awaiting human input, a cleanup job or TTL mechanism should be implemented for long-running workflows to prevent memory leaks in the active runner processes. Alternatively, the orchestrator should be fully stateless, capable of completely shutting down and "resuming" a workflow from the database state when a webhook/intervention is received.
 
-For Phase 5 MVP, holding the `asyncio` task open with a reasonable timeout (e.g., 24 hours), or switching the `execute_workflow` to a state-machine that can be re-invoked, is recommended. A state-machine approach is more robust:
-If a node hits a pause state, `execute_workflow` saves state and *exits*. When an intervention API call is made, `execute_workflow` is called again, loads the state from the DB, sees the node is now unblocked, and continues processing the topological sort.
+For Phase 5 MVP, holding the `asyncio` task open with a reasonable timeout (e.g., 24 hours), or switching the `orchestrator_service` to a state-machine that can be re-invoked, is recommended. A state-machine approach is more robust:
+If a node hits a pause state, the orchestrator saves state and *exits*. When an intervention API call is made, the orchestrator is called again, loads the state from the DB, sees the node is now unblocked, and continues processing the topological sort.
 
 ### 4.2 Agent Context Modification
 When a user provides text via Mid-Execution Chat or Error Escalation, it will be injected into the `context_data` under a specific key (e.g., `HUMAN_INTERVENTION`). The `llm_runner.py` must be updated to explicitly prioritize instructions found under this key over its default instructions to ensure the agent obeys the override.

@@ -9,6 +9,7 @@ Execute this runbook if any of the following occur during or immediately after t
 - API latency exceeds 500ms for P90 over a 5-minute window.
 - Critical multi-agent pipelines fail continuously.
 - Container crash loop backoffs detected in the Green environment.
+- Widespread websocket disconnections or failures to establish real-time connections.
 - Explicit human decision based on visual/manual QA failure post-launch.
 
 ## 3. Instant Reversion Procedure (App-Level Rollback)
@@ -17,7 +18,9 @@ Because the Blue environment is kept running during the "bake period" after a Bl
 1. **Update Routing:**
    - Immediately update the load balancer or Ingress controller routing rules to point live traffic back to the Blue environment.
    - Example (Kubernetes Ingress): Revert the `service.name` to point back to the Blue service.
-2. **Verify Traffic Flow:**
+2. **Track Rollback Memory Footprint:**
+   - Immediately capture and log the memory footprint of the failing environment (e.g., Redis `used_memory`, container memory utilization) to preserve context for the post-mortem.
+3. **Verify Traffic Flow:**
    - Check load balancer metrics to confirm traffic is flowing to Blue pods.
    - Verify that Error Rates and Latency metrics begin to stabilize and return to baseline.
 
@@ -32,12 +35,12 @@ If a destructive or incompatible database change was accidentally deployed and c
 3. **Verify Data Integrity:** Ensure no critical user data generated during the Green window was lost or corrupted during the schema reversion. (Use database backups if necessary).
 
 ## 5. Post-Rollback Actions
-1. **Quarantine Green:**
+1. **Quarantine Green & Analyze Memory:**
    - Do NOT immediately delete the failing Green environment.
-   - Isolate it (e.g., remove from any internal routing) to allow developers to inspect logs, memory dumps, and traces to identify the root cause.
+   - Isolate it (e.g., remove from any internal routing) to allow developers to inspect logs, traces, and the captured rollback memory footprint to identify the root cause (e.g., OOM events).
 2. **Incident Report:**
    - Incident Response Commander initiates a blameless post-mortem.
-   - Document the timeline, trigger conditions, root cause analysis, and remediation steps.
+   - Document the timeline, trigger conditions, memory footprint tracking data, root cause analysis, and remediation steps.
 3. **Notify Stakeholders:**
    - Inform the engineering team, product managers, and human reviewers that a rollback occurred and deployment is halted until the root cause is resolved.
 
