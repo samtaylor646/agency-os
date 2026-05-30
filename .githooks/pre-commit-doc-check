@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# pre-commit-doc-check
+# Intercepts file deletions/moves in active docs directories to prevent accidental archiving.
+
+# Get list of deleted files and files moved away
+deleted_files=$(git diff --cached --name-only --diff-filter=D)
+moved_files=$(git diff --cached --name-only --diff-filter=R)
+
+all_removed_files="$deleted_files $moved_files"
+
+protected_patterns=(
+    "docs/qa/"
+    "docs/operations/"
+    "docs/technical/"
+)
+
+error=0
+
+for file in $all_removed_files; do
+    # Ignore if the file was already in the archive
+    if [[ "$file" == docs/archive/* ]]; then
+        continue
+    fi
+
+    for pattern in "${protected_patterns[@]}"; do
+        if [[ "$file" == $pattern* ]]; then
+            echo "======================================================================"
+            echo "ERROR: PRE-COMMIT HOOK FAILED"
+            echo "Attempted to delete or move a protected documentation file:"
+            echo " -> $file"
+            echo "Active tracking documents should not be deleted or moved to archive."
+            echo "If this is intentional, you can bypass this check with --no-verify."
+            echo "======================================================================"
+            error=1
+            break
+        fi
+    done
+done
+
+if [ $error -ne 0 ]; then
+    exit 1
+fi
+
+exit 0

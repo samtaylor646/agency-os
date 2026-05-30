@@ -1,0 +1,55 @@
+name: Doc-Integrity-Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release/*
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for deleted protected docs
+        run: |
+          # Ensure origin/main is available
+          git fetch origin main || true
+          
+          # Base commit for PR
+          BASE_COMMIT=${{ github.event.pull_request.base.sha }}
+          if [ -z "$BASE_COMMIT" ]; then
+            BASE_COMMIT="origin/main"
+          fi
+          
+          # Get deleted or moved files in this PR
+          deleted_files=$(git diff --name-status $BASE_COMMIT...HEAD | awk '$1 ~ /^[DR]/ {print $2}')
+          
+          error=0
+          for file in $deleted_files; do
+            if [[ "$file" == docs/archive/* ]]; then
+              continue
+            fi
+            if [[ "$file" == docs/qa/* ]] || [[ "$file" == docs/technical/* ]] || [[ "$file" == docs/operations/* ]]; then
+              echo "ERROR: Protected documentation file removed or moved: $file"
+              error=1
+            fi
+          done
+          
+          if [ $error -ne 0 ]; then
+            labels="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
+            if [[ "$labels" == *"doc-archival-approved"* ]]; then
+              echo "Bypassing check due to 'doc-archival-approved' label."
+              exit 0
+            else
+              echo "::error::Failing CI check. Active documents were moved or deleted. Add 'doc-archival-approved' label if this is intentional."
+              exit 1
+            fi
+          fi
+          
+          echo "Doc integrity check passed."
+          exit 0
