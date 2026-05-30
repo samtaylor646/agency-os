@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, BackgroundTasks, status, Request
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from ..database import get_db
+from .. import dependencies
 from .. import models, schemas, dependencies
 from ..services import document_parser, analysis_agent, semantic_search
 import os
@@ -21,11 +24,11 @@ async def process_document_pipeline(doc_id: str, storage_path: str, file_type: s
     from ..embeddings import get_embedding_provider
     db = SessionLocal()
     try:
-        doc = db.query(models.IngestedDocument).filter(models.IngestedDocument.id == doc_id).first()
+        doc = (await db.execute(select(models.IngestedDocument).filter(models.IngestedDocument.id == doc_id))).scalars().first()
         if not doc:
             return
         doc.status = "analyzing"
-        db.commit()
+        await db.commit()
         
         extracted_text = document_parser.extract_text(storage_path, file_type)
         
@@ -42,8 +45,8 @@ async def process_document_pipeline(doc_id: str, storage_path: str, file_type: s
             # chat_id or other fields could go here if needed
         )
         db.add(rag_doc)
-        db.commit()
-        db.refresh(rag_doc)
+        await db.commit()
+        await db.refresh(rag_doc)
 
         if chunks:
             # Batch process embeddings for all chunks
@@ -60,7 +63,7 @@ async def process_document_pipeline(doc_id: str, storage_path: str, file_type: s
                 )
                 db.add(chunk_record)
             
-            db.commit()
+            await db.commit()
         
         # The legacy pipeline generation if needed (leaving intact for now)
         try:
@@ -69,13 +72,13 @@ async def process_document_pipeline(doc_id: str, storage_path: str, file_type: s
             print(f"Legacy analysis pipeline error: {e}")
             
         doc.status = "completed"
-        db.commit()
+        await db.commit()
         
     except Exception as e:
-        doc = db.query(models.IngestedDocument).filter(models.IngestedDocument.id == doc_id).first()
+        doc = (await db.execute(select(models.IngestedDocument).filter(models.IngestedDocument.id == doc_id))).scalars().first()
         if doc:
             doc.status = "failed"
-            db.commit()
+            await db.commit()
         print(f"Pipeline error: {e}")
     finally:
         db.close()
@@ -87,7 +90,7 @@ async def ingest_document(
     background_tasks: BackgroundTasks,
     request: Request,
     file: UploadFile = File(...),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.verify_workspace_access)
 ):
     # Enforce payload size limit
@@ -122,8 +125,8 @@ async def ingest_document(
         status="pending"
     )
     db.add(doc)
-    db.commit()
-    db.refresh(doc)
+    await db.commit()
+    await db.refresh(doc)
     
     background_tasks.add_task(
         process_document_pipeline, doc.id, storage_path, file_type, workspace_id
@@ -137,7 +140,7 @@ async def search_workspace_documents(
     workspace_id: int,
     query: str,
     top_k: int = 5,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.verify_workspace_access)
 ):
     """
@@ -148,10 +151,10 @@ async def search_workspace_documents(
     return {"results": results}
 
 @router.get("/ingest/status/{job_id}")
-def get_ingest_status(
+async def get_ingest_status(
     workspace_id: int,
     job_id: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.verify_workspace_access)
 ):
     doc = db.query(models.IngestedDocument).filter(

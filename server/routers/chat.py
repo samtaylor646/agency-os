@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import List
 from .. import schemas, dependencies, models
 from ..services.llm_runner import llm_runner
@@ -14,30 +16,30 @@ router = APIRouter(
 async def create_chat(
     chat: schemas.ChatCreate,
     workspace: models.Workspace = Depends(dependencies.get_current_workspace),
-    db: Session = Depends(dependencies.get_db)
+    db: AsyncSession = Depends(dependencies.get_async_db)
 ):
     db_chat = models.Chat(
         **chat.model_dump(),
         workspace_id=workspace.id
     )
     db.add(db_chat)
-    db.commit()
-    db.refresh(db_chat)
+    await db.commit()
+    await db.refresh(db_chat)
     return db_chat
 
 @router.get("", response_model=List[schemas.ChatOut])
 async def get_chats(
     workspace: models.Workspace = Depends(dependencies.get_current_workspace),
-    db: Session = Depends(dependencies.get_db)
+    db: AsyncSession = Depends(dependencies.get_async_db)
 ):
-    chats = db.query(models.Chat).filter(models.Chat.workspace_id == workspace.id).all()
+    chats = (await db.execute(select(models.Chat).filter(models.Chat.workspace_id == workspace.id))).scalars().all()
     return chats
 
 @router.get("/{chat_id}", response_model=schemas.ChatWithMessagesOut)
 async def get_chat(
     chat_id: int,
     workspace: models.Workspace = Depends(dependencies.get_current_workspace),
-    db: Session = Depends(dependencies.get_db)
+    db: AsyncSession = Depends(dependencies.get_async_db)
 ):
     chat = db.query(models.Chat).filter(
         models.Chat.id == chat_id,
@@ -52,7 +54,7 @@ async def add_chat_message(
     chat_id: int,
     message: schemas.ChatMessageCreate,
     workspace: models.Workspace = Depends(dependencies.get_current_workspace),
-    db: Session = Depends(dependencies.get_db)
+    db: AsyncSession = Depends(dependencies.get_async_db)
 ):
     chat = db.query(models.Chat).filter(
         models.Chat.id == chat_id,
@@ -67,15 +69,15 @@ async def add_chat_message(
         content=message.content
     )
     db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
+    await db.commit()
+    await db.refresh(db_message)
     return db_message
 
 @router.delete("/{chat_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_chat(
     chat_id: int,
     workspace: models.Workspace = Depends(dependencies.get_current_workspace),
-    db: Session = Depends(dependencies.get_db)
+    db: AsyncSession = Depends(dependencies.get_async_db)
 ):
     chat = db.query(models.Chat).filter(
         models.Chat.id == chat_id,
@@ -86,7 +88,7 @@ async def delete_chat(
         raise HTTPException(status_code=404, detail="Chat not found")
         
     db.delete(chat)
-    db.commit()
+    await db.commit()
     return None
 
 @router.post("/scope", response_model=schemas.ChatScopeResponse)
@@ -118,7 +120,7 @@ async def chat_scope(request: schemas.ChatScopeRequest):
         )
 
 @router.post("/{chat_id}/generate/{doc_type}", response_model=schemas.DocumentOut)
-async def generate_document_new(chat_id: int, doc_type: str, request: schemas.DocumentGenerateRequest, db: Session = Depends(dependencies.get_db)):
+async def generate_document_new(chat_id: int, doc_type: str, request: schemas.DocumentGenerateRequest, db: AsyncSession = Depends(dependencies.get_async_db)):
     """
     Generates a specific project document (PRD, architecture, tasks) 
     based on the provided project context, and saves it to the db.
@@ -136,8 +138,8 @@ async def generate_document_new(chat_id: int, doc_type: str, request: schemas.Do
             type=doc_type
         )
         db.add(doc)
-        db.commit()
-        db.refresh(doc)
+        await db.commit()
+        await db.refresh(doc)
         
         return doc
     except Exception as e:

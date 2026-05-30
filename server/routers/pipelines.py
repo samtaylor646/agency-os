@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from pydantic import BaseModel
 from typing import List, Optional
 import json
 
 from ..database import get_db
+from .. import dependencies
 from ..models import Pipeline, PipelineRun, PipelineMessage
 
 router = APIRouter(prefix="/pipelines", tags=["pipelines"])
@@ -23,31 +26,31 @@ class ApprovalRequest(BaseModel):
     comments: Optional[str] = None
 
 @router.post("/{pipeline_id}/run", response_model=PipelineRunResponse)
-def start_pipeline(pipeline_id: int, db: Session = Depends(get_db)):
-    pipeline = db.query(Pipeline).filter(Pipeline.id == pipeline_id).first()
+async def start_pipeline(pipeline_id: int, db: AsyncSession = Depends(dependencies.get_async_db)):
+    pipeline = (await db.execute(select(Pipeline).filter(Pipeline.id == pipeline_id))).scalars().first()
     if not pipeline:
         raise HTTPException(status_code=404, detail="Pipeline not found")
     
     run = PipelineRun(pipeline_id=pipeline_id, status="RUNNING")
     db.add(run)
-    db.commit()
-    db.refresh(run)
+    await db.commit()
+    await db.refresh(run)
     return run
 
 @router.post("/runs/{run_id}/pause", response_model=PipelineRunResponse)
-def pause_pipeline_for_approval(run_id: int, db: Session = Depends(get_db)):
-    run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+async def pause_pipeline_for_approval(run_id: int, db: AsyncSession = Depends(dependencies.get_async_db)):
+    run = (await db.execute(select(PipelineRun).filter(PipelineRun.id == run_id))).scalars().first()
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
     
     run.status = "WAITING_APPROVAL"
-    db.commit()
-    db.refresh(run)
+    await db.commit()
+    await db.refresh(run)
     return run
 
 @router.post("/runs/{run_id}/approve", response_model=PipelineRunResponse)
-def approve_pipeline(run_id: int, request: ApprovalRequest, db: Session = Depends(get_db)):
-    run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+async def approve_pipeline(run_id: int, request: ApprovalRequest, db: AsyncSession = Depends(dependencies.get_async_db)):
+    run = (await db.execute(select(PipelineRun).filter(PipelineRun.id == run_id))).scalars().first()
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
     
@@ -61,36 +64,36 @@ def approve_pipeline(run_id: int, request: ApprovalRequest, db: Session = Depend
     else:
         raise HTTPException(status_code=400, detail="Invalid action")
         
-    db.commit()
-    db.refresh(run)
+    await db.commit()
+    await db.refresh(run)
     return run
 
 @router.post("/runs/{run_id}/error", response_model=PipelineRunResponse)
-def escalate_pipeline_error(run_id: int, error_message: str, db: Session = Depends(get_db)):
-    run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+async def escalate_pipeline_error(run_id: int, error_message: str, db: AsyncSession = Depends(dependencies.get_async_db)):
+    run = (await db.execute(select(PipelineRun).filter(PipelineRun.id == run_id))).scalars().first()
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
     
     run.status = "ERROR"
     run.error_message = error_message
-    db.commit()
-    db.refresh(run)
+    await db.commit()
+    await db.refresh(run)
     return run
 
 @router.post("/runs/{run_id}/chat")
-def post_chat_message(run_id: int, role: str, content: str, db: Session = Depends(get_db)):
-    run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+async def post_chat_message(run_id: int, role: str, content: str, db: AsyncSession = Depends(dependencies.get_async_db)):
+    run = (await db.execute(select(PipelineRun).filter(PipelineRun.id == run_id))).scalars().first()
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
         
     msg = PipelineMessage(pipeline_run_id=run_id, role=role, content=content)
     db.add(msg)
-    db.commit()
+    await db.commit()
     return {"status": "ok"}
 
 @router.post("/runs/{run_id}/intervene")
-def inject_intervention_to_run(run_id: int, request: ApprovalRequest, db: Session = Depends(get_db)):
-    run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+async def inject_intervention_to_run(run_id: int, request: ApprovalRequest, db: AsyncSession = Depends(dependencies.get_async_db)):
+    run = (await db.execute(select(PipelineRun).filter(PipelineRun.id == run_id))).scalars().first()
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
         
@@ -130,9 +133,9 @@ def inject_intervention_to_run(run_id: int, request: ApprovalRequest, db: Sessio
     return {"status": "intervention_injected"}
 
 @router.websocket("/runs/{run_id}/ws")
-async def websocket_chat(websocket: WebSocket, run_id: int, db: Session = Depends(get_db)):
+async def websocket_chat(websocket: WebSocket, run_id: int, db: AsyncSession = Depends(dependencies.get_async_db)):
     await websocket.accept()
-    run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+    run = (await db.execute(select(PipelineRun).filter(PipelineRun.id == run_id))).scalars().first()
     if not run:
         await websocket.close(code=1008)
         return
@@ -143,7 +146,7 @@ async def websocket_chat(websocket: WebSocket, run_id: int, db: Session = Depend
             payload = json.loads(data)
             msg = PipelineMessage(pipeline_run_id=run_id, role=payload.get("role", "user"), content=payload.get("content", ""))
             db.add(msg)
-            db.commit()
+            await db.commit()
             
             # echo back
             await websocket.send_text(json.dumps({"status": "received", "content": payload.get("content")}))

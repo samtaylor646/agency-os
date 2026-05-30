@@ -2,6 +2,8 @@ import os
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import List
 
 from .. import models, schemas, dependencies
@@ -15,9 +17,9 @@ router = APIRouter(
 )
 
 @router.post("", response_model=schemas.CustomAgentOut, status_code=status.HTTP_201_CREATED)
-def create_agent(
+async def create_agent(
     agent_data: schemas.CustomAgentCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
     filepath = None
@@ -39,28 +41,28 @@ def create_agent(
             filepath=filepath
         )
         db.add(db_agent)
-        db.commit()
-        db.refresh(db_agent)
+        await db.commit()
+        await db.refresh(db_agent)
         
         return db_agent
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to create agent: {str(e)}")
 
 @router.get("", response_model=List[schemas.CustomAgentOut])
-def list_agents(
-    db: Session = Depends(get_db),
+async def list_agents(
+    db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
-    agents = db.query(models.CustomAgent).filter(models.CustomAgent.tenant_id == tenant_id).all()
+    agents = (await db.execute(select(models.CustomAgent).filter(models.CustomAgent.tenant_id == tenant_id))).scalars().all()
     return agents
 
 # B2-1: Implement PUT /api/custom-agents/{agent_id} endpoint
 @router.put("/{agent_id}", response_model=schemas.CustomAgentOut)
-def update_agent(
+async def update_agent(
     agent_id: str,
     agent_data: schemas.CustomAgentCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
     db_agent = db.query(models.CustomAgent).filter(
@@ -77,7 +79,7 @@ def update_agent(
     try:
         db_agent.name = agent_data.identity.name
         db_agent.role = agent_data.identity.role
-        db.flush()
+        await db.flush()
         
         # Generate new markdown and overwrite file (or create new if path changes)
         # Using the same agent_id will overwrite the file in storage layer
@@ -85,18 +87,18 @@ def update_agent(
         
         db_agent.filepath = new_filepath
         
-        db.commit()
-        db.refresh(db_agent)
+        await db.commit()
+        await db.refresh(db_agent)
         return db_agent
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to update agent: {str(e)}")
 
 # B2-2: Implement DELETE /api/custom-agents/{agent_id} endpoint
 @router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_agent(
+async def delete_agent(
     agent_id: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(dependencies.get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
     db_agent = db.query(models.CustomAgent).filter(
@@ -113,9 +115,9 @@ def delete_agent(
     try:
         # B3-1: Transactional integrity: delete from DB first, if succeeds delete from storage
         db.delete(db_agent)
-        db.commit()
+        await db.commit()
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to delete agent from database: {str(e)}")
         
     try:
