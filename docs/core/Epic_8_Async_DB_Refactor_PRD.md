@@ -1,5 +1,7 @@
 # Epic 8: Async Database Refactor - Product Requirements Document (PRD)
 
+**Status:** Phase 1 (Dual-Engine foundation, `workspaces.py`, `agents.py`) COMPLETED. Phase 2 (remaining routes) pending.
+
 ## 1. Overview and Problem Statement
 
 AgencyOS currently relies on synchronous database calls, including standard relational queries and vector similarity searches via `pgvector`. As the platform scales and concurrent user requests increase, these synchronous operations block the event loop, creating a significant technical debt bottleneck. This limitation stifles our ability to achieve horizontal scalability, leading to degraded performance, timeouts, and a poor user experience under load.
@@ -8,8 +10,9 @@ A previous attempt to refactor the database layer to asynchronous operations fai
 
 ## 2. Business Goals
 
-*   **Ensure Platform Scalability:** Unblock horizontal scaling capabilities to support an increasing number of concurrent workspaces, agents, and data ingestion pipelines.
-*   **Improve System Resilience and Performance:** Eliminate event loop blocking to ensure consistent, low-latency API response times, even during peak loads or heavy vector similarity searches.
+*   **Ensure Platform Scalability & Unit Economics:** Unblock horizontal scaling capabilities to support an increasing number of concurrent workspaces, agents, and data ingestion pipelines. This directly reduces our infrastructure cost per tenant, improving overall margin.
+*   **Enable Concurrent Agent Monetization (GTM):** By solving the synchronous event-loop block, we can reliably launch pricing tiers based on "Concurrent Agent Usage." Agents can execute parallel vector similarity searches without freezing the system, creating a direct pathway to up-sell power users to premium compute tiers.
+*   **Improve System Resilience and Performance (Enterprise SLAs):** Eliminate event loop blocking to ensure consistent, low-latency API response times. This unlocks our ability to guarantee strict latency SLAs for Enterprise clients, a critical requirement for up-market sales.
 *   **Mitigate Technical Debt Risk:** Address a foundational bottleneck now to prevent systemic failures and reduce the cost of future feature development.
 *   **Guarantee Zero Downtime / Zero Regression:** Implement the transition so seamlessly that end-users experience no disruptions or regressions in data integrity or application logic.
 
@@ -21,6 +24,9 @@ A previous attempt to refactor the database layer to asynchronous operations fai
 *   **Reliability:**
     *   0% regression in data accuracy (CRUD operations and vector similarity results must perfectly match the legacy synchronous implementation).
     *   100% test coverage for all newly implemented asynchronous database routes.
+*   **Business & Monetization Readiness:**
+    *   System architecture successfully supports 5x the number of concurrent active agents per pod compared to the baseline, technically enabling the launch of a new "Premium Agent Concurrency" pricing tier.
+    *   P95 latency remains within Enterprise SLA bounds (<200ms) even under maximum concurrent vector search load.
 *   **Adoption/Migration:**
     *   100% of read and write traffic safely routed to the new asynchronous database connection pool by the end of the Epic.
 

@@ -1,12 +1,13 @@
 import os
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from typing import List
 import yaml
 
 from .. import models, schemas, dependencies
-from ..database import get_db
+from ..dependencies import get_async_db
 
 router = APIRouter(
     prefix="/api/v1/agents",
@@ -85,9 +86,9 @@ vibe: {vibe}
     return content
 
 @router.post("", response_model=schemas.CustomAgentOut, status_code=status.HTTP_201_CREATED)
-def create_agent(
+async def create_agent(
     agent_data: schemas.CustomAgentCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
     os.makedirs(AGENTS_DIR, exist_ok=True)
@@ -117,15 +118,15 @@ def create_agent(
         tenant_id=tenant_id
     )
     db.add(db_agent)
-    db.commit()
-    db.refresh(db_agent)
+    await db.commit()
+    await db.refresh(db_agent)
     
     return db_agent
 
 @router.get("", response_model=List[schemas.CustomAgentOut])
-def list_agents(
-    db: Session = Depends(get_db),
+async def list_agents(
+    db: AsyncSession = Depends(get_async_db),
     tenant_id: int = Depends(dependencies.get_api_or_user_tenant_context)
 ):
-    agents = db.query(models.CustomAgent).filter(models.CustomAgent.tenant_id == tenant_id).all()
-    return agents
+    result = await db.execute(select(models.CustomAgent).filter(models.CustomAgent.tenant_id == tenant_id))
+    return result.scalars().all()

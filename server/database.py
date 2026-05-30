@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
@@ -18,6 +19,28 @@ engine = create_engine(
     DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Async Engine Setup
+if DATABASE_URL.startswith("sqlite"):
+    ASYNC_DATABASE_URL = DATABASE_URL.replace("sqlite://", "sqlite+aiosqlite://")
+    async_connect_args = {"check_same_thread": False}
+    pool_args = {}
+else:
+    ASYNC_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://") if DATABASE_URL.startswith("postgresql://") else DATABASE_URL
+    async_connect_args = {}
+    # Strict pool sizing and cost caps per Tech Design
+    pool_args = {
+        "pool_size": int(os.getenv("ASYNC_POOL_SIZE", 20)),
+        "max_overflow": int(os.getenv("ASYNC_MAX_OVERFLOW", 10)),
+        "pool_timeout": int(os.getenv("ASYNC_POOL_TIMEOUT", 10)),
+    }
+
+async_engine = create_async_engine(
+    ASYNC_DATABASE_URL,
+    connect_args=async_connect_args,
+    **pool_args
+)
+AsyncSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession)
 
 Base = declarative_base()
 

@@ -1,7 +1,8 @@
 from fastapi import Depends, HTTPException, status, Header, Request, Security
 from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 from sqlalchemy.orm import Session
-from .database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from .database import get_db, AsyncSessionLocal
 from .auth import decode_access_token, verify_api_key
 from .models import User, RoleEnum, WorkspaceAPIKey
 from .schemas import TokenData
@@ -153,4 +154,15 @@ async def get_current_workspace(
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
     return workspace
+
+async def get_async_db():
+    """Yields an asynchronous database session, managing transaction state and connection cleanup."""
+    db = AsyncSessionLocal()
+    try:
+        yield db
+    except Exception:
+        await db.rollback()
+        raise
+    finally:
+        await db.close()
 
