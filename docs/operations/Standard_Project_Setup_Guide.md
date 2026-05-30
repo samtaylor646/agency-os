@@ -80,7 +80,7 @@ While tools like `AGENT-ZERO` emphasize an unconstrained, build-tools-on-the-fly
 ## 4. Initialization Checklist
 
 When starting a new project repository, ensure the following steps are completed:
-1. [ ] Clone or copy the `agency-os-template` repository, which contains the fully hardened baseline (DevContainers, unprivileged Dockerfiles, and JIT rules).
+1. [ ] Clone or copy the `agentic-project-scaffold` repository, which contains the fully hardened baseline (DevContainers, unprivileged Dockerfiles, and JIT rules).
 2. [ ] Initialize the `.roo/memory/` directory with `active_context.md` and `changelog.md`.
 3. [ ] **Enable Automated Validation Layer:** Ensure `.githooks/pre-commit` and `scripts/validate_agent_metadata.py` are executable to enforce SOC2 auditability and prevent malformed agent configurations.
 
