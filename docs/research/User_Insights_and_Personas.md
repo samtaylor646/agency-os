@@ -23,7 +23,7 @@
 ## 2. Key User Insights
 - **Trust is Paramount:** Users will not deploy AgencyOS in production without absolute confidence in the safety guardrails and auditability. The "Kill Switch" is a heavily requested feature.
 - **Collaboration > Replacement:** Users prefer the narrative of "AI teammates" rather than "AI replacements." The interface should emphasize collaboration (e.g., Pod Chat Container).
-- **Time to Value:** Users want to see agents doing useful work within minutes of deployment. Pre-configured templates and the Marketplace are critical for adoption.
+- **Time to Value:** Users want to see agents doing useful work within minutes of deployment. The actively deployed Phase 6 Template Library now solves this pain point with pre-configured agent pods, significantly reducing setup time compared to manual configuration.
 
 ## 3. User Journey Mapping (The "Aha!" Moment)
 The critical conversion moment occurs when a user successfully configures a multi-agent pod (e.g., Architect + Coder + QA) and watches them autonomously iterate on a problem, pass tests, and present a finished PR for human review.

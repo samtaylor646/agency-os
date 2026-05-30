@@ -6,7 +6,7 @@
 - **Relevance:** High. AgencyOS must classify the risk level of its agentic workflows.
 - **Requirements:** Transparency, human oversight, technical documentation, and record-keeping.
 - **AgencyOS Compliance Strategy:**
-    - **Human Oversight:** Enforce mandatory "Human-in-the-Loop" approval gates for high-risk actions.
+    - **Human Oversight:** The system now features fully operational mandatory "Human-in-the-Loop" approval gates and rollback capabilities for high-risk actions.
     - **Transparency:** Provide clear explanations of agent logic and data sources. Maintain comprehensive audit logs (`server/audit.py`).
     - **Documentation:** Maintain up-to-date technical architecture and safety protocols in `docs/technical/`.
 

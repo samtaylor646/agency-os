@@ -6,7 +6,7 @@ A comprehensive project housekeeping pass was conducted to clean up repository s
 ## Tasks Executed
 
 ### 4. Phase 4 - Epics 4.4.A & 4.4.D Documentation Alignment (Technical Writer)
-- **Review:** Checked `docs/core/phase_4_master_plan.md` and `docs/core/Documentation_TOC.md`.
+- **Review:** Checked `docs/core/phase_4_master_plan.md` and `docs/operations/Documentation_TOC.md`.
 - **Action:** Marked Epic 4.4.A (LLM Kill Switch) and Epic 4.4.D (Terms of Service) as officially COMPLETED in the master plan.
 - **Action:** Updated `Documentation_TOC.md` to map the newly created operations and technical files (`terms_of_service_ugc.md`, `llm_kill_switch_architecture.md`, and `scenario-autonomous-blast-radius.md`).
 - **Validation:** Verified docs link properly and align with the `main` branch after the merge.
