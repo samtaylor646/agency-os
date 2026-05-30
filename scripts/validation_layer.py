@@ -68,6 +68,9 @@ if __name__ == "__main__":
     run_validation()
 
 class TaskValidator:
-    def pre_flight_check(self, task):
-        print(f"Validation passed for task: {task}")
+    def pre_flight_check(self, task: str, agent_mode: str = None) -> str:
+        # Prevent orchestrator from directly resolving coding tasks without delegation
+        if agent_mode == "agents-orchestrator" and ("write" in task.lower() or "implement" in task.lower()):
+            raise Exception("ROUTING FIRST MANDATE: Orchestrator cannot resolve implementation tasks directly.")
+        print(f"Validation passed for task: {task} (mode: {agent_mode})")
         return "valid"
