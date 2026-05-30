@@ -7,7 +7,7 @@ def print_result(test_id, passed, details=""):
     print(f"{status} | {test_id} | {details}")
 
 # Login
-response = requests.post(f"{BASE_URL}/token", data={"username": "admin@agencyos.com", "password": "password123"})
+response = requests.post(f"{BASE_URL}/api/v1/token", data={"username": "admin@agencyos.com", "password": "password123"})
 token = response.json()["access_token"]
 headers = {"Authorization": f"Bearer {token}", "X-Tenant-ID": "1"}
 

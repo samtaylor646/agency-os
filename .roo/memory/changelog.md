@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026-05-29] - Epic: Technical Debt Execution (Phase 4 Hardening)
+- **Completed**: QA officially signed off on the Technical Debt Sprint.
+- **Added**: Implemented Docker Sandbox Resource Quotas and Firecracker MicroVM integration planning.
+- **Added**: Built a `SandboxReaper` background daemon to prune orphaned containers and stabilize local deployments.
+- **Added**: Integrated Redis Pub/Sub decoupling for WebSocket messaging in `server/services/message_broker.py` and `server/routers/websockets.py`.
+- **Changed**: Reverted Async Database Refactor (SQLAlchemy 2.0 `AsyncEngine`) due to cascading QA test failures, moving it back to the backlog for a dedicated Sprint.
+- **Status**: Branch `epic/tech-debt-execution` formalized, pushed, and ready for merge.
+
 ## [2026-05-29] - Epic: Phase 6 Template Library & Dynamic API Routing Completed
 - **Completed**: Phase 6 Epic is officially complete and QA signed off.
 - **Added**: Implemented Template Library features, dynamic API routing (OpenAI/Anthropic/Gemini), and Rollback mechanisms.
