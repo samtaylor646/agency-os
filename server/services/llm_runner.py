@@ -80,6 +80,55 @@ class LLMRunner:
             "mock": MockStrategy()
         }
         self.default_provider = os.getenv("LLM_PROVIDER_TYPE", "mock").lower()
+        self.mcp_sessions = {}  # Store active MCP sessions
+
+    async def get_mcp_session(self, server_name: str, command: str, args: List[str]):
+        """
+        Initializes and returns an MCP client session using StdioServerParameters.
+        This provides a session that can be used to call tools on the MCP server.
+        """
+        if server_name in self.mcp_sessions:
+            return self.mcp_sessions[server_name]["session"]
+
+        try:
+            from mcp.client.stdio import stdio_client, StdioServerParameters
+            from mcp.client.session import ClientSession
+            from contextlib import AsyncExitStack
+        except ImportError:
+            print("MCP SDK not installed. Please install 'mcp>=1.0.0'.")
+            return None
+
+        server_params = StdioServerParameters(
+            command=command,
+            args=args,
+            env=None
+        )
+
+        exit_stack = AsyncExitStack()
+        try:
+            stdio_transport = await exit_stack.enter_async_context(stdio_client(server_params))
+            stdio, write = stdio_transport
+            session = await exit_stack.enter_async_context(ClientSession(stdio, write))
+            await session.initialize()
+            
+            self.mcp_sessions[server_name] = {
+                "session": session,
+                "exit_stack": exit_stack
+            }
+            return session
+        except Exception as e:
+            print(f"Failed to initialize MCP client for {server_name}: {e}")
+            await exit_stack.aclose()
+            return None
+
+    async def close_mcp_sessions(self):
+        """Closes all active MCP sessions. Used for cleanup or Kill Switch."""
+        for server_name, session_data in list(self.mcp_sessions.items()):
+            try:
+                await session_data["exit_stack"].aclose()
+            except Exception as e:
+                print(f"Error closing MCP session for {server_name}: {e}")
+        self.mcp_sessions.clear()
 
     async def handle_fallback(self, provider: str, messages: list, credentials: dict, model: str, **kwargs) -> str:
         print(f"LLM Provider Error ({provider}). Falling back to mock.")

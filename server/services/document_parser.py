@@ -86,3 +86,33 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> List[str]
         i += (chunk_size - overlap)
         
     return chunks
+
+def parse_agent_frontmatter(file_path: str) -> dict:
+    """Parses YAML frontmatter from an agents.md file."""
+    try:
+        import yaml
+    except ImportError:
+        return {}
+        
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except Exception:
+        return {}
+        
+    # Match YAML frontmatter between --- and ---
+    match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+    if match:
+        try:
+            return yaml.safe_load(match.group(1)) or {}
+        except yaml.YAMLError:
+            return {}
+    return {}
+
+def get_required_mcp_skills(file_path: str) -> List[str]:
+    """Extracts required_mcp_skills from agent frontmatter."""
+    frontmatter = parse_agent_frontmatter(file_path)
+    skills = frontmatter.get('required_mcp_skills', [])
+    if isinstance(skills, list):
+        return skills
+    return []

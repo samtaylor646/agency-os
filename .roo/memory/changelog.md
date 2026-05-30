@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026-05-29] - Epic: Phase 7 MCP Skills Architecture Completed
+- **Completed**: QA officially signed off on the MCP Skills Architecture Epic.
+- **Added**: Integrated official Python MCP Client SDK into `llm_runner.py` for routing tool calls via the Model Context Protocol.
+- **Added**: Built `agent-architect.md` meta-prompt and `AgentUpgraderWorker` Redis queue to automatically upscale open-source PRPM `agents.md` files.
+- **Added**: Implemented "Friction by Design" Security Gate UI components (`AgentApprovalModal.jsx`) ensuring human-in-the-loop explicit consent for MCP capabilities.
+- **Added**: Completed PRD, Technical Specifications, and QA sign-offs in `docs/`.
+- **Status**: Formally closed out Epic 7 and prepared branch `epic/mcp-skills-architecture` for merge to main.
+
 ## [2026-05-29] - Epic: Technical Debt Execution (Phase 4 Hardening)
 - **Completed**: QA officially signed off on the Technical Debt Sprint.
 - **Added**: Implemented Docker Sandbox Resource Quotas and Firecracker MicroVM integration planning.
