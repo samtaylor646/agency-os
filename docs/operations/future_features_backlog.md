@@ -12,3 +12,6 @@
 ### Automated Validation Layer Enhancements
 *   **Marketplace EULA Update (Legal & Compliance):** Explicitly state that automated validation checks do not constitute an IP warranty. Update Terms of Service/EULA documents accordingly to protect ecosystem liability.
 *   **Kill Switch Integration (Incident Response):** Integrate `validation_layer.py` with the runtime Kill Switch (`server/services/kill_switch.py`) to automatically trip the kill switch and isolate agents if validation fails repeatedly.
+
+### Documentation Tools
+- [ ] Docusaurus implementation for external user documentation

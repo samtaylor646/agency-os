@@ -65,15 +65,12 @@ Thumbs.db
 # Root level temporary files
 /*.db
 /*.txt
-/test_*.py
-/patch*.py
-/fix_*.py
-/update_*.py
-/generate_*.py
-/add_*.py
+/workflow_result.json
 
 # Databases and Uploads
 server/data/*.db
 server/*.db
 server/uploads/*
 !server/uploads/.gitkeep
+
+.mkdocs_src/
