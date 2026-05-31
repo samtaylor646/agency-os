@@ -1,0 +1,20 @@
+<nav class="md-path" aria-label="{{ lang.t('nav.path.title') }}">
+  <ol class="md-path__list">
+    {% for nav_item in page.ancestors %}
+      {% if nav_item.url %}
+        <li class="md-path__item">
+          <a href="{{ nav_item.url | url }}" class="md-path__link">
+            {{ nav_item.title }}
+          </a>
+        </li>
+      {% else %}
+        <li class="md-path__item">
+          {{ nav_item.title }}
+        </li>
+      {% endif %}
+    {% endfor %}
+    <li class="md-path__item">
+      <strong>{{ page.title }}</strong>
+    </li>
+  </ol>
+</nav>

@@ -25,7 +25,7 @@
     
     
       
-        <title>🔍 Investment Researcher Agent - AgencyOS Internal Docs</title>
+        <title>🔍 Investment Researcher Agent - AgencyOS</title>
       
     
     
@@ -86,51 +86,12 @@
     </div>
     
     
-      
+<!-- Header removed per UX specs -->
 
-  
-
-<header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="AgencyOS Internal Docs" class="md-header__button md-logo" aria-label="AgencyOS Internal Docs" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
-            AgencyOS Internal Docs
-          </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
-            
-              🔍 Investment Researcher Agent
-            
-          </span>
-        </div>
-      </div>
-    </div>
-    
-      
-    
-    
-    
-    
-    
-  </nav>
-  
-</header>
-    
     <div class="md-container" data-md-component="container">
       
+  
+
       
         
           
@@ -139,6 +100,8 @@
       <main class="md-main" data-md-component="main">
         <div class="md-main__inner md-grid">
           
+<!-- Do not use site_nav, it renders in the main flow -->
+
             
               
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
@@ -150,13 +113,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="AgencyOS Internal Docs" class="md-nav__button md-logo" aria-label="AgencyOS Internal Docs" data-md-component="logo">
+    <a href="../../.." title="AgencyOS" class="md-nav__button md-logo" aria-label="AgencyOS" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    AgencyOS Internal Docs
+    AgencyOS
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -175,7 +138,7 @@
   <span class="md-ellipsis">
     
   
-    Welcome to AgencyOS Internal Docs
+    Home
   
 
     
@@ -14606,6 +14569,7 @@
               </div>
             
           
+
           
             <div class="md-content" data-md-component="content">
               
@@ -14626,7 +14590,7 @@
       <a href="../../.." class="md-path__link">
         
   <span class="md-ellipsis">
-    Welcome to AgencyOS Internal Docs
+    Home
   </span>
 
       </a>
@@ -14677,6 +14641,42 @@
               
               <article class="md-content__inner md-typeset">
                 
+<!-- Fixed Sidebar Brand Injection -->
+<div style="position: fixed; top: 0; left: 0; width: 260px; z-index: 101; background: white; padding: 2rem 1.5rem 0.5rem 1.5rem;">
+  <div class="custom-brand" style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 600; color: var(--color-text); text-decoration: none;">
+    <div style="width: 24px; min-width: 24px; height: 24px; background-color: var(--color-primary); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px;">A</div>
+    <a href="../../.." style="color: var(--color-text); text-decoration: none;">AgencyOS</a>
+  </div>
+  <div style="font-size: 11px; font-weight: 700; color: var(--color-text-subtle); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2rem; margin-bottom: 0.5rem;">Dashboard Sections</div>
+</div>
+
+<!-- Custom Breadcrumbs -->
+<nav aria-label="Breadcrumb" style="margin-bottom: 2rem; font-size: 13px; color: var(--color-text-subtle); display: flex; align-items: center; gap: 0.5rem;">
+  <a href="../../.." style="color: var(--color-text-subtle); text-decoration: none; display: flex; align-items: center;" title="Home">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+  </a>
+  
+  
+    
+      <span>/</span>
+      
+        <span>Agents</span>
+      
+    
+      <span>/</span>
+      
+        <span>Finance</span>
+      
+    
+  
+  
+  
+    <span>/</span>
+    <span style="color: var(--color-text); font-weight: 500; cursor: default;">🔍 Investment Researcher Agent</span>
+  
+</nav>
+
+
                   
 
 
@@ -14952,6 +14952,7 @@
 
 
                 
+
               </article>
             </div>
           

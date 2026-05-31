@@ -1,60 +1,280 @@
+/* ==========================================================================
+   MkDocs Material Theme Overhaul - "Executive Dashboard" Style
+   ========================================================================== */
+
+/* --- MkDocs UI Hiding --- */
+.md-header { display: none !important; }
+.md-nav__source { display: none !important; }
+
+/* Hide the inline TOC that Material injects under the active page (prevents duplicate link appearance) */
+li.md-nav__item--active:not(.md-nav__item--nested) > .md-nav,
+li.md-nav__item--active:not(.md-nav__item--section) > .md-nav {
+  display: none !important;
+}
+
 /* Hide the Welcome link in the sidebar since it's accessible via the logo */
 .md-nav--primary > .md-nav__list > .md-nav__item:first-child {
     display: none;
 }
 
-/* Atlassian Theme Overrides for Material for MkDocs */
+/* --- Theme Color Variables --- */
 :root {
-  /* Primary Brand Colors */
-  --md-primary-fg-color:        #0052CC; /* Atlassian Blue */
-  --md-primary-fg-color--light: #4C9AFF; 
-  --md-primary-fg-color--dark:  #0747A6; 
-  --md-primary-bg-color:        #ffffff;
+  --color-text: #172B4D;
+  --color-text-subtle: #44546F;
+  --color-background: #F1F2F4;
+  --color-surface: #FFFFFF;
+  --color-border: #091E4224;
+  --color-primary: #0C66E4;
+  --color-primary-hover: #0055CC;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", "Ubuntu", "Droid Sans", "Helvetica Neue", sans-serif;
   
-  /* Typography Colors */
-  --md-text-color:              #172B4D; /* Atlassian Dark */
-  --md-text-link-color:         #0052CC;
-  --md-typeset-color:           #172B4D;
-  --md-typeset-a-color:         #0052CC;
-  
-  /* Subtle & Muted Colors */
-  --md-default-fg-color--light: #5E6C84; /* Atlassian Subtle */
-  --md-default-fg-color--lightest: #DFE1E6; /* Borders */
-  
-  /* Backgrounds */
-  --md-default-bg-color:        #FAFBFC; /* Atlassian Light */
-  --md-code-bg-color:           #F4F5F7;
+  --md-primary-fg-color:        var(--color-primary);
+  --md-primary-bg-color:        var(--color-surface);
+  --md-text-color:              var(--color-text);
+  --md-text-link-color:         var(--color-primary);
+  --md-typeset-color:           var(--color-text);
+  --md-typeset-a-color:         var(--color-primary);
+  --md-default-bg-color:        var(--color-background);
+  --md-code-bg-color:           var(--color-surface);
 }
 
-/* Sidebar Navigation Styling */
+/* --- Main Layout & Content --- */
+body, .md-typeset {
+  font-family: var(--font-family) !important;
+  background-color: var(--color-background) !important;
+  color: var(--color-text) !important;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.md-main { background-color: var(--color-background) !important; }
+
+@media screen and (min-width: 76.25em) {
+  .md-main__inner {
+    margin: 0 !important;
+    margin-left: 260px !important;
+    padding: 0 !important; /* Remove padding so hero can go full bleed */
+    width: calc(100% - 260px) !important;
+    max-width: 1600px !important;
+  }
+}
+
+/* Content wrapper to add padding back below the hero */
+.md-content__inner {
+  padding: 2.5rem 3rem !important;
+}
+
+/* --- Hero Section Styles --- */
+.hero-gradient { 
+  background: linear-gradient(135deg, #0747A6 0%, #0052CC 100%); 
+  color: white;
+  padding: 4rem 3rem;
+  margin: 0;
+  width: 100%;
+}
+.hero-gradient h1 { color: white !important; font-size: 48px !important; font-weight: 700 !important; margin-bottom: 1rem !important; margin-top: 0 !important; letter-spacing: -0.02em !important; }
+.hero-gradient p { color: rgba(255,255,255,0.9) !important; font-size: 18px !important; max-width: 800px; margin-bottom: 2rem !important; }
+.hero-badge-container { display: flex; align-items: center; gap: 1rem; font-size: 14px; font-weight: 500; }
+.hero-badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(4px); display: inline-flex; align-items: center;}
+.hero-badge-success { background: rgba(54, 179, 126, 0.2); color: #E3FCEF; border: 1px solid rgba(54, 179, 126, 0.4); }
+
+.md-typeset h2 { font-size: 20px !important; font-weight: 600 !important; margin: 2.5rem 0 1rem !important; color: var(--color-text) !important; }
+.md-typeset h3 { font-size: 16px !important; font-weight: 600 !important; margin-top: 1.5rem !important; margin-bottom: 0.5rem !important; color: var(--color-text) !important; }
+.md-typeset h4 { font-size: 14px !important; font-weight: 600 !important; margin-top: 1rem !important; margin-bottom: 0.5rem !important; color: var(--color-text) !important; }
+.md-typeset p, .md-typeset ul { font-size: 14px !important; color: var(--color-text) !important; margin-bottom: 1rem !important; }
+
+/* --- Primary Sidebar Styling --- */
+.md-sidebar--primary {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  width: 260px !important;
+  background-color: var(--color-surface) !important;
+  border-right: 1px solid var(--color-border) !important;
+  z-index: 100;
+}
+
 .md-sidebar--primary .md-sidebar__scrollwrap {
-  background-color: #ffffff;
-  border-right: 1px solid #DFE1E6;
+  padding: 1.5rem !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
-.md-nav__item .md-nav__link {
-  color: #172B4D;
-  transition: background-color 0.1s ease;
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin: 2px 8px;
+/* Remove default Material padding from root nav lists, but indent sub-menus */
+.md-nav__list {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.md-nav__item--nested > .md-nav > .md-nav__list {
+  padding-left: 1rem !important;
+}
+.md-nav__item {
+  padding: 0 !important;
 }
 
-.md-nav__item .md-nav__link:hover {
-  background-color: rgba(9, 30, 66, 0.05);
+/* --- THE LOGO: Only on the root title --- */
+/* Hide the default logo icon from Material */
+.md-sidebar--primary .md-nav--primary > .md-nav__title .md-logo {
+  display: none !important;
 }
 
-.md-nav__item .md-nav__link--active {
-  background-color: #E9F2FF;
-  color: #0052CC;
-  font-weight: 500;
+/* Style the root title to look like the brand */
+.md-sidebar--primary .md-nav--primary > .md-nav__title {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: var(--color-text) !important;
+  margin-bottom: 2rem !important;
+  padding: 0 !important;
+  background: none !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
 }
 
-/* Content Area */
-body {
-  background-color: #FAFBFC;
+/* Inject the [A] box into the root title */
+.md-sidebar--primary .md-nav--primary > .md-nav__title::before {
+  content: "A";
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  background-color: var(--color-primary);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
 }
 
-.md-content {
-  color: #172B4D;
+/* Hide dynamic MkDocs Navigation Titles inside nested menus to stop duplication */
+.md-nav__item--nested > .md-nav > .md-nav__title {
+  display: none !important;
+}
+
+/* --- DASHBOARD SECTIONS LABEL --- */
+/* Inject the label right before the main navigation list */
+.md-sidebar--primary .md-nav--primary > .md-nav__list::before {
+  content: "Dashboard Sections";
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+/* --- Sidebar Links --- */
+.md-nav__link {
+  color: var(--color-text) !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 12px !important;
+  border-radius: 3px !important;
+  transition: background-color 0.1s ease !important;
+  font-weight: 400 !important;
+  margin-bottom: 4px !important;
+  margin-left: 0 !important;
+}
+
+.md-nav__link:hover {
+  background-color: #091E420F !important;
+}
+
+/* Active Link State - Target ONLY the active page link, NOT parent folders */
+.md-nav__link--active {
+  background-color: #E9F2FF !important;
+  color: var(--color-primary) !important;
+  font-weight: 500 !important;
+}
+
+/* Hide Expand/Collapse Chevrons */
+.md-nav__icon { display: none !important; }
+
+/* --- Breadcrumb Styling --- */
+.md-path {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+    font-size: 14px;
+    color: var(--color-text-subtle);
+    list-style: none;
+    padding: 0;
+}
+
+.md-path__item {
+    color: var(--color-text-subtle) !important;
+    text-decoration: none !important;
+    transition: color 0.1s;
+    display: flex;
+    align-items: center;
+}
+
+.md-path__item:hover {
+    color: var(--color-primary) !important;
+}
+
+.md-path__item:last-child {
+    color: var(--color-text) !important;
+    font-weight: 500;
+    pointer-events: none; /* Disabled link */
+}
+
+/* Replace first breadcrumb text with Home Icon */
+.md-path__item:first-child {
+    font-size: 0 !important; 
+}
+
+.md-path__item:first-child::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-text-subtle);
+    -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>') no-repeat center / contain;
+    mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>') no-repeat center / contain;
+    transition: background-color 0.2s;
+}
+
+.md-path__item:first-child:hover::before {
+    background-color: var(--color-primary);
+}
+
+/* --- Hero Section Styles --- */
+.hero-gradient { 
+  background: linear-gradient(135deg, #0747A6 0%, #0052CC 100%); 
+  color: white;
+  padding: 4rem 3rem;
+  margin: 0;
+  width: 100%;
+}
+.hero-gradient h1 { color: white !important; font-size: 48px !important; font-weight: 700 !important; margin-bottom: 1rem !important; margin-top: 0 !important; letter-spacing: -0.02em !important; }
+.hero-gradient p { color: rgba(255,255,255,0.9) !important; font-size: 18px !important; max-width: 800px; margin-bottom: 2rem !important; }
+.hero-badge-container { display: flex; align-items: center; gap: 1rem; font-size: 14px; font-weight: 500; }
+.hero-badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(4px); display: inline-flex; align-items: center;}
+.hero-badge-success { background: rgba(54, 179, 126, 0.2); color: #E3FCEF; border: 1px solid rgba(54, 179, 126, 0.4); }
+
+@media screen and (min-width: 76.25em) {
+  .md-main__inner {
+    padding: 0 !important; /* Remove padding so hero can go full bleed */
+    width: calc(100% - 260px) !important;
+  }
+}
+.md-content__inner {
+  padding: 2.5rem 3rem !important;
+}
+
+/* SILVER BULLET: Hide the mobile TOC toggle label that mimics the active link */
+label.md-nav__link--active[for="__toc"] {
+  display: none !important;
 }

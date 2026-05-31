@@ -5,8 +5,8 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-ROOTASKS_DIR = Path(".rootasks")
-ARCHIVE_DIR = Path(".rootasks-archive")
+ROOTASKS_DIR = Path(".roo-tasks")
+ARCHIVE_DIR = Path(".roo-tasks-archive")
 INDEX_FILE = ARCHIVE_DIR / "index.md"
 
 def init_dirs():

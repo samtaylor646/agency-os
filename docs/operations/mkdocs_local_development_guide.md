@@ -1,23 +1,21 @@
 # MkDocs Local Development Guide
 
 ## Overview
-AgencyOS utilizes a **Pristine Source Dual-Routing Architecture** for building our internal MkDocs documentation. 
+AgencyOS utilizes a consolidated **`site-docs/` Architecture** for building our internal MkDocs documentation. 
 
-This means MkDocs automatically pulls content dynamically from the active `/docs` and `/agents` directories without polluting those directories with build scaffolding, CSS, or `.pages` configurations. Furthermore, the `archive` folder is completely isolated into a standalone site to prevent search index pollution.
+This means MkDocs automatically pulls content from the `site-docs/` directory, which acts as the unified `docs_dir`. We moved away from hidden virtual build sandboxes and symlinks to prevent cross-platform build errors, while still keeping our documentation cleanly organized and styled.
 
-## Architecture: The Virtual Build Sandboxes
-To maintain strict governance over our pristine folders, all MkDocs configurations reside in two hidden directories at the root of the project:
+## Architecture: The `site-docs/` Root
+To maintain strict governance, all MkDocs configurations and source files reside under the `site-docs/` directory:
 
-### 1. `.mkdocs_src/` (The Primary Site)
-*   **Selective Symlinks:** Inside `.mkdocs_src/docs/`, there are native OS symlinks pointing *only* to the active subfolders (`core`, `operations`, `technical`, `qa`, `research`). The `archive` folder is intentionally excluded.
-*   **The Welcome Hub:** The landing page `index.md` resides solely in `.mkdocs_src/` to prevent polluting the `/docs` root.
-*   **Scaffolding:** The custom `stylesheets/`, theme `overrides/`, and `.pages` configs live exclusively inside this hidden folder.
+### 1. `site-docs/` (The Primary Site)
+*   **Unified Source:** The `site-docs/` folder contains all active documentation (`docs/`), agent profiles (`agents/`), and the main landing page (`index.md`).
+*   **Scaffolding & Theming:** The custom `stylesheets/`, Atlassian-style theme `overrides/`, and configurations live exclusively inside this folder so they do not pollute other areas of the repository.
+*   **mkdocs.yml:** The primary configuration file located at the project root points its `docs_dir` directly to `site-docs`.
 
-### 2. `.mkdocs_archive_src/` (The Historical Archive Site)
-*   **Archive Symlink:** This sandbox contains a single symlink routing to `../docs/archive`.
-*   **Isolation:** Built via `mkdocs_archive.yml`, this ensures deprecated files never pollute the primary search bar.
-
-*Note: Both sandboxes are added to `.gitignore`. **Do not attempt to commit these directories.** *
+### 2. Historical Archive Site
+*   **Archive Isolation:** We maintain a separate `mkdocs_archive.yml` configuration.
+*   This ensures deprecated files never pollute the primary search bar or main navigation.
 
 ---
 
@@ -30,7 +28,7 @@ pip install mkdocs mkdocs-material mkdocs-awesome-pages-plugin
 ```
 
 ### 2. Start the Local Servers
-Because we use a dual-routing architecture, you must run both sites simultaneously on different ports.
+Because we use an archive separation architecture, you can run both sites simultaneously on different ports if needed.
 
 **Start the Primary Site (Port 8000):**
 Open a terminal and run:
@@ -49,5 +47,5 @@ python3 -m mkdocs serve -f mkdocs_archive.yml -a 127.0.0.1:8001
 *   **Archive Site:** [http://127.0.0.1:8001/](http://127.0.0.1:8001/) (Or simply click the *🗄️ Historical Archive* link at the bottom of the primary site's sidebar).
 
 ### 4. Updating Documentation
-You do not need to touch `mkdocs.yml` or run copy scripts when adding new files. 
-Simply create your new markdown files natively within `/docs/` or `/agents/`, and the respective MkDocs live-reload server will automatically detect them and update the sidebar hierarchy!
+You do not need to touch `mkdocs.yml` when adding new standard Markdown files. 
+Simply create your new markdown files natively within `site-docs/docs/` or `site-docs/agents/`, and the MkDocs live-reload server will automatically detect them and update the sidebar hierarchy! **Crucial:** Never overwrite the `overrides/` folder or change `theme.custom_dir` in `mkdocs.yml`, as this will break our custom Atlassian theme styling.

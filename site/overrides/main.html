@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block header %}
+<!-- Header removed per UX specs -->
+{% endblock %}
+
+{% block site_nav %}
+<!-- Do not use site_nav, it renders in the main flow -->
+{{ super() }}
+{% endblock %}
+
+{% block hero %}
+  {% if page and (page.url == "" or page.url == "./" or page.url == "index.html") %}
+    <div style="background: linear-gradient(135deg, #0747A6 0%, #0052CC 100%); color: white; padding: 4rem 3rem; margin-bottom: 2rem;">
+        <h3 style="color: #E9F2FF; opacity: 0.8; font-weight: 600; letter-spacing: 0.05em; font-size: 14px; margin-bottom: 0.5rem; text-transform: uppercase;">AGENCYOS ENGINEERING & OPERATIONS</h3>
+        <h1 style="color: white; font-size: 48px; font-weight: 700; margin-bottom: 1rem; margin-top: 0; letter-spacing: -0.02em;">Welcome to AgencyOS Internal Docs</h1>
+        <p style="color: rgba(255,255,255,0.9); font-size: 18px; max-width: 800px; margin-bottom: 2rem;">Welcome to the central repository for AgencyOS internal documentation and architecture. This site operates on a zero-duplication virtual routing engine.</p>
+        <div style="display: flex; align-items: center; gap: 1rem; font-size: 14px; font-weight: 500;">
+            <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(4px);">Present Day</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(4px);">To: Internal Team</span>
+            <span style="background: rgba(54, 179, 126, 0.2); color: #E3FCEF; border: 1px solid rgba(54, 179, 126, 0.4); padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(4px);">ALL SYSTEMS OPERATIONAL</span>
+        </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Fixed Sidebar Brand Injection -->
+<div style="position: fixed; top: 0; left: 0; width: 260px; z-index: 101; background: white; padding: 2rem 1.5rem 0.5rem 1.5rem;">
+  <div class="custom-brand" style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 600; color: var(--color-text); text-decoration: none;">
+    <div style="width: 24px; min-width: 24px; height: 24px; background-color: var(--color-primary); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px;">A</div>
+    <a href="{{ nav.homepage.url | url }}" style="color: var(--color-text); text-decoration: none;">AgencyOS</a>
+  </div>
+  <div style="font-size: 11px; font-weight: 700; color: var(--color-text-subtle); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2rem; margin-bottom: 0.5rem;">Dashboard Sections</div>
+</div>
+
+<!-- Custom Breadcrumbs -->
+<nav aria-label="Breadcrumb" style="margin-bottom: 2rem; font-size: 13px; color: var(--color-text-subtle); display: flex; align-items: center; gap: 0.5rem;">
+  <a href="{{ nav.homepage.url | url }}" style="color: var(--color-text-subtle); text-decoration: none; display: flex; align-items: center;" title="Home">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+  </a>
+  
+  {% if page and page.ancestors %}
+    {% for ancestor in page.ancestors|reverse %}
+      <span>/</span>
+      {% if ancestor.is_link %}
+        <a href="{{ ancestor.url | url }}" style="color: var(--color-text-subtle); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-text-subtle)'">{{ ancestor.title }}</a>
+      {% else %}
+        <span>{{ ancestor.title }}</span>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  
+  {% if page %}
+    <span>/</span>
+    <span style="color: var(--color-text); font-weight: 500; cursor: default;">{{ page.title }}</span>
+  {% endif %}
+</nav>
+
+{{ super() }}
+{% endblock %}

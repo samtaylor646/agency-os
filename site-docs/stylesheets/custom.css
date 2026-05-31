@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Atlassian Classic Blue */
+  --md-primary-fg-color:        #0052CC;
+  --md-primary-fg-color--light: #2684FF;
+  --md-primary-fg-color--dark:  #0747A6;
+  --md-primary-bg-color:        #FFFFFF;
+  --md-primary-bg-color--light: #FFFFFF;
+
+  --md-accent-fg-color:         #0052CC;
+  --md-accent-fg-color--transparent: rgba(0, 82, 204, 0.1);
+  --md-accent-bg-color:         #FFFFFF;
+  --md-accent-bg-color--light:  #FFFFFF;
+  
+  /* Neutral Grays */
+  --md-default-fg-color:        #172B4D; /* N800 */
+  --md-default-fg-color--light: #5E6C84; /* N200 */
+  --md-default-fg-color--lighter: #97A0AF; /* N90 */
+  --md-default-fg-color--lightest: #DFE1E6; /* N40 */
+  
+  --md-typeset-color:           #172B4D;
+  --md-typeset-a-color:         #0052CC;
+  --md-typeset-font-family: 'Inter', sans-serif;
+}
+
+/* Atlassian Typography and Utility Classes */
+body, .md-typeset {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.md-typeset .ak-card {
+  background-color: var(--md-primary-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 3px;
+  box-shadow: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.md-typeset .ak-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.md-typeset .ak-badge-success {
+  background-color: #E3FCEF;
+  color: #066637;
+}
+
+.md-typeset .ak-badge-warning {
+  background-color: #FFFAE6;
+  color: #FF8B00;
+}
+
+.md-typeset .ak-badge-error {
+  background-color: #FFEBE6;
+  color: #BF2600;
+}
+
+.md-typeset .ak-badge-info {
+  background-color: #DEEBFF;
+  color: #0747A6;
+}
+
+.md-typeset .ak-spacing-loose {
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #4C9AFF;
+  --md-primary-fg-color--light: #2684FF;
+  --md-primary-fg-color--dark:  #0052CC;
+  
+  --md-accent-fg-color:         #4C9AFF;
+  
+  /* Dark mode neutrals */
+  --md-default-fg-color:        #B3BAC5;
+  --md-typeset-color:           #B3BAC5;
+  --md-typeset-a-color:         #4C9AFF;
+}
+
+/* Links, Headers, Buttons overrides */
+.md-typeset h1, .md-typeset h2, .md-typeset h3, .md-typeset h4, .md-typeset h5, .md-typeset h6 {
+  color: var(--md-default-fg-color);
+  font-weight: 500;
+}
+
+.md-button {
+  background-color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color) !important;
+}
+
+.md-button:hover, .md-button:focus {
+  background-color: var(--md-primary-fg-color--dark);
+  border-color: var(--md-primary-fg-color--dark);
+}
+
+.md-typeset a {
+  color: var(--md-typeset-a-color);
+  text-decoration: none;
+}
+
+.md-typeset a:hover {
+  text-decoration: underline;
+}

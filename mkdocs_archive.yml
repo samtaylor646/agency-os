@@ -1,4 +1,4 @@
-site_name: AgencyOS Historical Archive
+site_name: AgencyOS Archive
 docs_dir: .mkdocs_archive_src
 theme:
   name: material
