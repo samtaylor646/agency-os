@@ -20,31 +20,31 @@ This specification details the technical requirements for building the Foundatio
 
 ## 3. Backend Implementation Tasks (API)
 
-- [ ] **Task 1: Database Migration - Workspaces**
+ - [x] **Task 1: Database Migration - Workspaces**
   - Create `workspaces` table (`id`, `name`, `created_at`, `settings_json`).
   - Update existing foundational tables (users, etc.) to include `tenant_id`.
-- [ ] **Task 2: Auth Layer & RBAC Middleware**
+ - [x] **Task 2: Auth Layer & RBAC Middleware**
   - Implement JWT validation middleware.
   - Implement role-checking middleware to block unauthorized endpoints.
   - Implement tenant-context middleware to parse `X-Tenant-ID` from headers and validate the user has access.
-- [ ] **Task 3: Workspace CRUD API**
+ - [x] **Task 3: Workspace CRUD API**
   - `POST /api/v1/workspaces` (Create new client workspace).
   - `GET /api/v1/workspaces` (List workspaces user has access to).
-- [ ] **Task 4: User Invitation API**
+ - [x] **Task 4: User Invitation API**
   - `POST /api/v1/workspaces/:id/invites` (Send email invite with role).
 
 ## 4. Frontend Implementation Tasks (UI)
 
-- [ ] **Task 5: Global Context Provider**
+ - [x] **Task 5: Global Context Provider**
   - Implement React/Vue Context (or Redux/Zustand store) to manage `activeWorkspaceId`.
   - Ensure all outbound API requests attach `X-Tenant-ID: activeWorkspaceId`.
-- [ ] **Task 6: Context Switcher Component**
+ - [x] **Task 6: Context Switcher Component**
   - Build the dropdown in the main navigation.
   - On change, update the global context and force a refetch of dashboard data.
-- [ ] **Task 7: Workspace Management UI (Admin)**
+ - [x] **Task 7: Workspace Management UI (Admin)**
   - Build the form to create a new client workspace.
   - Build the settings page to manage users/invites for that workspace.
-- [ ] **Task 8: Client Portal View**
+ - [x] **Task 8: Client Portal View**
   - Implement the restricted dashboard layout for `Client Approver` roles (hiding agency settings, billing, etc.).
 
 ## 5. Security & Validation Loop

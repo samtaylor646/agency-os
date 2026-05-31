@@ -1,0 +1,60 @@
+/* Hide the Welcome link in the sidebar since it's accessible via the logo */
+.md-nav--primary > .md-nav__list > .md-nav__item:first-child {
+    display: none;
+}
+
+/* Atlassian Theme Overrides for Material for MkDocs */
+:root {
+  /* Primary Brand Colors */
+  --md-primary-fg-color:        #0052CC; /* Atlassian Blue */
+  --md-primary-fg-color--light: #4C9AFF; 
+  --md-primary-fg-color--dark:  #0747A6; 
+  --md-primary-bg-color:        #ffffff;
+  
+  /* Typography Colors */
+  --md-text-color:              #172B4D; /* Atlassian Dark */
+  --md-text-link-color:         #0052CC;
+  --md-typeset-color:           #172B4D;
+  --md-typeset-a-color:         #0052CC;
+  
+  /* Subtle & Muted Colors */
+  --md-default-fg-color--light: #5E6C84; /* Atlassian Subtle */
+  --md-default-fg-color--lightest: #DFE1E6; /* Borders */
+  
+  /* Backgrounds */
+  --md-default-bg-color:        #FAFBFC; /* Atlassian Light */
+  --md-code-bg-color:           #F4F5F7;
+}
+
+/* Sidebar Navigation Styling */
+.md-sidebar--primary .md-sidebar__scrollwrap {
+  background-color: #ffffff;
+  border-right: 1px solid #DFE1E6;
+}
+
+.md-nav__item .md-nav__link {
+  color: #172B4D;
+  transition: background-color 0.1s ease;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 2px 8px;
+}
+
+.md-nav__item .md-nav__link:hover {
+  background-color: rgba(9, 30, 66, 0.05);
+}
+
+.md-nav__item .md-nav__link--active {
+  background-color: #E9F2FF;
+  color: #0052CC;
+  font-weight: 500;
+}
+
+/* Content Area */
+body {
+  background-color: #FAFBFC;
+}
+
+.md-content {
+  color: #172B4D;
+}

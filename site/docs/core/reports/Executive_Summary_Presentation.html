@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgencyOS Executive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* Atlassian Design System Tokens */
+            --color-text: #172B4D;
+            --color-text-subtle: #44546F;
+            --color-background: #F1F2F4;
+            --color-surface: #FFFFFF;
+            --color-border: #091E4224;
+            --color-border-focused: #388BFF;
+            --color-primary: #0C66E4;
+            --color-primary-hover: #0055CC;
+            --color-success: #22A06B;
+            --color-success-bold: #1F845A;
+            --color-warning: #E2B203;
+            --color-warning-bold: #B38600;
+            --color-danger: #CA3521;
+            --color-danger-bold: #AE2E24;
+            --color-information: #1D7AFC;
+            
+            --elevation-surface-raised: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+            
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", "Ubuntu", "Droid Sans", "Helvetica Neue", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: var(--color-surface);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--color-border);
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            width: 24px;
+            height: 24px;
+            background-color: var(--color-primary);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li { margin-bottom: 4px; }
+
+        .nav-links a {
+            color: var(--color-text);
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 3px;
+            transition: background-color 0.1s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: #091E420F;
+        }
+        
+        .nav-links a.active {
+            background-color: #E9F2FF;
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        /* Main Content Container */
+        main {
+            margin-left: 260px;
+            padding: 2.5rem 3rem;
+            width: calc(100% - 260px);
+            max-width: 1400px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 14px;
+            color: var(--color-text-subtle);
+        }
+
+        /* Grids & Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .col-span-12 { grid-column: span 12; }
+        .col-span-8 { grid-column: span 8; }
+        .col-span-6 { grid-column: span 6; }
+        .col-span-4 { grid-column: span 4; }
+        .col-span-3 { grid-column: span 3; }
+
+        .card {
+            background-color: var(--color-surface);
+            border-radius: 3px;
+            padding: 1.5rem;
+            box-shadow: var(--elevation-surface-raised);
+        }
+
+        .card-header {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        /* KPI Metrics */
+        .kpi-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 500;
+            line-height: 1.2;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-subtle);
+            text-transform: uppercase;
+        }
+        
+        .trend-up { color: var(--color-success-bold); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px;}
+
+        /* Typography */
+        h2 { font-size: 20px; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--color-text); }
+        h3 { font-size: 16px; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--color-text); }
+        h4 { font-size: 14px; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text); }
+        p { margin-bottom: 1rem; font-size: 14px; color: var(--color-text); }
+        ul { padding-left: 1.5rem; margin-bottom: 1rem; font-size: 14px; color: var(--color-text); }
+        li { margin-bottom: 0.25rem; }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-blue { background: #E9F2FF; color: #0C66E4; }
+        .badge-green { background: #DFF1E6; color: #1F845A; }
+        .badge-yellow { background: #F8E6A0; color: #B38600; }
+        .badge-red { background: #FFEDEB; color: #AE2E24; }
+        .badge-purple { background: #F3F0FF; color: #6E5DC6; }
+        .badge-gray { background: #091E420F; color: #44546F; }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        .highlight-box {
+            background-color: #E9F2FF;
+            padding: 1.5rem;
+            border-radius: 3px;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th { text-align: left; padding: 12px 8px; color: var(--color-text-subtle); font-size: 12px; font-weight: 600; border-bottom: 2px solid var(--color-border); }
+        td { padding: 12px 8px; border-bottom: 1px solid var(--color-border); font-size: 14px; color: var(--color-text); }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Timeline / Roadmap */
+        .timeline {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--color-border);
+            position: relative;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -1.95rem;
+            top: 0.25rem;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--color-surface);
+        }
+        
+        .dot-completed { background-color: var(--color-success); }
+        .dot-progress { background-color: var(--color-primary); }
+        .dot-upcoming { background-color: #091E424F; }
+        
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="brand">
+            <div class="brand-icon">A</div>
+            AgencyOS
+        </div>
+        
+        <div class="nav-section-title">Dashboard Sections</div>
+        <ul class="nav-links">
+            <li><a href="#overview" class="active">Overview</a></li>
+            <li><a href="#business">Business Strategy</a></li>
+            <li><a href="#technical">Technical Posture</a></li>
+            <li><a href="#metrics">Platform Metrics</a></li>
+            <li><a href="#roadmap">Strategic Roadmap</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="dashboard-header">
+            <h1>Executive Summary Briefing</h1>
+            <div class="header-meta">
+                <span>Date: May 27, 2026</span>
+                <span>•</span>
+                <span>Prepared by: Product Management</span>
+                <span>•</span>
+                <span class="badge badge-green">All Systems Operational</span>
+            </div>
+        </div>
+
+        <section id="overview">
+            <div class="dashboard-grid">
+                <div class="col-span-12">
+                    <div class="highlight-box">
+                        <h3 style="margin-top: 0; color: var(--color-primary-hover);">Core Value Proposition: "From Conversation to Creation"</h3>
+                        <p>AgencyOS empowers users to initiate complex, multi-disciplinary projects through natural language. The platform intelligently scopes requirements and orchestrates specialized AI agents to execute them transparently.</p>
+                        <p style="margin-bottom: 0;">We bridge the critical market gap between highly technical developer frameworks and overly narrow point solutions, establishing AgencyOS as an <strong>Enterprise-Ready Virtual Agency Platform</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="col-span-3 card">
+                    <div class="kpi-container">
+                        <span class="kpi-label">TAM Expansion</span>
+                        <span class="kpi-value">3.2x</span>
+                        <span class="trend-up">Zero Barrier to Entry</span>
+                    </div>
+                </div>
+                <div class="col-span-3 card">
+                    <div class="kpi-container">
+                        <span class="kpi-label">Enterprise Readiness</span>
+                        <span class="kpi-value">100%</span>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--color-success-bold); margin-top: 4px;">RBAC & GDPR Compliant</span>
+                    </div>
+                </div>
+                <div class="col-span-3 card">
+                    <div class="kpi-container">
+                        <span class="kpi-label">System Uptime</span>
+                        <span class="kpi-value">99.99%</span>
+                        <span style="font-size: 12px; color: var(--color-text-subtle); margin-top: 4px;">Last 30 Days</span>
+                    </div>
+                </div>
+                <div class="col-span-3 card">
+                    <div class="kpi-container">
+                        <span class="kpi-label">Active Pods</span>
+                        <span class="kpi-value">1,248</span>
+                        <span class="trend-up">+15% this week</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="business">
+            <h2>Business Strategy & Alignment</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-8 card">
+                    <div class="card-header">
+                        <div class="card-title">Go-To-Market & Revenue Drivers</div>
+                        <span class="badge badge-purple">Strategic Update</span>
+                    </div>
+                    <p>The market is shifting from "Copilots" to "Autopilots". Agency OS aligns entirely with this transition.</p>
+                    
+                    <h4>Tiered Monetization Engine</h4>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="flex: 1; padding: 12px; background: var(--color-background); border-radius: 3px;">
+                            <strong style="color: var(--color-primary); display: block; font-size: 14px;">Pro Tier</strong>
+                            <span style="font-size: 12px; color: var(--color-text-subtle);">Accessible entry for startups. Grassroots adoption.</span>
+                        </div>
+                        <div style="flex: 1; padding: 12px; background: var(--color-background); border-radius: 3px;">
+                            <strong style="color: #6E5DC6; display: block; font-size: 14px;">Enterprise Tier</strong>
+                            <span style="font-size: 12px; color: var(--color-text-subtle);">High-ACV focus on governance, scale, isolation.</span>
+                        </div>
+                        <div style="flex: 1; padding: 12px; background: var(--color-background); border-radius: 3px;">
+                            <strong style="color: var(--color-success-bold); display: block; font-size: 14px;">Marketplace (Yr 2)</strong>
+                            <span style="font-size: 12px; color: var(--color-text-subtle);">Custom Agent trading ecosystem.</span>
+                        </div>
+                    </div>
+
+                    <h4>Target Audiences</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Startup Founders & Solopreneurs:</strong> Rapid MVP execution without managing engineering teams.</li>
+                        <li><strong>DevOps & Engineering Leads:</strong> Secure, robust orchestration pipelines.</li>
+                        <li><strong>Marketing & Creative Agencies:</strong> Scaling capacity and protecting margins via autonomous pods.</li>
+                    </ul>
+                </div>
+                
+                <div class="col-span-4 card">
+                    <div class="card-header">
+                        <div class="card-title">Phased GTM Trajectory</div>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 1: Private Alpha</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Core engine scoping with 20-50 startups.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-progress"></div>
+                            <div class="timeline-title">Phase 2: Public Launch</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Pro Tier rollout. "No-Code Multi-Agent".</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-upcoming"></div>
+                            <div class="timeline-title">Phase 3: Enterprise Expansion</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Direct sales emphasizing built-in security moat.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-upcoming"></div>
+                            <div class="timeline-title">Phase 4: Marketplace</div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle);">Launch ecosystem for lock-in & network effects.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="technical">
+            <h2>Technical Posture & Dependencies</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-12 card">
+                    <div class="card-header">
+                        <div class="card-title">Recent Technical Milestones</div>
+                        <span class="badge badge-blue">Phase 4 & 5</span>
+                    </div>
+                    <div class="dashboard-grid" style="margin-bottom: 0; gap: 1rem;">
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-primary);">NEXUS Pipeline Orchestration</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">Implemented DAG for multi-agent task routing and dynamic Agent definition parsing via python-frontmatter.</p>
+                        </div>
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-success-bold);">Zero-Trust Security & Isolation</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">Secure multi-tenant tracing and LLM Kill-Switch architecture via Redis for emergency DAG halting.</p>
+                        </div>
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-warning-bold);">Blue-Green Deployments</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">K8s/Terraform zero-downtime rollouts supported by strict backward-compatible, additive-only DB migrations.</p>
+                        </div>
+                        <div class="col-span-6" style="padding: 1rem; border: 1px solid var(--color-border); border-radius: 3px;">
+                            <h4 style="margin-top: 0; color: var(--color-text);">Unified Observability</h4>
+                            <p style="margin-bottom: 0; font-size: 13px; color: var(--color-text-subtle);">Prometheus/Grafana metrics, OpenTelemetry tracing, and Loki log aggregation with automated PII scrubbing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-6 card">
+                    <div class="card-header">
+                        <div class="card-title">Current Dependencies</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Layer</th>
+                                <th>Technology Stack</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Infrastructure</strong></td>
+                                <td>Kubernetes (EKS/GKE), Terraform, Docker</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Observability</strong></td>
+                                <td>Prometheus, Grafana, OpenTelemetry, Loki</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data & State</strong></td>
+                                <td>PostgreSQL (Strict Alembic), Redis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>App Layer</strong></td>
+                                <td>FastAPI, Python `contextvars`, Pydantic V2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-span-6 card">
+                    <div class="card-header">
+                        <div class="card-title">Technical Risks & Blockers</div>
+                        <span class="badge badge-red">Active Monitoring</span>
+                    </div>
+                    <ul style="margin-bottom: 0; list-style-type: none; padding-left: 0;">
+                        <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+                            <strong style="color: var(--color-danger-bold); display: block;">Custom Agent Security Drift</strong>
+                            <span style="font-size: 13px; color: var(--color-text-subtle);">Legacy schemas lack Pydantic validation. Enforcing V2 strict schemas and rejecting missing X-Tenant-ID requests.</span>
+                        </li>
+                        <li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+                            <strong style="color: var(--color-warning-bold); display: block;">Blue-Green Migration Discipline</strong>
+                            <span style="font-size: 13px; color: var(--color-text-subtle);">Safety relies on zero destructive DB changes. Complex schema mods require a strict 3-release cycle.</span>
+                        </li>
+                        <li>
+                            <strong style="color: var(--color-primary); display: block;">LLM Kill-Switch Precision</strong>
+                            <span style="font-size: 13px; color: var(--color-text-subtle);">Refining guardrails to prevent false positives that disrupt valid complex DAG workflows.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="metrics">
+            <h2>Platform Metrics & Activity</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-8 card">
+                    <div class="card-header">
+                        <div class="card-title">Nexus Pipeline Executions (30 Days)</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="executionsChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-span-4 card">
+                    <div class="card-header">
+                        <div class="card-title">Security Interventions</div>
+                    </div>
+                    <div class="chart-container" style="height: 220px;">
+                        <canvas id="securityChart"></canvas>
+                    </div>
+                    <div style="margin-top: 1rem; font-size: 12px; color: var(--color-text-subtle); display: flex; flex-direction: column; gap: 4px;">
+                        <div><span style="display: inline-block; width: 10px; height: 10px; background: var(--color-danger); border-radius: 2px; margin-right: 8px;"></span>Rate Limit (65%)</div>
+                        <div><span style="display: inline-block; width: 10px; height: 10px; background: var(--color-warning); border-radius: 2px; margin-right: 8px;"></span>Data Sanitization (25%)</div>
+                        <div><span style="display: inline-block; width: 10px; height: 10px; background: #6E5DC6; border-radius: 2px; margin-right: 8px;"></span>Kill Switch (10%)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="roadmap">
+            <h2>Strategic Roadmap</h2>
+            <div class="dashboard-grid">
+                <div class="col-span-12 card">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 1: The Pivot & UI Overhaul <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">UI Refactoring, Settings/Admin wiring, LLM Runner Integration.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 2: Automated Scoping & Document Generation <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Document Generators, Document Ingestion Engine, Iterative Refinement.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 3: Agent Connection & Orchestration <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Dynamic Agent Selection, Custom Agent Creator Wizard, Task Queue Translation.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-completed"></div>
+                            <div class="timeline-title">Phase 4: Quality Gauntlet & Hardening <span class="badge badge-green">Completed</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Evidence Collection, E2E Testing, Infrastructure Validation.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-progress"></div>
+                            <div class="timeline-title">Phase 5: Feedback Loops & Intervention <span class="badge badge-blue">In Progress</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Mid-Execution Chat, Human Approval Gates (HITL), Error Escalation.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot dot-upcoming"></div>
+                            <div class="timeline-title" style="color: var(--color-text-subtle);">Phase 6: Iterative Refinements & Advanced Features <span class="badge badge-gray">Upcoming</span></div>
+                            <div style="font-size: 14px; color: var(--color-text-subtle);">Template Library, Robust API Selector, External Tooling Integrations (GitHub, Vercel), Voice Interfaces.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Chart.js Implementations with Atlassian Colors
+        Chart.defaults.color = '#44546F';
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", "Ubuntu", "Droid Sans", "Helvetica Neue", sans-serif';
+
+        // Executions Chart (Line)
+        const ctxExecutions = document.getElementById('executionsChart').getContext('2d');
+        const gradientBlue = ctxExecutions.createLinearGradient(0, 0, 0, 300);
+        gradientBlue.addColorStop(0, 'rgba(12, 102, 228, 0.2)');
+        gradientBlue.addColorStop(1, 'rgba(12, 102, 228, 0.0)');
+
+        new Chart(ctxExecutions, {
+            type: 'line',
+            data: {
+                labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'],
+                datasets: [{
+                    label: 'Successful Executions',
+                    data: [3200, 4500, 5800, 8100],
+                    borderColor: '#0C66E4',
+                    backgroundColor: gradientBlue,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#FFFFFF',
+                    pointBorderColor: '#0C66E4',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#091E420F', drawBorder: false }
+                    },
+                    x: {
+                        grid: { display: false, drawBorder: false }
+                    }
+                }
+            }
+        });
+
+        // Security Chart (Doughnut)
+        const ctxSecurity = document.getElementById('securityChart').getContext('2d');
+        new Chart(ctxSecurity, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rate Limits', 'Data Sanitization', 'Kill Switch Triggered'],
+                datasets: [{
+                    data: [65, 25, 10],
+                    backgroundColor: [
+                        '#CA3521', // Danger
+                        '#E2B203', // Warning
+                        '#6E5DC6'  // Purple
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Navigation Active State
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: '-30% 0px -70% 0px',
+                threshold: 0
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

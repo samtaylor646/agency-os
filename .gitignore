@@ -74,3 +74,5 @@ server/uploads/*
 !server/uploads/.gitkeep
 
 .mkdocs_src/
+
+.mkdocs_archive_src/

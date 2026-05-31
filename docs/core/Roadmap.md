@@ -50,6 +50,14 @@ This roadmap outlines the strategic plan to build out the Conversational Project
 - **External Tooling Integrations:** Agents automatically provision resources (GitHub repos, Vercel deployments, databases).
 - **Voice Interface:** Voice-to-text input for the initial "Napkin Pitch" project scoping phase.
 
+## Epic: Agentic Project Scaffold Finalization (Completed)
+**Goal:** Extract and harden the core governance and agent structures from AgencyOS into a universal, standalone project starter shell (`agentic-project-scaffold`).
+
+- **Security & Schema Hardening:** Non-root Docker execution, active kill switch integration, API rate limiting, and strict `workspace_id` multi-tenancy standardization.
+- **Rule Codification (JIT Loading):** Strictly enforced Just-In-Time dynamic loading in `.clinerules` to prevent agent bloat.
+- **Surgical Extraction:** Complete separation of the OS Shell (DevContainers, `.roomodes`, `agents/`) from the full-stack application code, resulting in a pristine `agentic-project-scaffold`.
+- **Legal Compliance:** Inclusion of standard Open-Source License, AIGC Terms of Service, and GDPR-compliant Privacy Policy templates.
+
 ## Epic 8: Async Database Refactor (Completed)
 **Goal:** Transition the database layer to asynchronous operations to unblock horizontal scalability.
 
